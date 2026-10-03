@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Wallet Pin</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+	<style>
+		.alert-custom {
+			border-radius: 10px;
+			margin-top: 15px;
+			display: none;
+		}
+		.alert-custom.show {
+			display: block;
+		}
+		.pin-input {
+			letter-spacing: 8px;
+			font-size: 20px;
+			font-weight: 700;
+			text-align: center;
+		}
+		.pin-input::placeholder {
+			letter-spacing: 2px;
+			font-weight: 400;
+		}
+		.btn-submit {
+			background: #4ade80;
+			color: #1a1a2e;
+			border: none;
+			padding: 12px;
+			border-radius: 10px;
+			font-weight: 700;
+			font-size: 16px;
+			width: 100%;
+			transition: all 0.3s;
+			margin-top: 10px;
+		}
+		.btn-submit:hover {
+			background: #22c55e;
+			transform: translateY(-2px);
+			box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+			color: #1a1a2e;
+		}
+		.btn-submit:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+			transform: none;
+		}
+		.spinner {
+			display: none;
+			width: 20px;
+			height: 20px;
+			border: 2px solid rgba(26, 26, 46, 0.2);
+			border-top: 2px solid #1a1a2e;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			margin: 0 auto;
+		}
+		.spinner.active {
+			display: inline-block;
+		}
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+		.pin-hint {
+			font-size: 12px;
+			color: rgba(255,255,255,0.5);
+			margin-top: 5px;
+		}
+
+		/* ============================================================
+		   NOTIFICATION BELL (top navbar)
+		   ============================================================ */
+		.notif-bell-btn {
+			position: relative;
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0;
+			font-size: 17px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s;
+			margin-right: 10px;
+		}
+		.notif-bell-btn:hover {
+			background: rgba(59, 130, 246, 0.18);
+			color: #fff;
+			transform: translateY(-1px);
+		}
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 20px;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+			border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+
+		@keyframes bellPulse {
+			0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+			70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		}
+		.notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+		/* ============================================================
+		   SIDEBAR NOTIFICATION BADGE
+		   ============================================================ */
+		.nav-item .notif-side-badge {
+			margin-left: auto;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			padding: 2px 8px;
+			border-radius: 12px;
+			min-width: 20px;
+			text-align: center;
+			display: none;
+			box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+
+		@media (max-width: 991px) {
+			.notif-bell-btn {
+				width: 38px;
+				height: 38px;
+				font-size: 15px;
+				margin-right: 6px;
+			}
+			.notif-bell-btn .notif-bell-badge {
+				min-width: 18px;
+				height: 18px;
+				font-size: 10px;
+			}
+		}
+
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE FIX
+		   ============================================================ */
+		.sidenav-toggler,
+		.toggle-sidebar,
+		.topbar-toggler,
+		.navbar-toggler {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+			cursor: pointer;
+			pointer-events: auto !important;
+			position: relative;
+			z-index: 20;
+		}
+
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			-webkit-backdrop-filter: blur(4px);
+			backdrop-filter: blur(4px);
+			z-index: 999;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+		.sidebar-backdrop.show {
+			display: block;
+			opacity: 1;
+		}
+		@media (min-width: 992px) {
+			.sidebar-backdrop,
+			.sidebar-backdrop.show { display: none !important; }
+		}
+
+		@media (max-width: 991px) {
+			.sidebar { z-index: 1000 !important; }
+			.sidebar.open {
+				transform: translateX(0) !important;
+				left: 0 !important;
+				visibility: visible !important;
+				pointer-events: auto !important;
+			}
+		}
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+	    <div class="main-header">
+			<!-- Logo Header -->
+    <div class="logo-header" data-background-color="dark2">
+
+        <a href="index.html" class="logo">
+            <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <i class="icon-menu"></i>
+            </span>
+        </button>
+        <button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar" type="button">
+                <i class="icon-menu"></i>
+            </button>
+        </div>
+    </div>
+    <!-- End Logo Header -->
+
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+
+        <div class="container-fluid">
+
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+                <!-- NOTIFICATION BELL -->
+                <li class="nav-item mr-2">
+                    <a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-bell-badge" id="notifBellBadge">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown hidden-caret">
+                    <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <div class="avatar-sm">
+
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                                                    </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user animated fadeIn">
+                        <div class="dropdown-user-scroll scrollbar-outer">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                                                                    <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+
+                                                                            </div>
+                                    <div class="u-text">
+                                        <h4 id="profileName">Loading...</h4>
+                                        <p class="text-muted" id="profileEmail">Loading...</p>
+                                        <a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                <button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+</div>
+		<!-- Sidebar -->
+	    <div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <div class="user">
+                <div class="avatar-sm float-left mr-2">
+
+                    <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+
+                </div>
+                <div class="info">
+                    <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                        <span>
+                            <span id="sidebarFirstName">Loading...</span>
+                            <span class="user-level" id="sidebarLastName">Loading...</span>
+                            <span class="caret"></span>
+                        </span>
+                    </a>
+                    <div class="clearfix"></div>
+
+                    <div class="collapse in" id="collapseExample">
+                        <ul class="nav">
+                            <li>
+                                <a href="profile.html">
+                                    <span class="link-collapse">My Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="password.html">
+                                    <span class="link-collapse">Password</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav nav-primary">
+
+                <li class="nav-item">
+                    <a href="homepage.html">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="deposit.html">
+                        <i class="fas fa-hotel"></i>
+                        <p>Deposit</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="transactions.html">
+                        <i class="fas fa-receipt"></i>
+                        <p>Transactions</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="teslastocks.html">
+                        <i class="fas fa-layer-group"></i>
+                        <p>Tesla Stocks</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-coins"></i>
+                        <p>Investment</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="invest">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="investment-plan.html">
+                                    <span class="sub-item">Investment Plan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="invest.html">
+                                    <span class="sub-item">Invest</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="my-investment.html">
+                                    <span class="sub-item">My Investment</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item active">
+                    <a data-toggle="collapse" href="#withdrawal" aria-expanded="true">
+                        <i class="fas fa-credit-card"></i>
+                        <p>Withdrawal</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse show" id="withdrawal">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="wallet.html">
+                                    <span class="sub-item">Wallet</span>
+                                </a>
+                            </li>
+                            <li class="active">
+                                <a href="wallet-pin.html">
+                                    <span class="sub-item">Wallet Pin</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="withdrawal-request.html">
+                                    <span class="sub-item">Withdrawal Request</span>
+                                </a>
+                            </li>
+                            <!-- NEW: Bank Transfer -->
+                            <li>
+                                <a href="bank-transfer.html">
+                                    <span class="sub-item">Bank Transfer</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="verification.html">
+                        <i class="fas fa-id-card"></i>
+                        <p>Verification</p>
+                    </a>
+                </li>
+
+                <!-- NEW: Upgrade -->
+                <li class="nav-item">
+                    <a href="upgrade.html">
+                        <i class="fas fa-crown"></i>
+                        <p>Upgrade</p>
+                    </a>
+                </li>
+
+                <!-- SIDEBAR NOTIFICATIONS LINK -->
+                <li class="nav-item">
+                    <a href="notifications.html">
+                        <i class="fas fa-bell"></i>
+                        <p>Notifications</p>
+                        <span class="notif-side-badge" id="notifSideBadge">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+                        <i class="fa fa-power-off"></i> Sign Out
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>		
+		<!-- End Sidebar -->
+
+		<!-- Sidebar Backdrop (mobile) -->
+		<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+		<div class="main-panel">
+			<div class="content">
+				<div class="page-inner">
+					<div class="page-header">
+						<h4 class="page-title">Wallet Pin</h4>
+						<ul class="breadcrumbs">
+							<li class="nav-home">
+								<a href="#">
+									<i class="fas fa-lock"></i>
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-header">
+									<h4 class="card-title">Update Wallet Pin</h4>
+									<p class="card-category">Change your 4-digit wallet PIN</p>
+								</div>
+								<div class="card-body">
+									<!-- Alert Messages -->
+									<div id="alertMessage" class="alert alert-custom"></div>
+
+									<form id="updatePinForm">
+										<!-- Current PIN -->
+										<div class="form-group">
+											<label for="current_pin">Current Pin</label>
+											<input type="password" class="form-control pin-input" id="current_pin" placeholder="••••" maxlength="4" minlength="4" required>
+											<small class="pin-hint">Enter your current 4-digit wallet PIN</small>
+										</div>
+
+										<!-- New PIN -->
+										<div class="form-group">
+											<label for="new_pin">New Pin</label>
+											<input type="password" class="form-control pin-input" id="new_pin" placeholder="••••" maxlength="4" minlength="4" required>
+											<small class="pin-hint">Enter a new 4-digit PIN (1000-9999)</small>
+										</div>
+
+										<!-- Confirm New PIN -->
+										<div class="form-group">
+											<label for="confirm_pin">Confirm New Pin</label>
+											<input type="password" class="form-control pin-input" id="confirm_pin" placeholder="••••" maxlength="4" minlength="4" required>
+											<small class="pin-hint">Re-enter your new PIN to confirm</small>
+										</div>
+
+										<!-- Submit Button -->
+										<div class="form-group">
+											<button type="submit" class="btn-submit" id="submitBtn">
+												<span class="spinner" id="loadingSpinner"></span>
+												<span id="btnText">Update Pin</span>
+											</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+	        <footer class="footer">
+    <div class="container-fluid">
+
+        <div class="copyright ml-auto">
+            All Rights Reserved &copy; <span id="myyear"></span> Laravel </a>
+        </div>
+    </div>
+</footer>
+
+<script>
+document.getElementById('myyear').textContent = new Date().getFullYear();
+</script>
+		</div>
+
+	</div>
+
+	<!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        /* ============================================================
+           MOBILE SIDEBAR TOGGLE — explicit handler
+           ============================================================ */
+        (function setupMobileSidebarToggle() {
+            function getSidebar() {
+                return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+            }
+            function getBackdrop() {
+                return document.getElementById("sidebarBackdrop");
+            }
+            function openSidebar() {
+                const sidebar = getSidebar();
+                const backdrop = getBackdrop();
+                if (sidebar) sidebar.classList.add("open");
+                document.body.classList.add("sidebar-open");
+                if (backdrop) backdrop.classList.add("show");
+            }
+            function closeSidebar() {
+                const sidebar = getSidebar();
+                const backdrop = getBackdrop();
+                if (sidebar) sidebar.classList.remove("open");
+                document.body.classList.remove("sidebar-open");
+                if (backdrop) backdrop.classList.remove("show");
+            }
+            function toggleSidebar() {
+                const sidebar = getSidebar();
+                if (!sidebar) return;
+                if (sidebar.classList.contains("open")) closeSidebar();
+                else openSidebar();
+            }
+
+            document.addEventListener("click", function (e) {
+                const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+                if (!btn) return;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                toggleSidebar();
+            }, true);
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const backdrop = getBackdrop();
+                if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+                const sidebar = getSidebar();
+                if (sidebar) {
+                    sidebar.addEventListener("click", function (e) {
+                        const link = e.target.closest("a[href]");
+                        if (!link) return;
+                        if (window.innerWidth <= 991) closeSidebar();
+                    });
+                }
+            });
+
+            window.addEventListener("resize", function () {
+                if (window.innerWidth >= 992) closeSidebar();
+            });
+
+            window.openMobileSidebar   = openSidebar;
+            window.closeMobileSidebar  = closeSidebar;
+            window.toggleMobileSidebar = toggleSidebar;
+        })();
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUserData = null;
+        let currentUserUid = null;
+        let notifListenerRef = null;
+        let notifListener = null;
+        let lastUnreadCount = 0;
+
+        /* ============================================================
+           NOTIFICATION WRITER
+           ------------------------------------------------------------
+           Writes under users/<uid>/notifications/<autoId>
+           Callable anywhere on this page via:
+              writeNotification({ title, message, type, status, amount })
+           ============================================================ */
+        async function writeNotification(payload) {
+            try {
+                const uid = localStorage.getItem('userUid');
+                if (!uid) {
+                    console.warn('[writeNotification] no userUid in localStorage');
+                    return;
+                }
+                const ref = database.ref('users/' + uid + '/notifications').push();
+                await ref.set({
+                    title: String(payload.title || 'Notification').slice(0, 120),
+                    message: String(payload.message || '').slice(0, 500),
+                    type: payload.type || 'info',
+                    status: payload.status || null,
+                    amount: (payload.amount != null && Number.isFinite(Number(payload.amount)))
+                                ? Number(payload.amount)
+                                : null,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    read: false
+                });
+            } catch (e) {
+                console.warn('[writeNotification] failed:', e);
+            }
+        }
+        window.writeNotification = writeNotification;
+
+        /* ============================================================
+           NOTIFICATION LISTENER (bell + sidebar badge)
+           ============================================================ */
+        function attachNotificationListener(uid) {
+            if (notifListenerRef && notifListener) {
+                notifListenerRef.off('value', notifListener);
+                notifListenerRef = null;
+                notifListener = null;
+            }
+            if (!uid) {
+                updateNotifBadges(0);
+                return;
+            }
+            notifListenerRef = database.ref('users/' + uid + '/notifications');
+            notifListener = notifListenerRef.on('value', (snap) => {
+                const data = snap.val() || {};
+                let unread = 0;
+                Object.keys(data).forEach((key) => {
+                    if (key === '_meta' || key === 'settings') return;
+                    const v = data[key];
+                    if (!v || typeof v !== 'object') return;
+                    if (!v.read) unread++;
+                });
+                updateNotifBadges(unread);
+                if (unread > lastUnreadCount) pulseBell();
+                lastUnreadCount = unread;
+            }, (err) => {
+                console.error('Notification listener error:', err);
+            });
+        }
+
+        function updateNotifBadges(count) {
+            const n = Number(count) || 0;
+            const text = n > 99 ? '99+' : String(n);
+
+            const bellBadge = document.getElementById('notifBellBadge');
+            if (bellBadge) {
+                if (n > 0) {
+                    bellBadge.textContent = text;
+                    bellBadge.classList.add('show');
+                } else {
+                    bellBadge.classList.remove('show');
+                }
+            }
+
+            const sideBadge = document.getElementById('notifSideBadge');
+            if (sideBadge) {
+                if (n > 0) {
+                    sideBadge.textContent = text;
+                    sideBadge.classList.add('show');
+                } else {
+                    sideBadge.classList.remove('show');
+                }
+            }
+        }
+
+        function pulseBell() {
+            const btn = document.getElementById('notifBellBtn');
+            if (!btn) return;
+            btn.classList.add('has-new');
+            setTimeout(() => btn.classList.remove('has-new'), 5000);
+        }
+
+        // Show alert function
+        function showAlert(message, type = 'danger') {
+            const alertEl = document.getElementById('alertMessage');
+            alertEl.className = `alert alert-${type} alert-custom show`;
+            alertEl.textContent = message;
+            setTimeout(() => {
+                alertEl.className = 'alert alert-custom';
+            }, 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('alertMessage').className = 'alert alert-custom';
+        }
+
+        // Load user data
+        function loadUserData() {
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log('User logged in:', user.uid);
+
+                let userUid = localStorage.getItem('userUid');
+                if (!userUid) {
+                    userUid = user.uid;
+                }
+
+                database.ref('users/' + userUid).once('value')
+                    .then((snapshot) => {
+                        const userData = snapshot.val();
+                        console.log('User data found:', userData);
+
+                        if (!userData) {
+                            console.error('No user data found for UID:', userUid);
+                            showAlert('User data not found. Please contact support.', 'danger');
+                            return;
+                        }
+
+                        currentUserData = userData;
+                        currentUserUid = userUid;
+
+                        localStorage.setItem('userUid', userUid);
+                        localStorage.setItem('userData', JSON.stringify(userData));
+
+                        updateUI(userData);
+
+                        // Attach notification listener
+                        attachNotificationListener(userUid);
+                    })
+                    .catch((error) => {
+                        console.error('Error loading user data:', error);
+                        showAlert('Error loading user data: ' + error.message, 'danger');
+                    });
+            });
+        }
+
+        function updateUI(userData) {
+            const firstName = userData.first_name || 'User';
+            const lastName = userData.last_name || '';
+            const email = userData.email || '';
+
+            document.getElementById('profileName').textContent = firstName + ' ' + lastName;
+            document.getElementById('profileEmail').textContent = email;
+            document.getElementById('sidebarFirstName').textContent = firstName;
+            document.getElementById('sidebarLastName').textContent = lastName;
+        }
+
+        // Handle logout
+        function handleLogout() {
+            try {
+                if (notifListenerRef && notifListener) {
+                    notifListenerRef.off('value', notifListener);
+                    notifListenerRef = null;
+                    notifListener = null;
+                }
+            } catch (e) {}
+
+            auth.signOut()
+                .then(() => {
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userUid');
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.href = 'login.html';
+                })
+                .catch((error) => {
+                    console.error('Logout error:', error);
+                });
+        }
+
+        // Set up logout buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', handleLogout);
+            }
+        });
+
+        // Initialize
+        loadUserData();
+
+        // Form submission - Update PIN
+        document.getElementById('updatePinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const currentPin = document.getElementById('current_pin').value.trim();
+            const newPin = document.getElementById('new_pin').value.trim();
+            const confirmPin = document.getElementById('confirm_pin').value.trim();
+
+            // Validate all fields are filled
+            if (!currentPin || !newPin || !confirmPin) {
+                showAlert('Please fill in all fields.', 'danger');
+                return;
+            }
+
+            // Validate current PIN length
+            if (currentPin.length !== 4 || !/^\d{4}$/.test(currentPin)) {
+                showAlert('Current PIN must be a 4-digit number.', 'danger');
+                return;
+            }
+
+            // Validate new PIN length
+            if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+                showAlert('New PIN must be a 4-digit number.', 'danger');
+                return;
+            }
+
+            // Validate new PIN is not 0000
+            if (newPin === '0000') {
+                showAlert('PIN cannot be 0000. Please choose a different PIN.', 'danger');
+                return;
+            }
+
+            // Validate new PIN is not sequential
+            if (newPin === '1234' || newPin === '2345' || newPin === '3456' ||
+                newPin === '4567' || newPin === '5678' || newPin === '6789' ||
+                newPin === '7890' || newPin === '9876') {
+                showAlert('Please choose a more secure PIN.', 'danger');
+                return;
+            }
+
+            // Validate PINs match
+            if (newPin !== confirmPin) {
+                showAlert('New PIN and Confirm PIN do not match.', 'danger');
+                return;
+            }
+
+            // Check if user data is loaded
+            if (!currentUserData || !currentUserUid) {
+                showAlert('User data not loaded. Please refresh the page.', 'danger');
+                return;
+            }
+
+            // Get stored PIN from database
+            const storedPin = currentUserData.wallet_pin;
+
+            // Verify current PIN
+            if (currentPin !== storedPin) {
+                showAlert('Current PIN is incorrect. Please try again.', 'danger');
+                return;
+            }
+
+            // Disable button and show loading
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('loadingSpinner');
+            const btnText = document.getElementById('btnText');
+            btn.disabled = true;
+            spinner.classList.add('active');
+            btnText.textContent = 'Updating PIN...';
+
+            // Update the PIN in Firebase
+            database.ref('users/' + currentUserUid + '/wallet_pin').set(newPin)
+                .then(() => {
+                    console.log('PIN updated successfully!');
+
+                    // Update local data
+                    currentUserData.wallet_pin = newPin;
+                    localStorage.setItem('userData', JSON.stringify(currentUserData));
+
+                    showAlert('PIN updated successfully!', 'success');
+
+                    // ============================================================
+                    // NOTIFICATION: Wallet PIN changed
+                    // ============================================================
+                    writeNotification({
+                        title: "Wallet PIN Changed",
+                        message: "Dear User, your wallet PIN has been successfully changed. If this wasn't you, please contact support immediately.",
+                        type: "security",
+                        status: "approved"
+                    });
+
+                    // Reset button
+                    btn.disabled = false;
+                    spinner.classList.remove('active');
+                    btnText.textContent = 'PIN Updated! ✓';
+
+                    // Clear form
+                    document.getElementById('current_pin').value = '';
+                    document.getElementById('new_pin').value = '';
+                    document.getElementById('confirm_pin').value = '';
+
+                    // Reset button text after 3 seconds
+                    setTimeout(() => {
+                        btnText.textContent = 'Update Pin';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    console.error('Error updating PIN:', error);
+                    showAlert('Error updating PIN: ' + error.message, 'danger');
+
+                    // Reset button
+                    btn.disabled = false;
+                    spinner.classList.remove('active');
+                    btnText.textContent = 'Update Pin';
+                });
+        });
+
+        // Input validation - only allow numbers
+        document.querySelectorAll('.pin-input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 4) {
+                    this.value = this.value.slice(0, 4);
+                }
+            });
+        });
+
+        // Auto-advance to next field on 4 digits
+        document.getElementById('current_pin').addEventListener('input', function() {
+            if (this.value.length === 4) {
+                document.getElementById('new_pin').focus();
+            }
+        });
+        document.getElementById('new_pin').addEventListener('input', function() {
+            if (this.value.length === 4) {
+                document.getElementById('confirm_pin').focus();
+            }
+        });
+    </script>
+
+    <!--   Core JS Files   -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery UI -->
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Chart JS -->
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+	<!-- jQuery Sparkline -->
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart Circle -->
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+	<!-- Datatables -->
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+	<!-- Bootstrap Notify -->
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+	<!-- jQuery Vector Maps -->
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+	<!-- Sweet Alert -->
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+	<!-- Atlantis JS -->
+	<script src="../assets/js/atlantis.min.js"></script>
+
+</body>
+</html>

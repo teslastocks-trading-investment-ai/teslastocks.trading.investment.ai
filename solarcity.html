@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zxx" dir="ltr">
+  
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8">
+    <meta name="keywords" content="bitcoin, digital asset, mining">
+    <meta name="description" content="A digital assets website">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f3f5" />
+    <!-- Site Properties -->
+    <title>SolarCity Tesla Public Holdings - A digital asset website </title>
+    <!-- Critical preload -->
+    <link rel="preload" href="js/vendors/uikit.min.js" as="script">
+    <link rel="preload" href="css/vendors/uikit.min.css" as="style">
+    <link rel="preload" href="css/style.css" as="style">
+    <!-- Icon preload -->
+    <link rel="preload" href="fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Font preload -->
+    <link rel="preload" href="fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/inter-v2-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/inter-v2-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Favicon and apple icon -->
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/vendors/uikit.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <!-- SweetAlert CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <!-- preloader begin -->
+    <div class="in-loader">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <!-- preloader end -->
+    <header>
+      <!-- header content begin -->
+      <div class="uk-section uk-padding-remove-vertical in-header-inner uk-background-cover uk-background-top-center" style="background-image: url(img/in-liquid-slide-bg.png);">
+         <nav class="uk-navbar-container" data-uk-sticky="show-on-up: true; animation: uk-animation-slide-top;">
+                <div class="uk-container" data-uk-navbar>
+                    <div class="uk-navbar-left">
+                        <div class="uk-navbar-item">
+                            <!-- logo begin -->
+                            <a class="uk-logo" href="index.html">
+                                <img src="img/in-lazy.gif" data-src="img/logo.png" alt="logo" width="200" data-uk-img>
+                            </a>
+                            <!-- logo end -->
+                            <!-- navigation begin -->
+                            
+  
+                            
+                            <ul class="uk-navbar-nav uk-visible@m" >
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="about.html">About</a></li>
+                                <li><a href="how-to-invest.html">Invest</a></li> 
+                                <li><a href="spacex.html">SpaceX</a></li>
+                                <li><a href="nueralink.html">Nueralink</a></li>
+                                <li><a href="openai.html">OpenAI</a></li>
+                                <li><a href="solarcity.html">SolarCity</a></li>
+                                <li><a href="contact.html">Contact</a></li>
+                                 
+                            </ul>
+                            
+                         
+                            <!-- navigation end -->
+                        </div>
+                    </div>
+                    <div class="uk-navbar-right">
+                        <div class="uk-navbar-item uk-visible@m in-optional-nav">
+                            <a href="signup.html" class="uk-button uk-button-primary uk-border-rounded">JOIN</a>&nbsp;&nbsp;
+                            <a href="javascript:void(0)" id="loginButton" class="uk-button uk-button-info uk-border-rounded">Login <i class="fas fa-user-circle"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+      </div>
+      <!-- header content end -->
+    </header>    <!-- breadcrumb content begin -->
+    <div class="uk-section uk-padding-remove-vertical in-liquid-breadcrumb">
+      <div class="uk-container">
+        <div class="uk-grid">
+          <div class="uk-width-1-1">
+            <ul class="uk-breadcrumb"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- breadcrumb content end -->
+    <main>
+      <!-- section content begin -->
+      <div class="uk-section">
+        <div class="uk-container">
+          <div class="uk-grid">
+            <div class="uk-width-1-1 uk-flex uk-flex-center">
+              <div class="uk-width-3-4@m uk-text-center">
+              
+              <img src="icons/SolarCity-Logo.wine.png"  style="height:120px"/>
+                <h2 class="uk-margin-small-bottom">SolarCity: Revolutionizing <span class="in-highlight">Solar Energy</span></h2>
+                <p class="uk-text-lead uk-text-muted uk-margin-remove">SolarCity is a leading provider of solar energy solutions, founded in 2006 by Lyndon Rive, Peter Rive, and Elon Musk. The company's mission is to accelerate the world's transition to sustainable energy by providing clean, reliable, and affordable solar power solutions. SolarCity has become one of the largest solar energy companies in the United States, with a presence in over 20 states.</p>
+              </div>
+            </div>
+         
+          </div>
+        </div>
+      </div>
+      <!-- section content end -->
+      <!-- section content begin -->
+      <div class="uk-section in-offset-top-40 in-offset-bottom-20">
+        <div class="uk-container">
+          <div class="uk-grid">
+            <div class="uk-width-1-1">
+              <div class="uk-card uk-card-default uk-border-rounded uk-background-center uk-background-contain uk-background-image@m" style="background-image: url(img/in-team-background-1.png);" data-uk-parallax="bgy: -100">
+                <div class="uk-card-body">
+                  <div class="uk-grid uk-flex uk-flex-center">
+                    <div class="uk-width-3-4@m uk-text-center">
+                     
+ 
+ 
+ <h2>Innovative Solar Solutions</h2>
+<p style="text-align: justify;">SolarCity offers a range of innovative solar solutions for residential, commercial, and government customers. The company's solar panel systems are designed to provide clean energy, reduce energy bills, and increase energy independence. SolarCity's solutions include solar panel installation, energy storage, and solar financing options, making it easier for customers to go solar.</p>
+<h2>Energy Storage and Microgrids</h2>
+<p style="text-align: justify;">SolarCity is also a leader in energy storage and microgrid solutions. The company's energy storage systems, such as the Tesla Powerwall, allow customers to store excess energy generated by their solar panels and use it during power outages or at night. SolarCity's microgrid solutions provide reliable and efficient energy to communities, businesses, and institutions.</p>
+<h2>Sustainability and Community</h2>
+<p style="text-align: justify;">SolarCity is committed to sustainability and community development. The company's solar energy solutions help reduce greenhouse gas emissions, promote energy independence, and create jobs in the solar industry. SolarCity also partners with local communities to provide education, training, and economic opportunities related to solar energy.</p>
+<h2>Acquisition by Tesla</h2>
+<p style="text-align: justify;">In 2016, SolarCity was acquired by Tesla, Inc., a leading electric vehicle and clean energy company. The acquisition has enabled SolarCity to leverage Tesla's expertise in energy storage and electric vehicles, further accelerating the adoption of solar energy solutions.</p>
+                      
+                        
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- section content end -->
+      <!-- section content begin -->
+      
+      <!-- section content end -->
+    </main>
+       <footer>
+        <!-- footer content begin -->
+        <div class="uk-section uk-section-secondary in-footer-feature uk-margin-medium-top">
+            <div class="uk-container">
+                <div class="uk-grid uk-flex uk-flex-center">
+                    <div class="uk-width-5-6@m">
+                        <div class="uk-grid uk-child-width-1-3@s" data-uk-grid>
+                            <div class="uk-flex uk-flex-middle">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-history in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">3 years of Excellence</h6>
+                                </div>
+                            </div>
+                            <div class="uk-flex uk-flex-middle uk-flex-center@m">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-trophy in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">6+ Global Awards</h6>
+                                </div>
+                            </div>
+                            <div class="uk-flex uk-flex-middle uk-flex-right@m">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-phone-alt in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">24/7 Customer Support</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="uk-section uk-background-secondary uk-light">
+            <div class="uk-container uk-text-small">
+                <div class="uk-child-width-1-2@m" data-uk-grid>
+                    <div class="in-footer-logo">
+                        <img src="img/in-lazy.gif" data-src="img/logo.png" alt="logo" width="250" data-uk-img>
+                    </div>
+                    <div class="uk-flex uk-flex-right@m">
+                        <a class="uk-button uk-button-text uk-margin-large-left uk-visible@m" href="how-to-invest.html">Learn how it works</a>
+                    </div>
+                </div>
+                <div class="uk-child-width-1-2@s uk-child-width-1-4@m uk-margin-large-top" data-uk-grid>
+                    <div>
+                        <h5>Overview</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="mine-crypto.html">Mine Crypto</a></li>
+                            <li><a href="how-to-invest.html">Invest in Crypto</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Company</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Legal</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="privacy.html">Privacy & Policy</a></li>
+                            <li><a href="terms.html">Terms and Conditions</a></li>
+                           
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Members</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="javascript:void(0)" id="footerLoginBtn">Login</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="uk-grid uk-margin-large-top">
+                    <div class="uk-width-1-1">
+                        <p class="uk-heading-line uk-margin-large-bottom"><span>Copyright ©2025 Tesla Public Holdings. All Rights Reserved.</span></p>
+                        <p class="in-trading-risk">Investing carries a high level of risk. At Tesla Public Holdings we do our best to reduce risks by acting as the intermediary between you as the investor and the market. Investing has never been easier.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- footer content end -->
+        <!-- totop begin -->
+        <div class="uk-visible@m">
+            <a href="#" class="in-totop fas fa-chevron-up" data-uk-scroll></a>
+        </div>
+        <!-- totop end -->
+    </footer>
+    <!-- Javascript -->
+    <script src="js/vendors/uikit.min.js"></script>
+    <script src="js/vendors/blockit.min.js"></script>
+    <script src="js/config-theme.js"></script>
+
+<!-- Smartsupp Live Chat script -->
+<script type="text/javascript">
+var _smartsupp = _smartsupp || {};
+_smartsupp.key = 'face2a272a812a984c82e4dc80bf928dab1d5509';
+window.smartsupp||(function(d) {
+  var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+  s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+  c.type='text/javascript';c.charset='utf-8';c.async=true;
+  c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+})(document);
+</script>
+<noscript> Powered by <a href="https://www.smartsupp.com" target="_blank">Smartsupp</a></noscript> 
+
+<script>
+// ============================================================
+// FIREBASE CONFIGURATION
+// ============================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+    authDomain: "elon-54b86.firebaseapp.com",
+    databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+    projectId: "elon-54b86",
+    storageBucket: "elon-54b86.firebasestorage.app",
+    messagingSenderId: "78755255517",
+    appId: "1:78755255517:web:65af61b0c573589ec0f734",
+    measurementId: "G-R4SQFCQPFP"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
+
+// ============================================================
+// CHECK AUTH STATE - Update UI if user is logged in
+// ============================================================
+auth.onAuthStateChanged((user) => {
+    // Check if user data exists in localStorage
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userData = localStorage.getItem('userData');
+    
+    if (isLoggedIn === 'true' && userData) {
+        // User is logged in - update login button
+        const loginBtn = document.getElementById('loginButton');
+        const footerLoginBtn = document.getElementById('footerLoginBtn');
+        
+        if (loginBtn) {
+            loginBtn.innerHTML = 'Dashboard <i class="fas fa-user-circle"></i>';
+            loginBtn.href = 'javascript:void(0)';
+            loginBtn.onclick = function(e) {
+                e.preventDefault();
+                window.location.href = 'homepage.html';
+            };
+        }
+        if (footerLoginBtn) {
+            footerLoginBtn.textContent = 'Dashboard';
+            footerLoginBtn.href = 'javascript:void(0)';
+            footerLoginBtn.onclick = function(e) {
+                e.preventDefault();
+                window.location.href = 'homepage.html';
+            };
+        }
+    } else {
+        // User is logged out - ensure login buttons show login
+        const loginBtn = document.getElementById('loginButton');
+        const footerLoginBtn = document.getElementById('footerLoginBtn');
+        
+        if (loginBtn) {
+            loginBtn.innerHTML = 'Login <i class="fas fa-user-circle"></i>';
+            loginBtn.href = 'javascript:void(0)';
+            loginBtn.onclick = function(e) {
+                e.preventDefault();
+                showLoginModal();
+            };
+        }
+        if (footerLoginBtn) {
+            footerLoginBtn.textContent = 'Login';
+            footerLoginBtn.href = 'javascript:void(0)';
+            footerLoginBtn.onclick = function(e) {
+                e.preventDefault();
+                showLoginModal();
+            };
+        }
+    }
+});
+
+// ============================================================
+// LOGIN FUNCTION - Check credentials directly in RTDB
+// ============================================================
+function showLoginModal() {
+    Swal.fire({
+        title: '<img src="icons/640px-Tesla_T_symbol.png" style="height:60px"/> Login',
+        html:
+            '<input id="swal-email" class="swal2-input" placeholder="Email" name="email" type="email">' +
+            '<input id="swal-password" class="swal2-input" placeholder="Password" type="password" name="password">' +
+            '<div style="margin-top:10px; text-align:center;">' +
+            '<a href="javascript:void(0)" id="forgotPasswordLink" style="color: #3498db; font-size:14px;">Forgot Password?</a>' +
+            '</div>' +
+            '<div style="margin-top:8px; text-align:center; font-size:13px; color: #7f8c8d;">' +
+            "Don't have an account? <a href='signup.html' style='color: #3498db;'>Register here</a>" +
+            '</div>',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            const email = document.getElementById('swal-email').value.trim();
+            const password = document.getElementById('swal-password').value;
+            
+            if (!email || !password) {
+                Swal.showValidationMessage('Please enter both email and password');
+                return false;
+            }
+            
+            if (password.length < 6) {
+                Swal.showValidationMessage('Password must be at least 6 characters.');
+                return false;
+            }
+            
+            // First, sign in anonymously to get access to the database
+            return auth.signInAnonymously()
+                .then((userCredential) => {
+                    console.log('Anonymous user signed in for verification');
+                    // Now we can query the database
+                    return database.ref('users').orderByChild('email').equalTo(email).once('value');
+                })
+                .then((snapshot) => {
+                    const users = snapshot.val();
+                    if (!users) {
+                        throw new Error('Incorrect email or password. Please try again or register.');
+                    }
+                    
+                    // Check each user (there should only be one with this email)
+                    for (let uid in users) {
+                        const userData = users[uid];
+                        if (userData.password === password) {
+                            // Credentials match!
+                            return { uid: uid, data: userData };
+                        }
+                    }
+                    
+                    throw new Error('Incorrect email or password. Please try again or register.');
+                })
+                .then((result) => {
+                    // Credentials found! Now fetch the full user data
+                    return database.ref('users/' + result.uid).once('value');
+                })
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    
+                    if (!userData) {
+                        throw new Error('User data not found after login.');
+                    }
+
+                    // Prepare user data to pass to homepage
+                    const userInfo = {
+                        uid: auth.currentUser ? auth.currentUser.uid : 'unknown',
+                        email: userData.email || email,
+                        first_name: userData.first_name || 'User',
+                        last_name: userData.last_name || '',
+                        phone_number: userData.phone_number || '',
+                        country: userData.country || '',
+                        balance: userData.balance || 0,
+                        created_at: userData.created_at || new Date().toISOString()
+                    };
+
+                    // Store user data in localStorage to persist across pages
+                    localStorage.setItem('userData', JSON.stringify(userInfo));
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', userInfo.email);
+                    localStorage.setItem('userUid', userInfo.uid);
+
+                    return true;
+                })
+                .catch((error) => {
+                    console.error('Login error:', error);
+                    
+                    let errorMessage = 'Login failed. ';
+                    
+                    if (error.message.includes('Incorrect email or password')) {
+                        errorMessage = '❌ Incorrect email or password. Please try again or register.';
+                    } else if (error.code === 'auth/operation-not-allowed') {
+                        errorMessage = '⚠️ Anonymous sign-in is not enabled. Please enable it in the Firebase Console.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        errorMessage = 'Network error. Please check your internet connection.';
+                    } else if (error.message.includes('permission_denied')) {
+                        errorMessage = '⚠️ Database permission error. Please check your Firebase Realtime Database rules.';
+                    } else {
+                        errorMessage += error.message;
+                    }
+                    
+                    Swal.showValidationMessage(errorMessage);
+                    return false;
+                });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            // Login successful
+            Swal.fire({
+                title: 'Welcome Back!',
+                text: 'Redirecting to your dashboard...',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = 'homepage.html';
+            });
+        }
+    });
+}
+
+// ============================================================
+// FORGOT PASSWORD FUNCTION
+// ============================================================
+function showForgotPassword() {
+    Swal.fire({
+        title: 'Reset Password',
+        html:
+            '<input id="reset-email" class="swal2-input" placeholder="Enter your email" type="email">' +
+            '<div style="margin-top:8px; font-size:12px; color: #7f8c8d; text-align:center;">Please enter the email you used to register.</div>',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Send Reset Link',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+            const email = document.getElementById('reset-email').value.trim();
+            
+            if (!email) {
+                Swal.showValidationMessage('Please enter your email address');
+                return false;
+            }
+            
+            if (!email.includes('@')) {
+                Swal.showValidationMessage('Please enter a valid email address.');
+                return false;
+            }
+            
+            // Check if email exists in database
+            return database.ref('users').orderByChild('email').equalTo(email).once('value')
+                .then((snapshot) => {
+                    const users = snapshot.val();
+                    if (!users) {
+                        throw new Error('No account found with this email address.');
+                    }
+                    
+                    // Generate a reset token (in a real app, you'd send an email)
+                    // For this demo, we'll just show a success message
+                    return true;
+                })
+                .catch((error) => {
+                    Swal.showValidationMessage(error.message || 'Failed to send reset email.');
+                    return false;
+                });
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value) {
+            Swal.fire({
+                title: 'Reset Link Sent!',
+                text: 'Check your email for password reset instructions. (Demo: Please contact support for password reset.)',
+                icon: 'success',
+                confirmButtonColor: '#3498db'
+            });
+        }
+    });
+}
+
+// ============================================================
+// LOGOUT FUNCTION
+// ============================================================
+function handleLogout() {
+    // Clear localStorage
+    localStorage.removeItem('userData');
+    localStorage.removeItem('userUid');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('isLoggedIn');
+    
+    // Sign out from Firebase
+    auth.signOut()
+        .then(() => {
+            Swal.fire({
+                title: 'Logged Out',
+                text: 'You have been successfully logged out.',
+                icon: 'info',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                location.reload();
+            });
+        })
+        .catch((error) => {
+            console.error('Logout error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to logout. Please try again.',
+                icon: 'error'
+            });
+        });
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+// Forgot password link (delegated event)
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'forgotPasswordLink') {
+        e.preventDefault();
+        Swal.close(); // Close the login modal
+        showForgotPassword();
+    }
+});
+
+console.log('✅ Firebase authentication integrated successfully');
+console.log('📋 Using RTDB credential checking (same as login page)');
+
+// ============================================================
+// 🚀 FIX: Intercept ALL login links (desktop, footer, mobile nav drawer, etc.)
+// ============================================================
+(function() {
+    'use strict';
+
+    // Helper: check if an anchor is a login link (by ID, text, or href)
+    function isLoginLink(el) {
+        if (!el || el.tagName !== 'A') return false;
+
+        const href = (el.getAttribute('href') || '').toLowerCase();
+        const text = (el.textContent || '').trim().toLowerCase();
+
+        // Match by known IDs
+        if (el.id === 'loginButton' || el.id === 'footerLoginBtn') return true;
+
+        // Match by text content (exact "login" or contains "login")
+        if (text === 'login' || text.includes('login')) return true;
+
+        // Match by href – catches any tslpa.com redirect or login-related path
+        if (href.includes('tslpa.com') || href.includes('app.tslpa.com') || href.includes('/login') ||
+            href === '#login' || href === 'login.html') {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Main click interceptor – runs in the CAPTURE phase (before any other handlers)
+    document.addEventListener('click', function(e) {
+        // Find the nearest anchor element
+        const anchor = e.target.closest('a');
+        if (!anchor) return;
+
+        // Check if this anchor is a login link
+        if (!isLoginLink(anchor)) return;
+
+        // --- Intercept! ---
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        // Determine next action based on login state
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+        if (isLoggedIn) {
+            // Already logged in → go to dashboard
+            window.location.href = 'homepage.html';
+        } else {
+            // Show the login modal
+            if (typeof showLoginModal === 'function') {
+                showLoginModal();
+            } else {
+                // Ultimate fallback – redirect to login page
+                console.warn('⚠️ showLoginModal not available, redirecting to login.html');
+                window.location.href = 'login.html';
+            }
+        }
+
+        return false;
+
+    }, true); // <-- capture phase is CRITICAL to beat the rogue handler
+
+    // Also explicitly override any inline onclick on known buttons as a safety net
+    document.addEventListener('DOMContentLoaded', function() {
+        const knownButtons = document.querySelectorAll('#loginButton, #footerLoginBtn');
+        knownButtons.forEach(function(btn) {
+            // Override .onclick to always use our interceptor logic
+            btn.onclick = function(e) {
+                // The capture-phase listener will already handle it,
+                // but we ensure it doesn't do anything unwanted here.
+                e.preventDefault();
+                return false;
+            };
+        });
+
+        console.log('✅ Universal login link interceptor active (SolarCity page)');
+    });
+
+})();
+</script>
+
+</body>
+</html>

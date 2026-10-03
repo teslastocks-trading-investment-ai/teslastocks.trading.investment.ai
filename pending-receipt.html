@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Pending Transfer Receipt</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() { sessionStorage.fonts = true; }
+		});
+	</script>
+
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
+
+	<style>
+		/* ============================================================
+		   PAGE SCROLLING  (same logic as homepage.html)
+		   ------------------------------------------------------------
+		   The document itself is the ONLY scroll container.
+		   Every layout wrapper that Atlantis otherwise locks to the
+		   viewport (100vh / min-height:100vh / nested overflow) is
+		   forced back to natural, content-driven height.
+		   ============================================================ */
+		html, body {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow-x: hidden !important;
+			overflow-y: auto !important;
+		}
+		.wrapper, .main-panel, .content {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow: visible !important;
+		}
+		.content > .panel-header,
+		.content > .panel-header:first-child {
+			margin-top: 0 !important;
+		}
+
+		/* ---- One scroll container only: the viewport ------------ */
+		html {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior-x: none;
+		}
+		@supports (overflow: clip) {
+			html {
+				overflow-x: clip !important;
+				overflow-y: auto !important;
+			}
+			body {
+				overflow-x: clip !important;
+				overflow-y: visible !important;
+			}
+		}
+		html.cw-lock,
+		body.cw-lock {
+			overflow: hidden !important;
+		}
+
+		/* Momentum + no scroll chaining on inner scroll areas */
+		.sidebar-wrapper,
+		.dropdown-user-scroll {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+		}
+
+		.bg-dark-gradient { background: linear-gradient(145deg, #1a2540, #0b0f1a) !important; }
+
+		/* ============================================================
+		   RECEIPT
+		   ============================================================ */
+		.rcpt-wrap { max-width: 720px; margin: 0 auto; }
+		.rcpt-card {
+			background: #111a2b;
+			border: 1px solid #1f2c44;
+			border-radius: 12px;
+			overflow: hidden;
+		}
+		.rcpt-top {
+			padding: 28px 24px 20px;
+			background: linear-gradient(145deg, #16213a, #0d1526);
+			border-bottom: 1px solid #1f2c44;
+			text-align: center;
+		}
+		.rcpt-icon {
+			width: 68px; height: 68px; border-radius: 50%;
+			background: linear-gradient(145deg, #f59e0b, #d97706);
+			color: #fff; font-size: 28px;
+			display: inline-flex; align-items: center; justify-content: center;
+			margin-bottom: 14px;
+		}
+		.rcpt-title { color: #f1f5f9; font-weight: 700; font-size: 19px; margin: 0; letter-spacing: 0.2px; }
+		.rcpt-sub { color: #94a3b8; font-size: 13px; margin: 6px 0 0; line-height: 1.5; }
+
+		.rcpt-body { padding: 22px 24px 24px; }
+
+		/* Prominent top alert */
+		.rcpt-alert {
+			display: flex; align-items: flex-start; gap: 12px;
+			background: rgba(245,158,11,0.10);
+			border: 1px solid rgba(245,158,11,0.35);
+			border-left: 4px solid #f59e0b;
+			border-radius: 8px;
+			padding: 14px 16px;
+			margin-bottom: 20px;
+		}
+		.rcpt-alert .alert-icon {
+			flex-shrink: 0;
+			width: 34px; height: 34px; border-radius: 50%;
+			background: rgba(245,158,11,0.20);
+			color: #fbbf24; font-size: 15px;
+			display: flex; align-items: center; justify-content: center;
+		}
+		.rcpt-alert .alert-content { flex: 1; min-width: 0; }
+		.rcpt-alert .alert-title {
+			color: #fbbf24; font-size: 12.5px; font-weight: 800;
+			text-transform: uppercase; letter-spacing: 0.6px;
+			margin: 0 0 4px;
+		}
+		.rcpt-alert .alert-text {
+			color: #cbd5e1; font-size: 13px; line-height: 1.55; margin: 0;
+		}
+		.rcpt-alert .alert-text strong { color: #fff; font-weight: 700; }
+
+		.rcpt-amount {
+			background: #0b1220;
+			border: 1px solid #223049;
+			border-radius: 10px;
+			padding: 16px 18px; margin: 0 0 18px;
+			display: flex; justify-content: space-between; align-items: center;
+		}
+		.rcpt-amount .lab {
+			color: #94a3b8; font-size: 12px; font-weight: 700;
+			text-transform: uppercase; letter-spacing: 0.6px;
+		}
+		.rcpt-amount .amt { color: #60a5fa; font-size: 22px; font-weight: 800; letter-spacing: 0.3px; }
+
+		.rcpt-row {
+			display: flex; justify-content: space-between; align-items: flex-start;
+			padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.06);
+			gap: 16px;
+		}
+		.rcpt-row:last-of-type { border-bottom: none; }
+		.rcpt-row .lbl {
+			color: #94a3b8; font-size: 12.5px; font-weight: 600;
+			text-transform: uppercase; letter-spacing: 0.4px;
+		}
+		.rcpt-row .val {
+			color: #e2e8f0; font-size: 14px; font-weight: 700;
+			text-align: right; word-break: break-word; max-width: 62%;
+		}
+		.rcpt-row .val.mono {
+			font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+			font-size: 13px;
+		}
+
+		.status-pill {
+			display: inline-flex; align-items: center; gap: 6px;
+			background: rgba(245,158,11,0.12);
+			border: 1px solid rgba(245,158,11,0.4);
+			color: #fbbf24; font-size: 11.5px; font-weight: 700;
+			padding: 5px 12px; border-radius: 20px;
+			text-transform: uppercase; letter-spacing: 0.6px;
+		}
+
+		.rcpt-cta {
+			margin-top: 22px;
+			display: flex; flex-direction: column; gap: 10px;
+		}
+		.rcpt-btn {
+			display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+			padding: 13px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;
+			border: none; cursor: pointer; text-decoration: none;
+			transition: background 0.15s, transform 0.15s;
+			letter-spacing: 0.2px;
+		}
+		.rcpt-btn-primary {
+			background: #3b82f6;
+			color: #fff;
+		}
+		.rcpt-btn-primary:hover { background: #2563eb; color: #fff; text-decoration: none; }
+		.rcpt-btn-ghost {
+			background: rgba(255,255,255,0.05);
+			color: #cbd5e1;
+			border: 1px solid rgba(255,255,255,0.08);
+		}
+		.rcpt-btn-ghost:hover { background: rgba(255,255,255,0.10); color: #fff; text-decoration: none; }
+
+		.rcpt-loading {
+			text-align: center; padding: 60px 20px;
+			color: #94a3b8; font-size: 13.5px;
+		}
+		.rcpt-loading .spinner {
+			width: 40px; height: 40px; border-radius: 50%;
+			border: 3px solid rgba(255,255,255,0.08);
+			border-top-color: #3b82f6;
+			animation: spin 0.9s linear infinite;
+			margin: 0 auto 18px;
+		}
+		@keyframes spin { to { transform: rotate(360deg); } }
+
+		@media (max-width: 575px) {
+			.rcpt-body { padding: 18px 16px 22px; }
+			.rcpt-top { padding: 22px 16px 16px; }
+			.rcpt-amount { flex-direction: column; align-items: flex-start; gap: 6px; }
+			.rcpt-row .val { max-width: 55%; font-size: 13px; }
+			.rcpt-alert { padding: 12px 14px; gap: 10px; }
+			.rcpt-alert .alert-icon { width: 30px; height: 30px; font-size: 13px; }
+			.rcpt-alert .alert-text { font-size: 12.5px; }
+		}
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+		<!-- NAVBAR -->
+		<div class="main-header">
+			<div class="logo-header" data-background-color="dark2">
+				<a href="index.html" class="logo">
+					<img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+				</a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
+				</button>
+				<button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+				<div class="nav-toggle">
+					<button class="btn btn-toggle toggle-sidebar"><i class="icon-menu"></i></button>
+				</div>
+			</div>
+			<nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+				<div class="container-fluid">
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						<li class="nav-item dropdown hidden-caret">
+							<a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+								<div class="avatar-sm">
+									<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+								</div>
+							</a>
+							<ul class="dropdown-menu dropdown-user animated fadeIn">
+								<div class="dropdown-user-scroll scrollbar-outer">
+									<li>
+										<div class="user-box">
+											<div class="avatar-lg">
+												<img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+											</div>
+											<div class="u-text">
+												<h4 id="profileName">Loading...</h4>
+												<p class="text-muted" id="profileEmail">Loading...</p>
+												<a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="dropdown-divider"></div>
+										<button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+											<i class="fas fa-sign-out-alt"></i> Logout
+										</button>
+									</li>
+								</div>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+
+		<!-- SIDEBAR -->
+		<div class="sidebar sidebar-style-2" data-background-color="dark2">
+			<div class="sidebar-wrapper scrollbar scrollbar-inner">
+				<div class="sidebar-content">
+					<div class="user">
+						<div class="avatar-sm float-left mr-2">
+							<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+						</div>
+						<div class="info">
+							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+								<span>
+									<span id="sidebarFirstName">Loading...</span>
+									<span class="user-level" id="sidebarLastName">Loading...</span>
+									<span class="caret"></span>
+								</span>
+							</a>
+							<div class="clearfix"></div>
+							<div class="collapse in" id="collapseExample">
+								<ul class="nav">
+									<li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+									<li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<ul class="nav nav-primary">
+						<li class="nav-item"><a href="homepage.html"><i class="fas fa-home"></i><p>Dashboard</p></a></li>
+						<li class="nav-item"><a href="deposit.html"><i class="fas fa-hotel"></i><p>Deposit</p></a></li>
+						<li class="nav-item"><a href="transactions.html"><i class="fas fa-receipt"></i><p>Transactions</p></a></li>
+						<li class="nav-item"><a href="stocks.html"><i class="fas fa-layer-group"></i><p>Tesla Stocks</p></a></li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+								<i class="fas fa-coins"></i><p>Investment</p><span class="caret"></span>
+							</a>
+							<div class="collapse" id="invest">
+								<ul class="nav nav-collapse">
+									<li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+									<li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+									<li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#withdrawal" aria-expanded="true">
+								<i class="fas fa-credit-card"></i><p>Withdrawal</p><span class="caret"></span>
+							</a>
+							<div class="collapse show" id="withdrawal">
+								<ul class="nav nav-collapse">
+									<li><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+									<li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+									<li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+									<li class="active"><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item"><a href="verification.html"><i class="fas fa-id-card"></i><p>Verification</p></a></li>
+						<li class="nav-item"><a href="notifications.html"><i class="fas fa-bell"></i><p>Notifications</p></a></li>
+						<li class="nav-item">
+							<button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+								<i class="fa fa-power-off"></i> Sign Out
+							</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<!-- MAIN -->
+		<div class="main-panel">
+			<div class="content">
+				<div class="panel-header bg-dark-gradient">
+					<div class="page-inner py-4">
+						<h2 class="text-white fw-bold mb-0" style="margin:0">Pending Transfer Receipt</h2>
+						<p class="text-white op-7 mb-0" style="margin:4px 0 0">Your transfer request has been received and is currently under review.</p>
+					</div>
+				</div>
+
+				<div class="page-inner mt--4">
+					<div class="rcpt-wrap">
+						<div class="rcpt-card" id="rcptCard">
+							<div class="rcpt-loading" id="rcptLoading">
+								<div class="spinner"></div>
+								Loading receipt…
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="copyright ml-auto">
+						All Rights Reserved &copy; <span id="myyear"></span> Laravel
+					</div>
+				</div>
+			</footer>
+			<script>document.getElementById('myyear').textContent = new Date().getFullYear();</script>
+		</div>
+	</div>
+
+	<!-- Firebase -->
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+	<!-- Core JS -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<script src="../assets/js/atlantis.min.js"></script>
+
+	<script>
+	const firebaseConfig = {
+		apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+		authDomain: "elon-54b86.firebaseapp.com",
+		databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+		projectId: "elon-54b86",
+		storageBucket: "elon-54b86.firebasestorage.app",
+		messagingSenderId: "78755255517",
+		appId: "1:78755255517:web:65af61b0c573589ec0f734",
+		measurementId: "G-R4SQFCQPFP"
+	};
+	firebase.initializeApp(firebaseConfig);
+	const auth = firebase.auth();
+	const database = firebase.database();
+
+	const $ = (id) => document.getElementById(id);
+
+	function escapeHTML(v) {
+		return String(v ?? "")
+			.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+	}
+	function fmtMoney(n) {
+		const x = Number(n || 0);
+		return "USD " + x.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	}
+	function fmtDate(iso) {
+		try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
+	}
+
+	/* -------- hydrate profile fields -------- */
+	function hydrateProfile() {
+		try {
+			const raw = localStorage.getItem("userData");
+			if (!raw) return;
+			const p = JSON.parse(raw);
+			$("profileName").textContent  = (p.first_name || "User") + " " + (p.last_name || "");
+			$("profileEmail").textContent = p.email || "";
+			$("sidebarFirstName").textContent = p.first_name || "User";
+			$("sidebarLastName").textContent  = p.last_name || "";
+		} catch(e){}
+	}
+
+	/* -------- logout -------- */
+	function handleLogout() {
+		auth.signOut().then(() => {
+			localStorage.removeItem("userData"); localStorage.removeItem("userUid"); localStorage.removeItem("isLoggedIn");
+			window.location.href = "login.html";
+		}).catch(() => {});
+	}
+	document.addEventListener("DOMContentLoaded", () => {
+		const lb = $("logoutBtn"); if (lb) lb.addEventListener("click", handleLogout);
+		const sb = $("sidebarLogoutBtn"); if (sb) sb.addEventListener("click", handleLogout);
+		hydrateProfile();
+	});
+
+	/* -------- load receipt -------- */
+	const params = new URLSearchParams(window.location.search);
+	const transferId = params.get("id");
+
+	function renderMissing(msg) {
+		$("rcptCard").innerHTML =
+			'<div class="rcpt-loading" style="padding:60px 20px">' +
+				'<div class="rcpt-icon" style="background:linear-gradient(145deg,#ef4444,#b91c1c)"><i class="fas fa-exclamation-triangle"></i></div>' +
+				'<h5 class="text-white mt-3 mb-1">Receipt Unavailable</h5>' +
+				'<p style="color:#94a3b8;margin:0 0 18px">' + escapeHTML(msg) + '</p>' +
+				'<a href="bank-transfer.html" class="rcpt-btn rcpt-btn-primary" style="max-width:240px;margin:0 auto"><i class="fas fa-arrow-left"></i> Back to Transfer</a>' +
+			'</div>';
+	}
+
+	function renderReceipt(transfer) {
+		const amount = fmtMoney(transfer.amount);
+		const status = String(transfer.status || "pending").toLowerCase();
+		const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+
+		$("rcptCard").innerHTML =
+			'<div class="rcpt-top">' +
+				'<div class="rcpt-icon"><i class="fas fa-clock"></i></div>' +
+				'<h3 class="rcpt-title">Transfer Submitted Successfully</h3>' +
+				'<p class="rcpt-sub">Your transaction has been recorded and is pending administrative review.</p>' +
+			'</div>' +
+			'<div class="rcpt-body">' +
+
+				/* ---- Prominent alert at the TOP ---- */
+				'<div class="rcpt-alert">' +
+					'<div class="alert-icon"><i class="fas fa-info-circle"></i></div>' +
+					'<div class="alert-content">' +
+						'<p class="alert-title">Pending Withdrawal</p>' +
+						'<p class="alert-text">For additional information regarding this pending withdrawal, please contact our <strong>live customer support</strong> team via the chat widget.</p>' +
+					'</div>' +
+				'</div>' +
+
+				'<div class="rcpt-amount">' +
+					'<span class="lab">Transfer Amount</span>' +
+					'<span class="amt">' + amount + '</span>' +
+				'</div>' +
+
+				'<div class="rcpt-row"><span class="lbl">Status</span><span class="val"><span class="status-pill"><i class="fas fa-hourglass-half"></i> ' + escapeHTML(statusLabel) + '</span></span></div>' +
+				'<div class="rcpt-row"><span class="lbl">Provider</span><span class="val">' + escapeHTML(transfer.bank || "—") + '</span></div>' +
+				'<div class="rcpt-row"><span class="lbl">Destination Account</span><span class="val mono">' + escapeHTML(transfer.account_number || "—") + '</span></div>' +
+				'<div class="rcpt-row"><span class="lbl">Reference ID</span><span class="val mono">' + escapeHTML(transfer.transfer_id || "—") + '</span></div>' +
+				'<div class="rcpt-row"><span class="lbl">Transaction Date</span><span class="val">' + escapeHTML(fmtDate(transfer.date || transfer.created_at || new Date().toISOString())) + '</span></div>' +
+				'<div class="rcpt-row"><span class="lbl">Account Holder</span><span class="val">' + escapeHTML(transfer.user_name || transfer.user_email || "—") + '</span></div>' +
+
+				'<div class="rcpt-cta">' +
+					'<a href="bank-transfer.html" class="rcpt-btn rcpt-btn-primary"><i class="fas fa-plus"></i> Make Another Transfer</a>' +
+					'<a href="homepage.html" class="rcpt-btn rcpt-btn-ghost"><i class="fas fa-home"></i> Back to Dashboard</a>' +
+				'</div>' +
+			'</div>';
+	}
+
+	function loadReceipt() {
+		if (!transferId) { renderMissing("No transfer reference was provided."); return; }
+
+		let uid = null;
+		try { uid = localStorage.getItem("userUid"); } catch(e){}
+		const authUser = auth.currentUser;
+		if (!uid && authUser) uid = authUser.uid;
+
+		if (!uid) {
+			setTimeout(() => {
+				const u = auth.currentUser;
+				const uid2 = u ? u.uid : (function(){ try { return localStorage.getItem("userUid"); } catch(e){ return null; } })();
+				if (!uid2) { renderMissing("You are not signed in. Please log in and try again."); return; }
+				fetchTransfer(uid2);
+			}, 600);
+			return;
+		}
+		fetchTransfer(uid);
+	}
+
+	function fetchTransfer(uid) {
+		database.ref("users/" + uid + "/bank_transfers/" + transferId).once("value")
+			.then((snap) => {
+				const data = snap.val();
+				if (!data) { renderMissing("We couldn't find this transfer on your account."); return; }
+				renderReceipt(data);
+			})
+			.catch((err) => {
+				console.error("Failed to load transfer:", err);
+				renderMissing("There was a problem loading your receipt. Please try again.");
+			});
+	}
+
+	auth.onAuthStateChanged(() => { loadReceipt(); });
+	document.addEventListener("DOMContentLoaded", loadReceipt);
+	</script>
+</body>
+</html>

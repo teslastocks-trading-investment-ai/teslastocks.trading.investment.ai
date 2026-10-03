@@ -1,0 +1,3243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f1a">
+  <title>Admin Console · edge</title>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --bg-elev: #10172b;
+      --bg-card: rgba(20, 28, 48, 0.65);
+      --stroke: rgba(255,255,255,0.06);
+      --stroke-soft: rgba(255,255,255,0.03);
+      --text: #eef2f6;
+      --text-muted: #7a8dad;
+      --text-dim: #4d6080;
+      --accent: #3b82f6;
+      --accent-2: #1a5adf;
+      --success: #22c55e;
+      --success-2: #16a34a;
+      --danger: #ef4444;
+      --danger-2: #dc2626;
+      --warn: #f59e0b;
+      --warn-2: #d97706;
+      --purple: #a78bfa;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --radius-pill: 40px;
+      --shadow-1: 0 12px 28px -12px rgba(0,0,0,0.65);
+      --shadow-2: 0 24px 50px -20px rgba(0,0,0,0.85);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,sans-serif; -webkit-tap-highlight-color:transparent; }
+    html, body { height:100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height:100dvh;
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      overscroll-behavior-y: none;
+    }
+
+    .login-screen { min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:20px; background:radial-gradient(circle at 20% 30%,#18243f,#070b12 80%); }
+    .login-card { width:100%; max-width:400px; padding:40px 32px; border-radius:36px; background:rgba(12,20,35,0.75); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--stroke); box-shadow:0 40px 70px -20px #000000cc, inset 0 0 0 1px rgba(255,255,255,0.02); }
+    .logo { width:60px; height:60px; border-radius:18px; background:linear-gradient(145deg,#2b7aff,#0f4cd0); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:26px; color:white; margin-bottom:22px; box-shadow:0 12px 24px -6px #0f4cd066; }
+    .login-card h1 { font-size:26px; font-weight:700; letter-spacing:-0.3px; background:linear-gradient(to right,#f0f4ff,#b6ccff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; }
+    .login-card p { color:#8896b0; font-size:13.5px; margin-bottom:26px; line-height:1.5; opacity:0.85; }
+    .input { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--stroke); border-radius:16px; padding:14px 16px; color:white; font-size:16px; outline:none; margin-bottom:16px; transition:0.2s; -webkit-appearance:none; }
+    .input:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(59,130,246,0.2); background:rgba(255,255,255,0.06); }
+    .input::placeholder { color:#5a6c8a; }
+
+    .btn { border:none; border-radius:var(--radius-pill); padding:13px 22px; font-weight:600; font-size:14px; cursor:pointer; transition:0.22s cubic-bezier(0.2,0.9,0.4,1); letter-spacing:0.15px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+    .btn:active { transform:scale(0.96); }
+    .btn-primary { background:linear-gradient(145deg,#3b82f6,#1a5adf); color:white; box-shadow:0 8px 18px -6px #1a5adfaa; }
+    .btn-primary:hover { box-shadow:0 14px 28px -8px #1a5adfcc; }
+    .btn-success { background:linear-gradient(145deg,var(--success),var(--success-2)); color:white; box-shadow:0 8px 18px -6px #16a34a99; }
+    .btn-danger { background:linear-gradient(145deg,var(--danger),var(--danger-2)); color:white; box-shadow:0 8px 18px -6px #dc262699; }
+    .btn-warning { background:linear-gradient(145deg,var(--warn),var(--warn-2)); color:white; }
+    .btn-light { background:rgba(255,255,255,0.08); color:#d0dcf0; border:1px solid var(--stroke); }
+    .btn-light:hover { background:rgba(255,255,255,0.14); }
+    .btn-ghost { background:transparent; color:#b0c4e0; border:1px solid var(--stroke); }
+    .btn-ghost:hover { background:rgba(255,255,255,0.04); }
+    .full { width:100%; }
+    .error { color:#f87171; font-size:13px; margin-top:14px; }
+
+    .app { display:none; min-height:100dvh; background: var(--bg); }
+    .sidebar {
+      width:280px;
+      background:rgba(8,14,26,0.985);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      border-right:1px solid var(--stroke-soft);
+      position:fixed; left:0; top:0; bottom:0;
+      padding:20px 14px; z-index:100;
+      overflow-y:auto;
+      box-shadow:8px 0 30px -12px #00000080;
+      transform:translateX(-100%);
+      transition:transform 0.3s cubic-bezier(0.2,0.9,0.4,1);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .brand { display:flex; align-items:center; gap:12px; padding:6px 10px 26px; }
+    .brand-icon { width:44px; height:44px; background:linear-gradient(145deg,var(--accent),var(--accent-2)); border-radius:14px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; color:white; box-shadow:0 8px 16px -4px #1a5adf66; flex-shrink:0; }
+    .brand strong { font-size:17px; font-weight:700; letter-spacing:-0.2px; background:linear-gradient(to right,#f0f4ff,#a5c0ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+    .nav-title { color: var(--text-dim); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; padding:18px 12px 8px; opacity:0.6; }
+    .nav button {
+      width:100%; background:transparent; border:0;
+      color:#a6b7d4; text-align:left;
+      padding:14px; border-radius:14px;
+      margin-bottom:4px; cursor:pointer;
+      font-size:15px; transition:0.2s;
+      display:flex; align-items:center; gap:12px;
+      font-weight:500; position:relative;
+      min-height:48px;
+    }
+    .nav button .nav-icon { font-size:18px; width:26px; opacity:0.6; flex-shrink:0; }
+    .nav button:hover, .nav button.active { background:rgba(59,130,246,0.15); color:white; box-shadow:inset 0 0 0 1px rgba(59,130,246,0.2); }
+    .nav button.active { background:rgba(59,130,246,0.2); box-shadow:0 0 20px -8px #3b82f666, inset 0 0 0 1px #3b82f644; }
+    .nav button:active { transform:scale(0.98); }
+    .nav .nav-badge { margin-left:auto; background: var(--success); color:#fff; font-size:11px; font-weight:800; min-width:22px; height:22px; border-radius:20px; display:flex; align-items:center; justify-content:center; padding:0 7px; box-shadow:0 0 12px rgba(34,197,94,0.6); }
+
+    .main { margin-left:0; width:100%; min-height:100dvh; display:flex; flex-direction:column; }
+    .topbar {
+      height:60px;
+      background:rgba(12,20,35,0.92);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--stroke-soft);
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 14px; position:sticky; top:0; z-index:50;
+      gap:10px; flex-shrink:0;
+      padding-top: env(safe-area-inset-top);
+      height: calc(60px + env(safe-area-inset-top));
+    }
+    .topbar-left { display:flex; align-items:center; gap:10px; min-width:0; }
+    .topbar h2 { font-size:16px; font-weight:600; letter-spacing:-0.2px; background:linear-gradient(to right,#eef2f6,#b8cbff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-info { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .admin-info span { color:#869bbd; font-size:12px; display:none; }
+    .avatar { width:34px; height:34px; border-radius:40px; background:linear-gradient(145deg,#2b4b8a,#1a3a6a); display:flex; align-items:center; justify-content:center; font-weight:700; color:white; box-shadow:0 4px 12px #00000055; flex-shrink:0; font-size:13px; }
+    .content { padding:14px 12px 40px; flex:1; min-height:0; }
+
+    .stats { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:18px; }
+    .stat {
+      background: linear-gradient(160deg, rgba(30,42,70,0.75), rgba(14,22,40,0.9));
+      border:1px solid var(--stroke-soft);
+      border-radius: var(--radius-md);
+      padding:16px 14px;
+      position:relative; overflow:hidden;
+      box-shadow: var(--shadow-1), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .stat::before {
+      content:""; position:absolute; inset:0;
+      background: radial-gradient(circle at 100% 0%, rgba(59,130,246,0.12), transparent 55%);
+      pointer-events:none;
+    }
+    .stat-label { color: var(--text-muted); font-size:10px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; margin-bottom:6px; }
+    .stat-value { font-size:22px; font-weight:800; letter-spacing:-0.6px; line-height:1.1; }
+    .stat.blue .stat-value { color:#60a5fa; }
+    .stat.green .stat-value { color:#34d399; }
+    .stat.orange .stat-value { color:#fbbf24; }
+    .stat.red .stat-value { color:#f87171; }
+    .stat.purple .stat-value { color: var(--purple); }
+
+    .panel {
+      background: var(--bg-card);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      border:1px solid var(--stroke-soft);
+      border-radius: var(--radius-lg);
+      overflow:hidden; margin-bottom:16px;
+      box-shadow: var(--shadow-1), inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+    .panel-header { padding:14px; display:flex; flex-direction:column; gap:10px; border-bottom:1px solid var(--stroke-soft); }
+    .panel-header h3 { font-size:15px; font-weight:600; letter-spacing:-0.2px; }
+    .panel-header p { color: var(--text-muted); font-size:12px; margin-top:2px; opacity:0.8; }
+    .search {
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius-pill);
+      padding:12px 18px; color:white; outline:none; font-size:16px;
+      width:100%; transition:0.2s; -webkit-appearance:none;
+    }
+    .search:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(59,130,246,0.15); background:rgba(255,255,255,0.06); }
+    .search::placeholder { color:#5a6c8a; }
+
+    .table-wrap { overflow-x:auto; padding:0 2px 2px; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; min-width:560px; }
+    th, td { padding:10px 12px; border-bottom:1px solid var(--stroke-soft); text-align:left; font-size:12px; }
+    th { background:rgba(255,255,255,0.02); color: var(--text-muted); font-size:10px; text-transform:uppercase; letter-spacing:0.8px; font-weight:600; white-space:nowrap; }
+    tbody tr:hover { background:rgba(255,255,255,0.02); }
+    .user-cell { display:flex; align-items:center; gap:8px; min-width:100px; }
+    .user-avatar {
+      width:32px; height:32px; border-radius:40px;
+      background:linear-gradient(145deg,#1f3b70,#132853);
+      color:white; display:flex; align-items:center; justify-content:center;
+      font-weight:700; flex-shrink:0; font-size:11px;
+    }
+    .user-name { font-weight:600; font-size:12px; }
+    .user-email { color: var(--text-muted); font-size:10px; margin-top:1px; word-break:break-all; }
+
+    .status { display:inline-flex; padding:3px 10px; border-radius:40px; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; white-space:nowrap; }
+    .status.active, .status.approved { background:#0f2e1f; color:#34d399; }
+    .status.disabled, .status.failed { background:#2e141a; color:#f87171; }
+    .status.pending { background:#2f2812; color:#fbbf24; }
+
+    .pin-badge { background:rgba(251,191,36,0.15); color:#fbbf24; padding:2px 8px; border-radius:40px; font-size:10px; font-weight:600; letter-spacing:0.5px; font-family:'Courier New',monospace; white-space:nowrap; }
+    .pin-badge.missing { background:rgba(255,255,255,0.04); color:#5a6c8a; font-weight:400; font-family:inherit; }
+    .actions { display:flex; gap:5px; flex-wrap:wrap; }
+    .actions .btn { padding:6px 11px; font-size:11px; min-height:32px; white-space:nowrap; }
+
+    /* ============ ACCOUNT TIER BADGES ============ */
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 40px;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+    }
+    .tier-badge.tier-default {
+      background: rgba(122,141,173,0.14);
+      color:#a6b7d4;
+      border-color: rgba(122,141,173,0.3);
+    }
+    .tier-badge.tier-silver {
+      background: linear-gradient(145deg, rgba(220,228,240,0.18), rgba(160,172,190,0.12));
+      color:#e4eaf4;
+      border-color: rgba(200,212,228,0.4);
+      box-shadow: 0 0 12px rgba(200,212,228,0.18);
+    }
+    .tier-badge.tier-gold {
+      background: linear-gradient(145deg, rgba(251,191,36,0.2), rgba(217,119,6,0.12));
+      color:#fbbf24;
+      border-color: rgba(251,191,36,0.45);
+      box-shadow: 0 0 14px rgba(251,191,36,0.28);
+    }
+    .tier-badge.tier-diamond {
+      background: linear-gradient(145deg, rgba(96,165,250,0.22), rgba(59,130,246,0.12));
+      color:#7cc0ff;
+      border-color: rgba(96,165,250,0.5);
+      box-shadow: 0 0 16px rgba(96,165,250,0.35);
+    }
+    .tier-badge.tier-ruby {
+      background: linear-gradient(145deg, rgba(248,113,113,0.22), rgba(220,38,38,0.12));
+      color:#ff8080;
+      border-color: rgba(248,113,113,0.5);
+      box-shadow: 0 0 16px rgba(248,113,113,0.35);
+    }
+
+    .tier-select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-sm);
+      padding: 12px 40px 12px 14px;
+      color: white;
+      outline: none;
+      font-size: 15px;
+      font-weight: 600;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8dad' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      transition: 0.15s;
+    }
+    .tier-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+      background-color: rgba(255,255,255,0.06);
+    }
+    .tier-select option {
+      background: #10172b;
+      color: #eef2f6;
+      padding: 8px;
+    }
+    .tier-current-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--stroke-soft);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+    }
+    .tier-current-row .label {
+      font-size: 10.5px; color: var(--text-muted);
+      letter-spacing: 0.4px; text-transform: uppercase;
+      font-weight: 700;
+    }
+    .tier-current-row .value { margin-left: auto; }
+
+    /* ============================================================
+       TIER PICKER — big touch-friendly cards (primary UI on all devices)
+       ============================================================ */
+    .tier-picker {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 520px) {
+      .tier-picker { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    }
+    @media (max-width: 320px) {
+      .tier-picker { grid-template-columns: 1fr; }
+    }
+
+    .tier-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 10px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #a6b7d4;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s, box-shadow 0.2s;
+      font-family: inherit;
+      text-align: center;
+      min-height: 54px;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .tier-option .tier-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+      transition: box-shadow 0.2s;
+    }
+    .tier-option:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.18);
+      transform: translateY(-1px);
+    }
+    .tier-option:active {
+      transform: scale(0.97);
+    }
+    .tier-option:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.35);
+    }
+
+    /* Selected states */
+    .tier-option.selected {
+      border-width: 2px;
+    }
+    .tier-option.tier-default.selected {
+      background: rgba(122,141,173,0.22);
+      color: #eef2f6;
+      border-color: #a6b7d4;
+      box-shadow: 0 0 14px rgba(200,212,228,0.25);
+    }
+    .tier-option.tier-silver.selected {
+      background: linear-gradient(145deg, rgba(220,228,240,0.24), rgba(160,172,190,0.16));
+      color: #ffffff;
+      border-color: #c8d4e4;
+      box-shadow: 0 0 16px rgba(200,212,228,0.4);
+    }
+    .tier-option.tier-gold.selected {
+      background: linear-gradient(145deg, rgba(251,191,36,0.24), rgba(217,119,6,0.16));
+      color: #fbbf24;
+      border-color: #fbbf24;
+      box-shadow: 0 0 18px rgba(251,191,36,0.5);
+    }
+    .tier-option.tier-diamond.selected {
+      background: linear-gradient(145deg, rgba(96,165,250,0.24), rgba(59,130,246,0.16));
+      color: #7cc0ff;
+      border-color: #7cc0ff;
+      box-shadow: 0 0 18px rgba(96,165,250,0.5);
+    }
+    .tier-option.tier-ruby.selected {
+      background: linear-gradient(145deg, rgba(248,113,113,0.24), rgba(190,18,60,0.16));
+      color: #ff8080;
+      border-color: #ff8080;
+      box-shadow: 0 0 18px rgba(248,113,113,0.5);
+    }
+
+    /* Colored dots always match the tier */
+    .tier-option.tier-default .tier-dot { background: #a6b7d4; }
+    .tier-option.tier-silver  .tier-dot { background: #e4eaf4; }
+    .tier-option.tier-gold    .tier-dot { background: #fbbf24; }
+    .tier-option.tier-diamond .tier-dot { background: #7cc0ff; }
+    .tier-option.tier-ruby    .tier-dot { background: #ff8080; }
+
+    .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.72); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:200; display:none; }
+    .overlay.show { display:block; }
+    .drawer {
+      position:absolute; right:0; top:0; bottom:0;
+      width:100%; max-width:660px;
+      background:rgba(8,14,26,0.99);
+      backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+      border-left:1px solid var(--stroke-soft);
+      overflow-y:auto; box-shadow:-20px 0 60px -20px #000000cc;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom: calc(30px + env(safe-area-inset-bottom));
+      padding-top: env(safe-area-inset-top);
+      overscroll-behavior: contain;
+    }
+    .drawer-header {
+      padding:14px 16px; display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid var(--stroke-soft);
+      position:sticky; top:0;
+      background:rgba(8,14,26,0.99);
+      backdrop-filter:blur(12px); z-index:5;
+    }
+    .drawer-header strong { font-size:15px; }
+    .close { width:40px; height:40px; border:0; border-radius:40px; background:rgba(255,255,255,0.05); color:#b0c4e0; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .close:active { transform:scale(0.9); }
+
+    .profile-head {
+      background: linear-gradient(150deg, rgba(30,42,70,0.75), rgba(14,22,40,0.9));
+      margin:12px; padding:16px; border-radius: var(--radius-md);
+      display:flex; align-items:center; gap:14px;
+      border:1px solid var(--stroke-soft);
+      box-shadow: var(--shadow-1);
+    }
+    .big-avatar {
+      width:54px; height:54px; border-radius:54px;
+      background:linear-gradient(145deg,#2b60c8,#0f2650);
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; font-weight:700; color:white; flex-shrink:0;
+      box-shadow:0 8px 18px -6px rgba(43,96,200,0.5);
+    }
+    .profile-head h3 { font-size:16px; font-weight:700; letter-spacing:-0.2px; }
+    .profile-head p { color: var(--text-muted); font-size:11px; word-break:break-all; margin-top:2px; }
+
+    .section {
+      background:rgba(255,255,255,0.02);
+      margin:12px; padding:16px;
+      border-radius: var(--radius-md);
+      border:1px solid var(--stroke-soft);
+    }
+    .section h4 { font-size:14px; font-weight:600; margin-bottom:4px; letter-spacing:-0.1px; }
+    .section-description { color: var(--text-muted); font-size:12px; margin-bottom:14px; line-height:1.5; }
+
+    .form-grid { display:grid; grid-template-columns:1fr; gap:10px; }
+    .field label { display:block; font-size:11px; color: var(--text-muted); margin-bottom:6px; font-weight:500; letter-spacing:0.2px; }
+    .field input, .field select {
+      width:100%; background:rgba(255,255,255,0.04);
+      border:1px solid var(--stroke);
+      padding:12px 14px; border-radius: var(--radius-sm);
+      color:white; outline:none; font-size:16px; -webkit-appearance:none;
+      transition:0.15s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(59,130,246,0.12); }
+    .save-row { margin-top:16px; display:flex; flex-direction:column; gap:10px; }
+    .save-row .btn { width:100%; justify-content:center; }
+
+    .record {
+      background:rgba(255,255,255,0.025);
+      border:1px solid var(--stroke-soft);
+      border-radius: var(--radius-md);
+      padding:14px; margin-bottom:10px;
+    }
+    .record-top { display:flex; flex-direction:column; gap:8px; }
+    .record-top .status { align-self:flex-start; }
+    .record-title { font-weight:600; font-size:13.5px; letter-spacing:-0.1px; }
+    .record-meta { color: var(--text-muted); font-size:11.5px; margin-top:4px; line-height:1.7; }
+    .record-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .record-actions .btn { padding:9px 14px; font-size:12px; flex:1; min-width:110px; }
+    .record-actions .btn[disabled] { opacity:0.45; cursor:not-allowed; }
+    .empty { color:#5a6c8a; text-align:center; padding:22px; font-size:13px; }
+    .money { font-weight:700; color:#e0e8ff; }
+
+    .adjust-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    .adjust-card {
+      background:rgba(255,255,255,0.03);
+      border:1px solid var(--stroke-soft);
+      border-radius: var(--radius-md);
+      padding:14px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .adjust-card .label {
+      font-size:11px; color: var(--text-muted);
+      letter-spacing:0.4px; text-transform:uppercase;
+      font-weight:600;
+    }
+    .adjust-card .current {
+      font-size:22px; font-weight:800; letter-spacing:-0.5px;
+    }
+    .adjust-card .current.deposit { color:#60a5fa; }
+    .adjust-card .current.packages { color:#34d399; }
+    .adjust-card .hint {
+      font-size:10.5px; color:#5a6c8a; line-height:1.4;
+    }
+    .adjust-row {
+      display:flex; align-items:center; gap:8px;
+      margin-top:4px;
+    }
+    .adjust-input {
+      width:100%; background:rgba(255,255,255,0.04);
+      border:1px solid var(--stroke);
+      border-radius: var(--radius-pill);
+      padding:10px 14px; color:white; outline:none;
+      font-size:14px;
+    }
+    .adjust-input:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(59,130,246,0.12); }
+    .adjust-btns { display:flex; gap:8px; }
+    .adjust-btns .btn { flex:1; padding:10px 12px; font-size:12px; min-height:40px; }
+    .adjust-reset { width:100%; margin-top:8px; }
+
+    /* ============ INDEPENDENT SUB-GROUP (Package Count vs Amount) ============ */
+    .adjust-subgroup {
+      padding-top: 12px;
+      margin-top: 4px;
+      border-top: 1px dashed rgba(255,255,255,0.07);
+    }
+    .adjust-subgroup:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+    .adjust-subgroup .sub-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .adjust-subgroup .sub-label .sub-icon {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+
+    @media (max-width:520px) {
+      .adjust-grid { grid-template-columns:1fr; }
+    }
+
+    .proof-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.92); backdrop-filter:blur(16px); z-index:300; display:none; align-items:center; justify-content:center; padding:10px; }
+    .proof-overlay.show { display:flex; }
+    .proof-box { width:100%; max-width:900px; height:90dvh; max-height:800px; background: var(--bg); border-radius:20px; overflow:hidden; border:1px solid var(--stroke-soft); box-shadow:0 40px 80px -20px #000000; display:flex; flex-direction:column; }
+    .proof-header { height:52px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 14px; background:rgba(0,0,0,0.3); border-bottom:1px solid var(--stroke-soft); gap:10px; }
+    .proof-header strong { font-size:13px; }
+    .proof-header button { width:40px; height:40px; border:0; border-radius:40px; background:rgba(255,255,255,0.04); color:white; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .proof-content { flex:1; display:flex; align-items:center; justify-content:center; overflow:auto; padding:12px; -webkit-overflow-scrolling:touch; }
+    .proof-content img { max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; }
+
+    .toast {
+      position:fixed; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); left:12px;
+      background:rgba(0,0,0,0.94); backdrop-filter:blur(12px);
+      color:white; padding:14px 18px; border-radius: var(--radius-md);
+      z-index:500; transform:translateY(120px); opacity:0;
+      transition:0.3s cubic-bezier(0.2,0.9,0.4,1);
+      font-size:13px; border:1px solid var(--stroke);
+      box-shadow:0 16px 40px -12px #000000cc;
+      text-align:center; max-width:500px; margin:0 auto; pointer-events:none;
+    }
+    .toast.show { transform:translateY(0); opacity:1; }
+
+    .mobile-menu {
+      background:rgba(255,255,255,0.05); border:0;
+      width:42px; height:42px; border-radius:40px;
+      color:#b0c4e0; font-size:18px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .mobile-menu:active { transform:scale(0.92); }
+    .loading { text-align:center; padding:30px; color:#5a6c8a; font-size:14px; }
+
+    .filter-row { display:flex; flex-direction:column; gap:8px; width:100%; }
+    .filter-row select {
+      background:rgba(255,255,255,0.04); border:1px solid var(--stroke);
+      border-radius: var(--radius-pill); padding:12px 18px;
+      color:white; outline:none; font-size:16px;
+      width:100%; -webkit-appearance:none; appearance:none;
+    }
+
+    body.chat-convo-open {
+      overflow: hidden !important;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+    }
+
+    .chat-page {
+      display:block; position:relative;
+      background: var(--bg-card);
+      border:1px solid var(--stroke-soft);
+      border-radius: var(--radius-lg);
+      overflow:hidden;
+      box-shadow: var(--shadow-1);
+      min-height:calc(100dvh - 130px);
+      height:calc(100dvh - 130px);
+      max-height:calc(100dvh - 130px);
+    }
+    .chat-list-pane { display:flex; flex-direction:column; height:100%; min-height:0; min-width:0; overflow:hidden; }
+
+    .chat-filter-bar {
+      display:flex; gap:8px; overflow-x:auto; padding:12px;
+      background:rgba(8,14,26,0.7);
+      border-bottom:1px solid var(--stroke-soft);
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; flex-shrink:0;
+    }
+    .chat-filter-bar::-webkit-scrollbar { display:none; }
+    .chat-filter-chip {
+      flex-shrink:0; padding:9px 15px;
+      border-radius: var(--radius-pill);
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--stroke);
+      color:#a6b7d4; font-size:12px; font-weight:600;
+      cursor:pointer; transition:0.2s; white-space:nowrap;
+      display:inline-flex; align-items:center; gap:6px;
+      min-height:38px;
+    }
+    .chat-filter-chip:active { transform:scale(0.96); }
+    .chat-filter-chip.active {
+      background:linear-gradient(145deg,var(--accent),var(--accent-2));
+      color:white; border-color:transparent;
+      box-shadow:0 6px 14px -4px #1a5adf99;
+    }
+    .chat-filter-chip .chip-count { background:rgba(255,255,255,0.15); padding:1px 8px; border-radius:20px; font-size:10px; font-weight:800; }
+    .chat-filter-chip.active .chip-count { background:rgba(255,255,255,0.25); }
+    .chat-filter-chip .chip-dot {
+      width:7px; height:7px; border-radius:50%;
+      background: var(--success); box-shadow:0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.6; transform:scale(1.15); } }
+
+    .chat-list { flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; scrollbar-width:thin; }
+    .chat-list::-webkit-scrollbar { width:4px; }
+    .chat-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
+    .chat-list-section-title {
+      padding:12px 16px 6px;
+      font-size:10px; font-weight:700; text-transform:uppercase;
+      letter-spacing:1.2px; color: var(--text-dim);
+      opacity:0.8; position:sticky; top:0;
+      background:rgba(12,20,35,0.96); backdrop-filter:blur(8px); z-index:1;
+    }
+    .chat-list-item {
+      display:flex; align-items:center; gap:12px;
+      padding:13px 16px;
+      border-bottom:1px solid var(--stroke-soft);
+      cursor:pointer; transition:0.15s;
+      min-height:72px;
+    }
+    .chat-list-item:active { background:rgba(255,255,255,0.05); }
+    .chat-list-item.active { background:rgba(59,130,246,0.12); box-shadow:inset 3px 0 0 var(--accent); }
+    .chat-list-item .user-avatar { width:46px; height:46px; font-size:15px; }
+    .chat-list-body { flex:1; min-width:0; }
+    .chat-list-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .chat-list-name { font-weight:600; font-size:14px; color: var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-list-time { font-size:11px; color: var(--text-muted); flex-shrink:0; }
+    .chat-list-preview { font-size:12px; color:#8a9bb8; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-list-item.unread .chat-list-name { color:#fff; }
+    .chat-list-item.unread .chat-list-preview { color:#c8d6ee; font-weight:600; }
+    .chat-unread-badge {
+      flex-shrink:0; min-width:22px; height:22px; padding:0 7px;
+      border-radius:20px; background: var(--success); color:#fff;
+      font-size:11px; font-weight:800;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 12px rgba(34,197,94,0.55);
+    }
+
+    .chat-convo {
+      position:absolute; inset:0; display:flex; flex-direction:column;
+      background: var(--bg); z-index:10;
+      transform:translateX(100%);
+      transition:transform 0.28s cubic-bezier(0.2,0.9,0.4,1);
+      pointer-events:none; visibility:hidden; opacity:0;
+      min-height:0; overflow:hidden;
+    }
+    .chat-convo-empty {
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:30px; text-align:center;
+      color:#5a6c8a; font-size:13px; background:rgba(8,14,26,0.5);
+    }
+    .chat-convo-header {
+      flex:0 0 auto; padding:12px 14px;
+      background:rgba(8,14,26,0.98); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:center; gap:10px; min-height:64px;
+      padding-top:calc(12px + env(safe-area-inset-top));
+    }
+    .chat-convo-header .user-avatar { width:42px; height:42px; font-size:14px; }
+    .chat-convo-header .info { flex:1; min-width:0; }
+    .chat-convo-header .info strong { font-size:14.5px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-convo-header .info span { font-size:11.5px; color: var(--text-muted); display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .chat-back {
+      background:rgba(255,255,255,0.06); border:0;
+      width:40px; height:40px; border-radius:40px;
+      color:#b0c4e0; font-size:20px; cursor:pointer; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .chat-back:active { transform:scale(0.9); }
+
+    .chat-messages {
+      flex:1 1 auto; min-height:0;
+      overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+      padding:16px 14px;
+      display:flex; flex-direction:column; gap:10px; background: var(--bg);
+    }
+    .chat-msg-row { display:flex; width:100%; }
+    .chat-msg-row.customer { justify-content:flex-start; }
+    .chat-msg-row.care { justify-content:flex-end; }
+    .chat-bubble {
+      max-width:82%; padding:10px 14px;
+      border-radius:18px; font-size:14px; line-height:1.5;
+      word-break:break-word;
+      box-shadow:0 1px 3px rgba(0,0,0,0.28);
+    }
+    .chat-msg-row.customer .chat-bubble { background:rgba(255,255,255,0.07); color: var(--text); border:1px solid var(--stroke); border-bottom-left-radius:6px; }
+    .chat-msg-row.care .chat-bubble { background:linear-gradient(145deg,var(--accent),var(--accent-2)); color:#fff; border-bottom-right-radius:6px; }
+    .chat-msg-time { display:block; margin-top:5px; font-size:10px; opacity:0.72; text-align:right; }
+    .chat-date-sep {
+      align-self:center; margin:8px 0; padding:5px 14px;
+      border-radius:20px; background:rgba(255,255,255,0.04);
+      color: var(--text-muted); font-size:10.5px; font-weight:600;
+      letter-spacing:0.4px;
+    }
+
+    .chat-bubble.chat-bubble-image { padding: 4px; background:rgba(255,255,255,0.06) !important; border:1px solid var(--stroke); max-width:78%; }
+    .chat-bubble.chat-bubble-image img {
+      display: block; max-width: 100%; max-height: 260px;
+      width:auto; height:auto; border-radius: 12px;
+      cursor: zoom-in; background: #000;
+    }
+    .chat-bubble.chat-bubble-image .chat-image-caption {
+      display: block; margin-top: 4px; padding: 0 6px 4px;
+      font-size: 10px; color: #9aa7bd; text-align: right; opacity: 0.85;
+      word-break: break-word;
+    }
+
+    .chat-receipt {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 5px; font-size: 10.5px; font-weight: 700;
+      letter-spacing: 0.35px; user-select: none;
+    }
+    .chat-receipt.delivered { color: #8a9bb8; opacity: 0.85; }
+    .chat-receipt.seen      { color: #4ade80; opacity: 0.95; }
+    .chat-receipt i { font-size: 10px; }
+
+    .chat-composer {
+      flex:0 0 auto; position:relative;
+      padding:10px;
+      padding-bottom:calc(10px + env(safe-area-inset-bottom));
+      background:rgba(8,14,26,0.98); backdrop-filter:blur(12px);
+      border-top:1px solid var(--stroke);
+      display:flex; align-items:flex-end; gap:8px; z-index:2;
+    }
+    .chat-composer textarea {
+      flex:1; min-width:0; min-height:44px; max-height:120px; resize:none;
+      border:1px solid var(--stroke); border-radius:22px;
+      padding:12px 16px; outline:none; font-size:16px; line-height:1.4;
+      background:rgba(255,255,255,0.04); color:#fff; font-family:inherit;
+      -webkit-appearance:none; overflow-y:auto;
+    }
+    .chat-composer textarea:focus { border-color: var(--accent); box-shadow:0 0 0 4px rgba(59,130,246,0.12); }
+    .chat-composer textarea::placeholder { color:#5a6c8a; }
+    .chat-send {
+      width:46px; height:46px; flex:0 0 46px;
+      border:0; border-radius:50%;
+      background:linear-gradient(145deg,var(--accent),var(--accent-2));
+      color:#fff; cursor:pointer; font-size:16px;
+      box-shadow:0 6px 14px -4px #1a5adf99;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .chat-send:active { transform:scale(0.92); }
+    .chat-send:disabled { opacity:0.5; cursor:not-allowed; }
+
+    .chat-attach {
+      width:46px; height:46px; flex:0 0 46px;
+      border:0; border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      color:#d0dcf0; cursor:pointer; font-size:18px;
+      display:flex; align-items:center; justify-content:center;
+      transition: background 0.2s, transform 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      padding:0;
+    }
+    .chat-attach:hover { background:rgba(255,255,255,0.16); }
+    .chat-attach:active { transform:scale(0.92); }
+    .chat-attach:disabled { opacity:0.5; cursor:not-allowed; }
+    .chat-attach.is-uploading { pointer-events:none; }
+    .chat-attach.is-uploading i {
+      animation: chatAttachSpin 0.9s linear infinite;
+      display:inline-block;
+    }
+    @keyframes chatAttachSpin { to { transform: rotate(360deg); } }
+
+    @media (max-width:360px) {
+      .chat-attach, .chat-send { width:42px; height:42px; flex:0 0 42px; font-size:15px; }
+    }
+
+    @media (min-width:600px) {
+      .stats { grid-template-columns:repeat(4,1fr); gap:14px; }
+      .stat { padding:18px 20px; }
+      .stat-value { font-size:26px; }
+      .form-grid { grid-template-columns:1fr 1fr; }
+      .save-row { flex-direction:row; justify-content:flex-end; }
+      .save-row .btn { width:auto; }
+      .panel-header { flex-direction:row; align-items:center; padding:16px 20px; }
+      .filter-row { flex-direction:row; width:auto; min-width:200px; }
+      .filter-row select { width:auto; }
+      .search { width:220px; }
+      .record-top { flex-direction:row; align-items:flex-start; }
+      .record-top .status { align-self:center; flex-shrink:0; }
+      .record-actions .btn { flex:0 1 auto; min-width:0; }
+      .toast { left:auto; right:24px; bottom:24px; min-width:320px; }
+      .admin-info span { display:inline; }
+      .topbar { padding:0 20px; }
+      .topbar h2 { font-size:18px; }
+      .content { padding:20px 22px 40px; }
+      .chat-page { min-height:calc(100dvh - 160px); height:calc(100dvh - 160px); max-height:calc(100dvh - 160px); }
+    }
+
+    @media (min-width:901px) {
+      .sidebar { transform:translateX(0); width:260px; }
+      .main { margin-left:260px; width:calc(100% - 260px); }
+      .mobile-menu { display:none; }
+      .topbar { padding:0 32px; height:76px; padding-top: env(safe-area-inset-top); height: calc(76px + env(safe-area-inset-top)); }
+      .topbar h2 { font-size:20px; }
+      .content { padding:26px 30px 40px; }
+      .stats { gap:18px; grid-template-columns:repeat(5,1fr); }
+      .stat-value { font-size:30px; }
+      .drawer { width:min(660px,100%); }
+      .panel-header { padding:20px 24px; }
+      .search { min-width:240px; }
+
+      .chat-page {
+        display:grid;
+        grid-template-columns:340px 1fr;
+        grid-template-rows:100%;
+        min-height:calc(100dvh - 160px);
+        height:calc(100dvh - 160px);
+        max-height:calc(100dvh - 160px);
+        overflow:hidden;
+      }
+      .chat-list-pane { border-right:1px solid var(--stroke-soft); min-height:0; overflow:hidden; }
+      .chat-convo {
+        position:relative; inset:auto;
+        transform:none !important;
+        display:flex !important;
+        flex-direction:column !important;
+        visibility:visible !important; opacity:1 !important;
+        pointer-events:auto !important;
+        z-index:auto; background:rgba(8,14,26,0.5);
+        min-height:0; overflow:hidden;
+      }
+      .chat-convo-empty { display:flex; }
+      .chat-back { display:none; }
+      .chat-convo-header { padding-top:12px; }
+      .chat-composer { padding-bottom:10px; }
+      .chat-bubble { max-width:70%; }
+      .chat-messages { min-height:0; }
+    }
+
+    @media (max-width:360px) {
+      .stat-value { font-size:19px; }
+      .topbar h2 { font-size:15px; }
+      .user-cell { gap:6px; }
+      .user-avatar { width:28px; height:28px; font-size:10px; }
+      .user-name { font-size:11px; }
+      .user-email { font-size:9px; }
+      .login-card { padding:28px 20px; }
+      .login-card h1 { font-size:22px; }
+      .chat-list-item { padding:11px 13px; gap:10px; min-height:64px; }
+      .chat-list-item .user-avatar { width:40px; height:40px; font-size:13px; }
+      .chat-list-name { font-size:13px; }
+      .chat-list-preview { font-size:11px; }
+      .chat-bubble { font-size:13px; }
+
+      .record-actions { gap: 6px; }
+      .record-actions .btn { min-width: 0; font-size: 12px; padding: 8px 10px; }
+      .record-actions .btn i { margin-right: 3px; }
+    }
+
+    @media (max-width:900px) {
+      .chat-page {
+        display:block; position:relative;
+        border-radius:16px; overflow:hidden;
+        min-height:calc(100dvh - 130px);
+        height:calc(100dvh - 130px);
+        max-height:calc(100dvh - 130px);
+      }
+      .chat-list-pane { display:flex; flex-direction:column; width:100%; height:100%; min-height:0; overflow:hidden; }
+      .chat-convo {
+        position:absolute; inset:0; display:flex; flex-direction:column;
+        background: var(--bg); z-index:10;
+        transform:translateX(100%);
+        transition:transform 0.28s cubic-bezier(0.2,0.9,0.4,1);
+        pointer-events:none; visibility:hidden; opacity:0;
+        min-height:0; overflow:hidden;
+      }
+      .chat-page.has-active .chat-convo { transform:translateX(0); pointer-events:auto; visibility:visible; opacity:1; }
+      .chat-page.has-active .chat-list-pane { display:none; }
+      .chat-page.has-active .chat-convo-empty { display:none !important; }
+      .chat-page.has-active .chat-convo-header,
+      .chat-page.has-active .chat-messages,
+      .chat-page.has-active .chat-composer { display:flex !important; }
+      .chat-page.has-active .chat-messages { flex:1 1 auto !important; min-height:0 !important; display:flex !important; flex-direction:column; }
+      .chat-back { display:flex !important; }
+      .chat-composer { flex:0 0 auto; padding-bottom:calc(10px + env(safe-area-inset-bottom)); }
+      .chat-convo-header { flex:0 0 auto; padding-top:calc(12px + env(safe-area-inset-top)); }
+    }
+
+    .sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:99; }
+    .sidebar-backdrop.show { display:block; }
+
+    @media (max-width:900px) {
+      input, textarea, select { font-size:16px !important; }
+    }
+
+    .record-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .record-actions .btn {
+      flex: 1 1 auto; min-width: 110px;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .record-actions .btn { flex: 1 1 calc(50% - 4px); min-width: 0; padding: 10px 8px; font-size: 12.5px; }
+      .record-actions .btn:only-of-type,
+      .record-actions .btn:last-child:nth-child(odd) { flex: 1 1 100%; }
+    }
+    @media (max-width: 360px) {
+      .record-actions .btn { flex: 1 1 100%; min-width: 0; font-size: 12px; padding: 10px; }
+    }
+    @media (min-width: 601px) {
+      .record-actions { justify-content: flex-end; }
+      .record-actions .btn { flex: 0 1 auto; min-width: 0; padding: 8px 14px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="logo">⚡</div>
+    <h1>Admin Console</h1>
+    <p>Manage users, investments, deposits & withdrawals — next‑gen interface.</p>
+    <input id="loginUsername" class="input" type="text" placeholder="Admin username" autocomplete="username">
+    <input id="loginPassword" class="input" type="password" placeholder="Admin password" autocomplete="current-password">
+    <button id="loginBtn" class="btn btn-primary full">Sign In</button>
+    <div id="loginError" class="error"></div>
+  </div>
+</div>
+
+<div id="app" class="app">
+  <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+  <aside id="sidebar" class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <strong>Admin Console</strong>
+    </div>
+    <div class="nav">
+      <div class="nav-title">Main</div>
+      <button class="active" onclick="showSection('dashboard')"><span class="nav-icon">▣</span>Dashboard</button>
+      <button onclick="showSection('users')"><span class="nav-icon">♙</span>Users</button>
+      <button onclick="showSection('chats')"><span class="nav-icon">💬</span>Chats <span id="chatNavBadge" class="nav-badge" style="display:none;">0</span></button>
+      <button onclick="showSection('verifications')"><span class="nav-icon">🛡</span>Verifications <span id="verifyNavBadge" class="nav-badge" style="display:none;">0</span></button>
+      <div class="nav-title">Transactions</div>
+      <button onclick="showSection('investments')"><span class="nav-icon">↗</span>Investments</button>
+      <button onclick="showSection('deposits')"><span class="nav-icon">↓</span>Deposits</button>
+      <button onclick="showSection('withdrawals')"><span class="nav-icon">↑</span>Withdrawals</button>
+      <div class="nav-title">Account</div>
+      <button onclick="logout()"><span class="nav-icon">↪</span>Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
+        <h2 id="pageTitle">Dashboard</h2>
+      </div>
+      <div class="admin-info">
+        <span>Administrator</span>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <section id="dashboardSection">
+        <div class="stats">
+          <div class="stat blue"><div class="stat-label">Total Users</div><div id="totalUsers" class="stat-value">0</div></div>
+          <div class="stat green"><div class="stat-label">Active Users</div><div id="activeUsers" class="stat-value">0</div></div>
+          <div class="stat orange"><div class="stat-label">Pending Investments</div><div id="pendingInvestments" class="stat-value">0</div></div>
+          <div class="stat red"><div class="stat-label">Pending Withdrawals</div><div id="pendingWithdrawals" class="stat-value">0</div></div>
+          <div class="stat purple"><div class="stat-label">Pending Verifications</div><div id="pendingVerifications" class="stat-value">0</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>Recent Users</h3><p>Recently registered accounts</p></div>
+            <button class="btn btn-light" onclick="showSection('users')">View All Users</button>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>User</th><th>Balance</th><th>PIN</th><th>Tier</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentUsers"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="usersSection" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>All Users</h3><p>Manage registered user profiles</p></div>
+            <div class="filter-row">
+              <input id="userSearch" class="search" placeholder="Search users..." oninput="renderUsers()">
+              <select id="userStatusFilter" onchange="renderUsers()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>User</th><th>Phone</th><th>Balance</th><th>PIN</th><th>Tier</th><th>Status</th><th>Action</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="chatsSection" style="display:none;">
+        <div id="chatPage" class="chat-page">
+          <div class="chat-list-pane">
+            <div class="chat-filter-bar" id="chatFilterBar">
+              <div class="chat-filter-chip active" data-filter="unviewed" onclick="setChatFilter('unviewed')">
+                <span class="chip-dot"></span> Unviewed <span class="chip-count" id="chipUnviewed">0</span>
+              </div>
+              <div class="chat-filter-chip" data-filter="viewed" onclick="setChatFilter('viewed')">
+                Viewed <span class="chip-count" id="chipViewed">0</span>
+              </div>
+              <div class="chat-filter-chip" data-filter="all" onclick="setChatFilter('all')">
+                All <span class="chip-count" id="chipAll">0</span>
+              </div>
+            </div>
+            <div class="chat-list" id="chatList">
+              <div class="loading">Loading chats...</div>
+            </div>
+          </div>
+
+          <div class="chat-convo" id="chatConvo">
+            <div class="chat-convo-empty" id="chatConvoEmpty">
+              <div>
+                <div style="font-size:38px; margin-bottom:10px;">💬</div>
+                Select a conversation to start replying.
+              </div>
+            </div>
+            <div class="chat-convo-header" id="chatConvoHeader" style="display:none;">
+              <button class="chat-back" onclick="closeConvoMobile()" aria-label="Back">←</button>
+              <div class="user-avatar" id="convoAvatar">?</div>
+              <div class="info">
+                <strong id="convoName">—</strong>
+                <span id="convoEmail">—</span>
+              </div>
+            </div>
+            <div class="chat-messages" id="chatMessages" style="display:none;"></div>
+            <div class="chat-composer" id="chatComposer" style="display:none;">
+              <input type="file" id="adminChatFileInput" accept="image/*" style="display:none;">
+              <button class="chat-attach" id="adminChatAttachBtn" type="button" aria-label="Attach image" title="Attach image">
+                <i class="fas fa-paperclip">📎</i>
+              </button>
+              <textarea id="chatInput" rows="1" placeholder="Type your reply..." maxlength="2000" enterkeyhint="send"></textarea>
+              <button class="chat-send" id="chatSendBtn" onclick="sendAdminReply()" aria-label="Send">➤</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="verificationsSection" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>Verification Requests</h3><p>Review user identity verification payments</p></div>
+            <div class="filter-row">
+              <select id="verificationStatusFilter" onchange="renderVerifications()">
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="failed">Failed</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+          </div>
+          <div id="allVerifications" style="padding:12px;"></div>
+        </div>
+      </section>
+
+      <section id="investmentsSection" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>Investment Management</h3><p>Review and process user investments</p></div>
+            <div class="filter-row">
+              <select id="investmentStatusFilter" onchange="renderInvestments()">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+          </div>
+          <div id="allInvestments" style="padding:12px;"></div>
+        </div>
+      </section>
+
+      <section id="depositsSection" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>Deposit Management</h3><p>Review deposits and payment proofs</p></div>
+            <div class="filter-row">
+              <select id="depositStatusFilter" onchange="renderDeposits()">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+          </div>
+          <div id="allDeposits" style="padding:12px;"></div>
+        </div>
+      </section>
+
+      <section id="withdrawalsSection" style="display:none;">
+        <div class="panel">
+          <div class="panel-header">
+            <div><h3>Withdrawal Requests</h3><p>Review user withdrawal requests</p></div>
+            <div class="filter-row">
+              <select id="withdrawalStatusFilter" onchange="renderWithdrawals()">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+          </div>
+          <div id="allWithdrawals" style="padding:12px;"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="overlay" class="overlay"><div class="drawer"><div class="drawer-header"><strong>User Profile</strong><button class="close" onclick="closeDrawer()">×</button></div><div id="drawerContent"></div></div></div>
+
+<div id="proofOverlay" class="proof-overlay"><div class="proof-box"><div class="proof-header"><strong>Payment Proof</strong><span id="proofHeaderActions"></span><button onclick="closeProof()">×</button></div><div id="proofContent" class="proof-content"></div></div></div>
+
+<div id="toast" class="toast"></div>
+
+<!-- Supabase JS SDK (for admin chat image uploads) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  // ===== FIREBASE =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+    authDomain: "elon-54b86.firebaseapp.com",
+    databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+    projectId: "elon-54b86",
+    storageBucket: "elon-54b86.firebasestorage.app",
+    messagingSenderId: "78755255517",
+    appId: "1:78755255517:web:3e0d4c8afa25202ac0f734"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const ADMIN_USERNAME = "admin";
+  const ADMIN_PASSWORD = "Admin@12345";
+
+  let users = {};
+  let chats = {};
+  let currentUid = null;
+  let activeChatKey = null;
+  let activeChatRef = null;
+  let activeMessagesListener = null;
+  let chatFilter = "unviewed";
+  let lastAggregateUnread = 0;
+  let isMobile = () => window.innerWidth <= 900;
+
+  /* ============================================================
+     ACCOUNT TIERS
+     ============================================================ */
+  const ACCOUNT_TIERS = {
+    default: { key:"default", label:"Default", description:"Upgrade your account",     color:"#a6b7d4" },
+    silver:  { key:"silver",  label:"Silver",  description:"Silver Account",          color:"#e4eaf4" },
+    gold:    { key:"gold",    label:"Gold",    description:"Gold Account",            color:"#fbbf24" },
+    diamond: { key:"diamond", label:"Diamond", description:"Diamond Account",         color:"#7cc0ff" },
+    ruby:    { key:"ruby",    label:"Ruby",    description:"Ruby Account",            color:"#ff8080" }
+  };
+  const ACCOUNT_TIER_ORDER = ["default", "silver", "gold", "diamond", "ruby"];
+
+  function normalizeTier(t) {
+    const v = String(t == null ? "" : t).toLowerCase().trim();
+    return ACCOUNT_TIERS[v] ? v : "default";
+  }
+  function getUserTier(user) {
+    if (!user) return "default";
+    return normalizeTier(user.account_tier || user.accountTier || user.tier);
+  }
+  function renderTierBadge(tier, opts) {
+    const key = normalizeTier(tier);
+    const t = ACCOUNT_TIERS[key];
+    const short = opts && opts.short;
+    const display = short
+      ? (key === "default" ? "Default" : t.label)
+      : (key === "default" ? "Default — Upgrade" : t.label + " Account");
+    return `<span class="tier-badge tier-${key}" title="${escapeHTML(t.description)}">${escapeHTML(display)}</span>`;
+  }
+
+  /* ============================================================
+     SUPABASE (for admin chat image uploads)
+     ============================================================ */
+  const SUPABASE_URL = "https://mesdakdrdvumkdongjdj.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Rha2RyZHZ1bWtkb25namRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODYwMzYsImV4cCI6MjEwMzc2MjAzNn0.rwTkCckVTYj-qzRIDK7CPwnxYqLOdZtQnFFYMBWMRHg";
+  const SUPABASE_BUCKET = "proof";
+  const SUPABASE_CHAT_FOLDER = "chat";
+  const SUPABASE_MAX_BYTES = 8 * 1024 * 1024;
+
+  let supabaseClient = null;
+  function getSupabase() {
+    if (supabaseClient) return supabaseClient;
+    if (typeof supabase === "undefined" || !supabase.createClient) {
+      console.error("[admin-chat] Supabase SDK not loaded.");
+      return null;
+    }
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return supabaseClient;
+  }
+
+  function sanitizeFileName(name) {
+    return String(name || "").toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 80) || "image";
+  }
+
+  async function uploadChatImage(file) {
+    const client = getSupabase();
+    if (!client) throw new Error("Storage client unavailable.");
+    if (!file || !file.type || !file.type.startsWith("image/")) {
+      throw new Error("Only image files are allowed.");
+    }
+    if (file.size > SUPABASE_MAX_BYTES) {
+      throw new Error("Image is too large (max 8 MB).");
+    }
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 6);
+    const stamp = Date.now();
+    const rand = Math.random().toString(36).slice(2, 8);
+    const safeUser = sanitizeFileName(activeChatKey || "admin");
+    const fileName = `chat_admin_${stamp}_${rand}.${ext}`;
+    const path = `${SUPABASE_CHAT_FOLDER}/${safeUser}_${fileName}`;
+
+    const { error: upErr } = await client.storage
+      .from(SUPABASE_BUCKET)
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type
+      });
+    if (upErr) throw upErr;
+
+    const { data: pub } = client.storage.from(SUPABASE_BUCKET).getPublicUrl(path);
+    return {
+      path,
+      publicUrl: pub && pub.publicUrl ? pub.publicUrl : "",
+      filename: file.name,
+      size: file.size,
+      mime: file.type
+    };
+  }
+
+  /* ============================================================
+     NOTIFICATION WRITER (admin → user)
+     ============================================================ */
+  async function sendNotification(uid, payload) {
+    if (!uid || !payload || !payload.title) return;
+    try {
+      const ref = db.ref("users/" + uid + "/notifications").push();
+      await ref.set({
+        title: String(payload.title).slice(0, 120),
+        message: String(payload.message || "").slice(0, 500),
+        type: payload.type || "info",
+        status: payload.status || null,
+        amount: (payload.amount != null && Number.isFinite(Number(payload.amount)))
+                  ? Number(payload.amount)
+                  : null,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        read: false
+      });
+
+      try {
+        const snap = await db.ref("users/" + uid + "/notifications")
+          .orderByChild("createdAt").once("value");
+        const all = [];
+        snap.forEach((child) => all.push({ key: child.key, ts: child.val().createdAt || 0 }));
+        if (all.length > 100) {
+          all.sort((a, b) => a.ts - b.ts);
+          const toDelete = all.slice(0, all.length - 100);
+          const updates = {};
+          toDelete.forEach((x) => {
+            updates["users/" + uid + "/notifications/" + x.key] = null;
+          });
+          await db.ref().update(updates);
+        }
+      } catch (_) { /* non-fatal */ }
+
+    } catch (e) {
+      console.error("[sendNotification] error:", e);
+    }
+  }
+  window.sendNotification = sendNotification;
+
+  /* ============================================================
+     FORMAT HELPERS
+     ============================================================ */
+  function fmtMoney(n) {
+    const v = Number(n || 0);
+    return "$" + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ===== LOGIN =====
+  document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem("adminLoggedIn") === "true") { showApp(); loadData(); }
+    else { showLogin(); }
+  });
+  document.getElementById("loginBtn").addEventListener("click", login);
+  document.getElementById("loginPassword").addEventListener("keydown", e => { if(e.key === "Enter") login(); });
+
+  function login() {
+    const u = document.getElementById("loginUsername").value.trim();
+    const p = document.getElementById("loginPassword").value;
+    const err = document.getElementById("loginError");
+    err.textContent = "";
+    if (u === ADMIN_USERNAME && p === ADMIN_PASSWORD) {
+      sessionStorage.setItem("adminLoggedIn", "true");
+      showApp(); loadData();
+    } else { err.textContent = "Invalid administrator username or password."; }
+  }
+  function showLogin() { document.getElementById("loginScreen").style.display = "flex"; document.getElementById("app").style.display = "none"; }
+  function showApp() { document.getElementById("loginScreen").style.display = "none"; document.getElementById("app").style.display = "block"; }
+  function logout() { sessionStorage.removeItem("adminLoggedIn"); location.reload(); }
+
+  // ===== LOAD =====
+  function loadData() {
+    document.getElementById("usersTable").innerHTML = `<tr><td colspan="7"><div class="loading">Loading users...</div></td></tr>`;
+    db.ref("users").on("value", snap => {
+      users = snap.val() || {};
+      renderUsers(); renderRecentUsers(); renderInvestments(); renderDeposits(); renderWithdrawals();
+      try { renderVerifications(); } catch(e) { console.error(e); }
+      updateStats();
+    }, err => { console.error(err); toast("Firebase error: " + err.message); });
+
+    db.ref("chat").on("value", snap => {
+      chats = snap.val() || {};
+      Object.keys(chats).forEach(k => {
+        if (!chats[k]) chats[k] = {};
+        if (!chats[k].messages) chats[k].messages = {};
+        if (!chats[k]._meta) chats[k]._meta = {};
+      });
+      renderChatList();
+      updateChatNavBadge();
+      refreshActiveConvoIfOpen();
+    }, err => { console.error(err); toast("Chat load error: " + err.message); });
+  }
+
+  // ===== STATS =====
+  function updateStats() {
+    const entries = Object.entries(users);
+    let active = 0, pendingInv = 0, pendingWithdrawal = 0;
+    entries.forEach(([uid, user]) => {
+      if (user.disabled !== true) active++;
+      Object.values(user.investments || {}).forEach(inv => { if (inv.status === "pending") pendingInv++; });
+      Object.values(user.withdrawals || {}).forEach(w => { if (w.status === "pending") pendingWithdrawal++; });
+    });
+    document.getElementById("totalUsers").textContent = entries.length;
+    document.getElementById("activeUsers").textContent = active;
+    document.getElementById("pendingInvestments").textContent = pendingInv;
+    document.getElementById("pendingWithdrawals").textContent = pendingWithdrawal;
+
+    try { updateVerificationBadge(); } catch(e) { console.error(e); }
+  }
+
+  // ===== HELPERS =====
+  function renderPin(pin) {
+    if (pin && String(pin).trim() !== '') return `<span class="pin-badge">🔑 ${escapeHTML(pin)}</span>`;
+    return `<span class="pin-badge missing">No PIN</span>`;
+  }
+  function statusClass(status) {
+    if (status === "approved") return "approved";
+    if (status === "failed") return "failed";
+    return "pending";
+  }
+  function escapeHTML(v) { return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+  function attr(v) { return escapeHTML(v??""); }
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove("show"), 3000);
+  }
+  function initialsFromEmail(email, fallbackName) {
+    const name = fallbackName && fallbackName.trim() ? fallbackName.trim() : (email || "").split("@")[0];
+    return (name || "?").split(/[\s._-]+/).filter(Boolean).map(x=>x[0]).join("").substring(0,2).toUpperCase() || "?";
+  }
+  function getUserDisplayName(userKey, chatEntry) {
+    const u = users[userKey];
+    if (u) {
+      const name = `${u.first_name||''} ${u.last_name||''}`.trim();
+      if (name) return name;
+    }
+    return chatEntry && chatEntry.email ? chatEntry.email.split("@")[0] : "Unknown";
+  }
+  function getUserEmail(userKey, chatEntry) {
+    if (chatEntry && chatEntry.email) return chatEntry.email;
+    const u = users[userKey];
+    return (u && u.email) || "—";
+  }
+
+  function getProofUrl(record) {
+    if (!record || typeof record !== "object") return null;
+    const candidates = ["proof_url", "proofUrl", "proofURL", "proof", "file_url", "fileUrl", "image_url"];
+    for (const k of candidates) {
+      const v = record[k];
+      if (v && typeof v === "string" && v.trim().length > 4) return v.trim();
+    }
+    return null;
+  }
+
+  function computeApprovedDepositTotal(user) {
+    let total = 0;
+    Object.values(user.deposits || {}).forEach(d => {
+      if (d && String(d.status || "").toLowerCase() === "approved") {
+        const amt = Number(d.amount || 0);
+        if (Number.isFinite(amt) && amt > 0) total += amt;
+      }
+    });
+    return total;
+  }
+  function computeApprovedInvestmentCount(user) {
+    let count = 0;
+    Object.values(user.investments || {}).forEach(inv => {
+      if (inv && String(inv.status || "").toLowerCase() === "approved") count++;
+    });
+    return count;
+  }
+  function computeApprovedInvestmentTotal(user) {
+    let total = 0;
+    Object.values(user.investments || {}).forEach(inv => {
+      if (inv && String(inv.status || "").toLowerCase() === "approved") {
+        const amt = Number(inv.amount || 0);
+        if (Number.isFinite(amt) && amt > 0) total += amt;
+      }
+    });
+    return total;
+  }
+  function getAdjustment(user, key) {
+    const n = Number(user && user[key]);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function totalDepositWithAdjustment(user) {
+    return computeApprovedDepositTotal(user) + getAdjustment(user, "deposit_adjustment");
+  }
+  function totalPackagesWithAdjustment(user) {
+    const n = computeApprovedInvestmentCount(user) + getAdjustment(user, "package_adjustment");
+    return Math.max(0, n);
+  }
+
+  // ===== USERS TABLES =====
+  function renderUsers() {
+    const tbody = document.getElementById("usersTable");
+    const search = (document.getElementById("userSearch")?.value || "").toLowerCase().trim();
+    const statusFilter = document.getElementById("userStatusFilter")?.value || "all";
+    tbody.innerHTML = "";
+    const filtered = Object.entries(users).filter(([uid, user]) => {
+      const text = `${uid} ${user.first_name||''} ${user.last_name||''} ${user.email||''} ${user.phone_number||''}`.toLowerCase();
+      const matchesSearch = text.includes(search);
+      const matchesStatus = statusFilter === "all" ||
+        (statusFilter === "active" && user.disabled !== true) ||
+        (statusFilter === "disabled" && user.disabled === true);
+      return matchesSearch && matchesStatus;
+    });
+    if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="7"><div class="empty">No users found.</div></td></tr>`; return; }
+    filtered.forEach(([uid, user]) => {
+      const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "Unnamed User";
+      const initials = name.split(" ").map(x=>x[0]).join("").substring(0,2).toUpperCase();
+      const disabled = user.disabled === true;
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><div class="user-cell"><div class="user-avatar">${escapeHTML(initials)}</div><div><div class="user-name">${escapeHTML(name)}</div><div class="user-email">${escapeHTML(user.email||'-')}</div></div></div></td>
+        <td>${escapeHTML(user.phone_number||'-')}</td>
+        <td><span class="money">$${Number(user.balance||0).toLocaleString()}</span></td>
+        <td>${renderPin(user.wallet_pin)}</td>
+        <td>${renderTierBadge(getUserTier(user), { short: true })}</td>
+        <td><span class="status ${disabled?'disabled':'active'}">${disabled?'Disabled':'Active'}</span></td>
+        <td><button class="btn btn-primary" onclick="openUser('${uid}')">View</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderRecentUsers() {
+    const tbody = document.getElementById("recentUsers");
+    tbody.innerHTML = "";
+    Object.entries(users).sort((a,b) => (b[1].created_at||0) - (a[1].created_at||0)).slice(0,8).forEach(([uid, user]) => {
+      const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "Unnamed User";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><div class="user-cell"><div class="user-avatar">${escapeHTML(name.substring(0,2).toUpperCase())}</div><div><div class="user-name">${escapeHTML(name)}</div><div class="user-email">${escapeHTML(user.email||'-')}</div></div></div></td>
+        <td><span class="money">$${Number(user.balance||0).toLocaleString()}</span></td>
+        <td>${renderPin(user.wallet_pin)}</td>
+        <td>${renderTierBadge(getUserTier(user), { short: true })}</td>
+        <td><span class="status ${user.disabled?'disabled':'active'}">${user.disabled?'Disabled':'Active'}</span></td>
+        <td><button class="btn btn-light" onclick="openUser('${uid}')">Open</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ===== USER DRAWER =====
+  function openUser(uid) {
+    currentUid = uid;
+    const user = users[uid];
+    if (!user) { toast("User not found."); return; }
+    const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "Unnamed User";
+
+    const depositBase = computeApprovedDepositTotal(user);
+    const depositAdj = getAdjustment(user, "deposit_adjustment");
+    const depositTotal = depositBase + depositAdj;
+
+    const packageBase = computeApprovedInvestmentCount(user);
+    const packageAdj = getAdjustment(user, "package_adjustment");
+    const packageTotal = Math.max(0, packageBase + packageAdj);
+
+    const amountBase = computeApprovedInvestmentTotal(user);
+    const amountAdj = getAdjustment(user, "package_amount_adjustment");
+    const amountTotal = amountBase + amountAdj;
+
+    const balance = Number(user.balance || 0);
+
+    // ---- Account Tier setup ----
+    const currentTier = getUserTier(user);
+
+    // Build tier-picker cards
+    const tierCards = ACCOUNT_TIER_ORDER.map(key => {
+      const t = ACCOUNT_TIERS[key];
+      const isSelected = key === currentTier;
+      const label = key === "default" ? "Default" : t.label;
+      return `<button type="button"
+        class="tier-option tier-${key}${isSelected ? " selected" : ""}"
+        data-tier="${key}"
+        onclick="selectTierOption('${key}')"
+        title="${escapeHTML(t.description)}">
+        <span class="tier-dot"></span>
+        <span>${escapeHTML(label)}</span>
+      </button>`;
+    }).join("");
+
+    const html = `
+      <div class="profile-head">
+        <div class="big-avatar">${escapeHTML(name.substring(0,2).toUpperCase())}</div>
+        <div style="min-width:0;">
+          <h3>${escapeHTML(name)}</h3>
+          <p>UID: ${escapeHTML(uid)}</p>
+          <div style="margin-top:8px;">${renderTierBadge(currentTier)}</div>
+        </div>
+      </div>
+
+      <!-- ================= ACCOUNT TIER ================= -->
+      <div class="section">
+        <h4>Account Tier</h4>
+        <p class="section-description">Tap a tier below to select it, then click <strong>Save Account Tier</strong>. The user is notified instantly.</p>
+
+        <div class="tier-current-row">
+          <span class="label">Current Tier</span>
+          <span class="value">${renderTierBadge(currentTier)}</span>
+        </div>
+
+        <div class="tier-picker" id="tierPicker" data-selected="${currentTier}">
+          ${tierCards}
+        </div>
+
+        <div class="adjust-btns" style="margin-top:14px;">
+          <button class="btn btn-primary full" onclick="updateAccountTier('${uid}')">💾 Save Account Tier</button>
+        </div>
+      </div>
+
+      <!-- ================= BALANCE QUICK ACTIONS ================= -->
+      <div class="section">
+        <h4>Balance</h4>
+        <p class="section-description">The user's current wallet balance. Use the buttons below to <strong>credit</strong> or <strong>debit</strong> this balance. The user is notified instantly.</p>
+
+        <div class="adjust-card" style="margin-top:4px;">
+          <div class="label">Current Balance</div>
+          <div class="current deposit" id="balanceDisplay">${fmtMoney(balance)}</div>
+          <div class="adjust-row">
+            <input id="balanceAdjustInput" type="number" step="0.01" min="0" class="adjust-input" placeholder="Amount (e.g. 100 or 25.50)">
+          </div>
+          <div class="adjust-btns">
+            <button class="btn btn-success" onclick="adjustBalance(1)">+ Credit</button>
+            <button class="btn btn-danger" onclick="adjustBalance(-1)">− Debit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= ADJUST TOTALS ================= -->
+      <div class="section">
+        <h4>Adjust Totals</h4>
+        <p class="section-description">Increase or decrease the user's visible <strong>Total Deposit</strong> and <strong>Investment Packages</strong>. The user is notified on every change.</p>
+
+        <div class="adjust-grid">
+          <!-- ============ TOTAL DEPOSIT ============ -->
+          <div class="adjust-card">
+            <div class="label">Total Deposit</div>
+            <div class="current deposit" id="depositTotalDisplay">
+              ${fmtMoney(depositTotal)}
+            </div>
+            <div class="hint">
+              Base (approved): ${fmtMoney(depositBase)}
+              &nbsp;·&nbsp;
+              Adjustment: ${depositAdj >= 0 ? "+" : ""}${fmtMoney(depositAdj)}
+            </div>
+            <div class="adjust-row">
+              <input id="depositAdjustInput" type="number" step="0.01" class="adjust-input" placeholder="Amount (e.g. 500 or -200)">
+            </div>
+            <div class="adjust-btns">
+              <button class="btn btn-success" onclick="adjustUserTotal('${uid}','deposit_adjustment', 1)">+ Increase</button>
+              <button class="btn btn-danger" onclick="adjustUserTotal('${uid}','deposit_adjustment', -1)">− Decrease</button>
+            </div>
+            <button class="btn btn-ghost adjust-reset" onclick="resetUserAdjustment('${uid}','deposit_adjustment')">Reset Adjustment</button>
+          </div>
+
+          <!-- ============ INVESTMENT PACKAGES (count + amount, independent) ============ -->
+          <div class="adjust-card">
+            <div class="label">Investment Packages</div>
+            <div class="current packages" id="packagesTotalDisplay">
+              ${packageTotal} Packages · ${fmtMoney(amountTotal)}
+            </div>
+            <div class="hint">
+              Base (approved): ${packageBase} packages · ${fmtMoney(amountBase)}<br>
+              Adjustment: ${packageAdj >= 0 ? "+" : ""}${packageAdj} packages · ${amountAdj >= 0 ? "+" : ""}${fmtMoney(amountAdj)}
+            </div>
+
+            <!-- ---- PACKAGE COUNT (independent) ---- -->
+            <div class="adjust-subgroup">
+              <div class="sub-label">
+                <span class="sub-icon">📦</span> Package Count
+              </div>
+              <div class="adjust-row">
+                <input id="packageAdjustInput" type="number" step="1" class="adjust-input" placeholder="Count (e.g. 2 or -1)">
+              </div>
+              <div class="adjust-btns" style="margin-top:8px;">
+                <button class="btn btn-success" onclick="adjustUserTotal('${uid}','package_adjustment', 1)">+ Increase</button>
+                <button class="btn btn-danger" onclick="adjustUserTotal('${uid}','package_adjustment', -1)">− Decrease</button>
+              </div>
+              <button class="btn btn-ghost adjust-reset" onclick="resetUserAdjustment('${uid}','package_adjustment')">Reset Count</button>
+            </div>
+
+            <!-- ---- INVESTED AMOUNT (independent) ---- -->
+            <div class="adjust-subgroup">
+              <div class="sub-label">
+                <span class="sub-icon">💵</span> Invested Amount (USD)
+              </div>
+              <div class="adjust-row">
+                <input id="packageAmountAdjustInput" type="number" step="0.01" class="adjust-input" placeholder="Amount (e.g. 5000 or -500)">
+              </div>
+              <div class="adjust-btns" style="margin-top:8px;">
+                <button class="btn btn-success" onclick="adjustUserTotal('${uid}','package_amount_adjustment', 1)">+ Increase</button>
+                <button class="btn btn-danger" onclick="adjustUserTotal('${uid}','package_amount_adjustment', -1)">− Decrease</button>
+              </div>
+              <button class="btn btn-ghost adjust-reset" onclick="resetUserAdjustment('${uid}','package_amount_adjustment')">Reset Amount</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section"><h4>Account Details</h4><p class="section-description">Update the user's basic profile information.</p>
+        <div class="form-grid">
+          <div class="field"><label>First Name</label><input id="editFirstName" value="${attr(user.first_name)}"></div>
+          <div class="field"><label>Last Name</label><input id="editLastName" value="${attr(user.last_name)}"></div>
+          <div class="field"><label>Email</label><input id="editEmail" type="email" value="${attr(user.email)}"></div>
+          <div class="field"><label>Phone</label><input id="editPhone" value="${attr(user.phone_number)}"></div>
+          <div class="field"><label>Country</label><input id="editCountry" value="${attr(user.country)}"></div>
+          <div class="field"><label>Balance (USD)</label><input id="editBalance" type="number" min="0" step="0.01" value="${Number(user.balance||0)}"></div>
+        </div>
+        <div class="save-row">
+          <button class="btn btn-primary" onclick="saveUser()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="section"><h4>Wallet PIN</h4><p class="section-description">Current wallet PIN for this user.</p>
+        <div style="display:flex;flex-direction:column;align-items:stretch;gap:12px;">
+          <div style="font-size:24px;font-weight:800;font-family:'Courier New',monospace;color:#fbbf24;letter-spacing:4px;background:rgba(255,255,255,0.04);padding:12px 20px;border-radius:14px;border:1px solid rgba(255,255,255,0.04);text-align:center;">
+            ${user.wallet_pin && String(user.wallet_pin).trim() !== '' ? escapeHTML(user.wallet_pin) : '—'}
+          </div>
+          <button class="btn btn-warning full" onclick="resetWalletPin('${uid}')">Reset PIN</button>
+        </div>
+      </div>
+
+      <div class="section"><h4>Account Control</h4><p class="section-description">${user.disabled?'This account is currently disabled.':'This account is currently active.'}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn ${user.disabled?'btn-success':'btn-danger'}" onclick="toggleUser('${uid}')">${user.disabled?'Enable Account':'Disable Account'}</button>
+          <button class="btn btn-warning" onclick="resetUserPassword('${uid}')">Reset Password</button>
+          <button class="btn btn-light" onclick="openChatFromUser('${uid}')">💬 Message</button>
+        </div>
+      </div>
+
+      <div class="section"><h4>Verification</h4>${renderUserVerification(user, uid)}</div>
+      <div class="section"><h4>Investments</h4>${renderUserInvestments(user)}</div>
+      <div class="section"><h4>Deposits</h4>${renderUserDeposits(user)}</div>
+      <div class="section"><h4>Withdrawals</h4>${renderUserWithdrawals(user)}</div>
+    `;
+    document.getElementById("drawerContent").innerHTML = html;
+    document.getElementById("overlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  /* ---------- Tier Picker: Select Option ---------- */
+  function selectTierOption(tierKey) {
+    const picker = document.getElementById("tierPicker");
+    if (!picker) return;
+    const key = normalizeTier(tierKey);
+    picker.querySelectorAll(".tier-option").forEach(el => {
+      el.classList.toggle("selected", el.dataset.tier === key);
+    });
+    picker.dataset.selected = key;
+  }
+
+  /* ---------- Account Tier: Update ---------- */
+  async function updateAccountTier(uid) {
+    if (!uid) return;
+    const user = users[uid];
+    if (!user) { toast("User not found."); return; }
+
+    const picker = document.getElementById("tierPicker");
+    if (!picker) return;
+
+    const newTier = normalizeTier(picker.dataset.selected);
+    const oldTier = getUserTier(user);
+
+    if (newTier === oldTier) {
+      toast("User is already on this tier.");
+      return;
+    }
+
+    const tierInfo = ACCOUNT_TIERS[newTier];
+
+    // Disable all tier options + save button while saving
+    const saveBtn = picker.parentElement.querySelector("button.btn-primary");
+    if (saveBtn) saveBtn.disabled = true;
+    picker.querySelectorAll(".tier-option").forEach(el => { el.disabled = true; });
+
+    try {
+      await db.ref(`users/${uid}/account_tier`).set(newTier);
+      await db.ref(`users/${uid}/account_tier_updated_at`).set(firebase.database.ServerValue.TIMESTAMP);
+
+      let title, message, type, status;
+      if (newTier === "default") {
+        title = "Account Tier Updated";
+        message = `Dear User, your account tier has been changed to Default by TSLPA. Upgrade your account to unlock more benefits.`;
+        type = "warning";
+        status = "adjusted";
+      } else {
+        title = `${tierInfo.label} Account Activated`;
+        message = `Dear User, congratulations! Your account has been upgraded to ${tierInfo.label} Account by TSLPA. Enjoy your new benefits!`;
+        type = "success";
+        status = "approved";
+      }
+
+      sendNotification(uid, {
+        title: title,
+        message: message,
+        type: type,
+        status: status
+      });
+
+      toast(`Account tier updated to ${tierInfo.label}.`);
+      if (currentUid === uid) openUser(uid);
+      renderUsers();
+      renderRecentUsers();
+    } catch (e) {
+      console.error("updateAccountTier error:", e);
+      toast("Failed to update account tier: " + (e.message || ""));
+      if (saveBtn) saveBtn.disabled = false;
+      picker.querySelectorAll(".tier-option").forEach(el => { el.disabled = false; });
+    }
+  }
+
+  /* ---------- Balance: Credit / Debit ---------- */
+  async function adjustBalance(sign) {
+    if (!currentUid) return;
+    const user = users[currentUid];
+    if (!user) { toast("User not found."); return; }
+
+    const inputEl = document.getElementById("balanceAdjustInput");
+    const raw = inputEl ? Number(inputEl.value) : NaN;
+    if (!Number.isFinite(raw) || raw <= 0) {
+      toast("Enter a valid amount greater than 0.");
+      return;
+    }
+    const delta = Math.round(raw * 100) / 100;
+    const current = Number(user.balance || 0);
+    const next = current + (sign >= 0 ? delta : -delta);
+
+    if (next < 0) {
+      toast("Cannot debit below $0.00.");
+      return;
+    }
+
+    try {
+      await db.ref(`users/${currentUid}/balance`).set(next);
+
+      if (sign > 0) {
+        sendNotification(currentUid, {
+          title: "Account Credited",
+          message: `Dear User, your account has been credited by TSLPA with $${delta.toFixed(2)}. Your new balance is $${next.toFixed(2)}.`,
+          type: "deposit",
+          status: "approved",
+          amount: delta
+        });
+      } else {
+        sendNotification(currentUid, {
+          title: "Account Debited",
+          message: `Dear User, your account has been debited by TSLPA with $${delta.toFixed(2)}. Your new balance is $${next.toFixed(2)}.`,
+          type: "withdrawal",
+          status: "approved",
+          amount: delta
+        });
+      }
+
+      toast(`${sign > 0 ? "Credited" : "Debited"} $${delta.toFixed(2)}. New balance: $${next.toFixed(2)}`);
+      openUser(currentUid);
+    } catch (e) {
+      console.error("adjustBalance error:", e);
+      toast("Failed to update balance: " + (e.message || ""));
+    }
+  }
+
+  /* ============================================================
+     ADJUST TOTALS — each field works INDEPENDENTLY.
+
+     Supported fields:
+       - "deposit_adjustment"        → reads #depositAdjustInput          (Total Deposit)
+       - "package_adjustment"        → reads #packageAdjustInput          (Package Count ONLY)
+       - "package_amount_adjustment" → reads #packageAmountAdjustInput    (Invested Amount ONLY)
+     ============================================================ */
+  async function adjustUserTotal(uid, field, sign) {
+    if (!uid) return;
+    const user = users[uid];
+    if (!user) { toast("User not found."); return; }
+
+    /* ---------------- 1) TOTAL DEPOSIT ADJUSTMENT ---------------- */
+    if (field === "deposit_adjustment") {
+      const inputEl = document.getElementById("depositAdjustInput");
+      const raw = inputEl ? Number(inputEl.value) : NaN;
+      if (!Number.isFinite(raw) || raw === 0) {
+        toast("Enter a valid deposit amount.");
+        return;
+      }
+      const delta = Math.round(Math.abs(raw) * 100) / 100 * (sign >= 0 ? 1 : -1);
+      const current = getAdjustment(user, field);
+      const next = current + delta;
+
+      try {
+        await db.ref(`users/${uid}/${field}`).set(next);
+
+        if (sign > 0) {
+          sendNotification(uid, {
+            title: "Total Deposit Increased",
+            message: `Dear User, your Total Deposit has been increased by TSLPA with $${Math.abs(delta).toFixed(2)}.`,
+            type: "deposit",
+            status: "approved",
+            amount: Math.abs(delta)
+          });
+        } else {
+          sendNotification(uid, {
+            title: "Total Deposit Decreased",
+            message: `Dear User, your Total Deposit has been decreased by TSLPA with $${Math.abs(delta).toFixed(2)}.`,
+            type: "warning",
+            status: "adjusted",
+            amount: Math.abs(delta)
+          });
+        }
+
+        toast(
+          (delta > 0 ? "Increased " : "Decreased ") +
+          "Total Deposit by $" + Math.abs(delta).toFixed(2) + "."
+        );
+        if (currentUid === uid) openUser(uid);
+      } catch (e) {
+        console.error("adjustUserTotal (deposit) error:", e);
+        toast("Failed to update deposit: " + (e.message || ""));
+      }
+      return;
+    }
+
+    /* ---------------- 2) PACKAGE COUNT ADJUSTMENT (independent) ---------------- */
+    if (field === "package_adjustment") {
+      const inputEl = document.getElementById("packageAdjustInput");
+      const raw = inputEl ? Number(inputEl.value) : NaN;
+      if (!Number.isFinite(raw) || raw === 0) {
+        toast("Enter a valid package count.");
+        return;
+      }
+      const delta = Math.trunc(Math.abs(raw)) * (sign >= 0 ? 1 : -1);
+      if (delta === 0) { toast("Package adjustment must be at least 1."); return; }
+
+      const current = getAdjustment(user, field);
+      const next = current + delta;
+
+      const base = computeApprovedInvestmentCount(user);
+      if (base + next < 0) {
+        toast("Cannot reduce packages below 0.");
+        return;
+      }
+
+      try {
+        await db.ref(`users/${uid}/${field}`).set(next);
+        const countWord = Math.abs(delta) === 1 ? "package" : "packages";
+
+        if (sign > 0) {
+          sendNotification(uid, {
+            title: "Investment Package Added",
+            message: `Dear User, ${Math.abs(delta)} investment ${countWord} have been added to your account by TSLPA.`,
+            type: "investment",
+            status: "approved"
+          });
+        } else {
+          sendNotification(uid, {
+            title: "Investment Package Removed",
+            message: `Dear User, ${Math.abs(delta)} investment ${countWord} have been removed from your account by TSLPA.`,
+            type: "warning",
+            status: "adjusted"
+          });
+        }
+
+        toast(
+          (delta > 0 ? "Increased " : "Decreased ") +
+          "Package Count by " + Math.abs(delta) + "."
+        );
+        if (currentUid === uid) openUser(uid);
+      } catch (e) {
+        console.error("adjustUserTotal (package count) error:", e);
+        toast("Failed to update package count: " + (e.message || ""));
+      }
+      return;
+    }
+
+    /* ---------------- 3) PACKAGE AMOUNT ADJUSTMENT (independent) ---------------- */
+    if (field === "package_amount_adjustment") {
+      const inputEl = document.getElementById("packageAmountAdjustInput");
+      const raw = inputEl ? Number(inputEl.value) : NaN;
+      if (!Number.isFinite(raw) || raw === 0) {
+        toast("Enter a valid amount.");
+        return;
+      }
+      const delta = Math.round(Math.abs(raw) * 100) / 100 * (sign >= 0 ? 1 : -1);
+      if (delta === 0) { toast("Amount adjustment must be at least 0.01."); return; }
+
+      const current = getAdjustment(user, field);
+      const next = current + delta;
+
+      try {
+        await db.ref(`users/${uid}/${field}`).set(next);
+
+        if (sign > 0) {
+          sendNotification(uid, {
+            title: "Investment Amount Added",
+            message: `Dear User, $${Math.abs(delta).toFixed(2)} in invested amount has been added to your account by TSLPA.`,
+            type: "investment",
+            status: "approved",
+            amount: Math.abs(delta)
+          });
+        } else {
+          sendNotification(uid, {
+            title: "Investment Amount Removed",
+            message: `Dear User, $${Math.abs(delta).toFixed(2)} in invested amount has been removed from your account by TSLPA.`,
+            type: "warning",
+            status: "adjusted",
+            amount: Math.abs(delta)
+          });
+        }
+
+        toast(
+          (delta > 0 ? "Increased " : "Decreased ") +
+          "Invested Amount by $" + Math.abs(delta).toFixed(2) + "."
+        );
+        if (currentUid === uid) openUser(uid);
+      } catch (e) {
+        console.error("adjustUserTotal (package amount) error:", e);
+        toast("Failed to update invested amount: " + (e.message || ""));
+      }
+      return;
+    }
+
+    console.warn("adjustUserTotal: unknown field", field);
+  }
+
+  async function resetUserAdjustment(uid, field) {
+    if (!uid) return;
+    const label =
+      field === "deposit_adjustment"        ? "Total Deposit" :
+      field === "package_amount_adjustment" ? "Invested Amount" :
+      field === "package_adjustment"        ? "Package Count" :
+      "Adjustment";
+
+    if (!confirm(`Reset the ${label} adjustment for this user?`)) return;
+
+    try {
+      await db.ref(`users/${uid}/${field}`).remove();
+
+      sendNotification(uid, {
+        title: `${label} Adjustment Reset`,
+        message: `Dear User, your ${label} adjustment has been reset by TSLPA.`,
+        type: "info",
+        status: "adjusted"
+      });
+
+      toast(`${label} adjustment reset.`);
+      if (currentUid === uid) openUser(uid);
+    } catch (e) {
+      console.error("resetUserAdjustment error:", e);
+      toast("Failed to reset adjustment.");
+    }
+  }
+
+  async function resetWalletPin(uid) {
+    if (!confirm(`Reset wallet PIN for user ${uid}? This will set a new random 4-digit PIN.`)) return;
+    const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+    try {
+      await db.ref(`users/${uid}/wallet_pin`).set(newPin);
+
+      sendNotification(uid, {
+        title: "Wallet PIN Reset",
+        message: "Dear User, your wallet PIN has been reset by TSLPA support. Please check your new PIN or contact support.",
+        type: "security",
+        status: "approved"
+      });
+
+      toast(`Wallet PIN reset. New PIN: ${newPin}`);
+      openUser(uid);
+    } catch(e) { console.error(e); toast("Failed to reset wallet PIN."); }
+  }
+
+  async function saveUser() {
+    if (!currentUid) return;
+    const user = users[currentUid];
+    const oldBalance = Number(user?.balance || 0);
+    const newBalance = Number(document.getElementById("editBalance").value);
+
+    if (!Number.isFinite(newBalance) || newBalance < 0) { toast("Enter a valid balance."); return; }
+
+    const updates = {
+      first_name: document.getElementById("editFirstName").value.trim(),
+      last_name: document.getElementById("editLastName").value.trim(),
+      email: document.getElementById("editEmail").value.trim(),
+      phone_number: document.getElementById("editPhone").value.trim(),
+      country: document.getElementById("editCountry").value.trim(),
+      balance: newBalance
+    };
+
+    try {
+      await db.ref(`users/${currentUid}`).update(updates);
+
+      const diff = Math.round((newBalance - oldBalance) * 100) / 100;
+      if (diff > 0) {
+        sendNotification(currentUid, {
+          title: "Account Credited",
+          message: `Dear User, your account has been credited by TSLPA with $${diff.toFixed(2)}. Your new balance is $${newBalance.toFixed(2)}.`,
+          type: "deposit",
+          status: "approved",
+          amount: diff
+        });
+      } else if (diff < 0) {
+        sendNotification(currentUid, {
+          title: "Account Debited",
+          message: `Dear User, your account has been debited by TSLPA with $${Math.abs(diff).toFixed(2)}. Your new balance is $${newBalance.toFixed(2)}.`,
+          type: "withdrawal",
+          status: "approved",
+          amount: Math.abs(diff)
+        });
+      }
+
+      toast("User profile updated.");
+    } catch(e) {
+      console.error(e);
+      toast("Unable to update user: " + e.message);
+    }
+  }
+
+  async function addBalance() {
+    adjustBalance(1);
+  }
+
+  async function resetUserPassword(uid) {
+    if (!confirm(`Reset password for user ${uid}? This will set a temporary password.`)) return;
+    const temp = Math.random().toString(36).slice(-8);
+    try {
+      await db.ref(`users/${uid}/password`).set(temp);
+
+      sendNotification(uid, {
+        title: "Password Reset",
+        message: "Dear User, your account password has been reset by TSLPA support. Please check your new password or contact support.",
+        type: "security",
+        status: "approved"
+      });
+
+      toast(`Password reset. Temporary password: ${temp}`);
+    }
+    catch(e) { console.error(e); toast("Failed to reset password."); }
+  }
+
+  async function toggleUser(uid) {
+    const user = users[uid]; if (!user) return;
+    const newState = user.disabled !== true;
+    try {
+      await db.ref(`users/${uid}/disabled`).set(newState);
+
+      sendNotification(uid, {
+        title: newState ? "Account Disabled" : "Account Enabled",
+        message: newState
+          ? "Dear User, your account has been disabled. Please contact support for assistance."
+          : "Dear User, your account has been successfully re-enabled. You can now log in.",
+        type: newState ? "warning" : "success",
+        status: newState ? "disabled" : "approved"
+      });
+
+      toast(newState?"User disabled.":"User enabled.");
+      openUser(uid);
+    }
+    catch(e) { console.error(e); toast("Unable to change account status."); }
+  }
+
+  // ===== USER SUB-RECORDS =====
+  function renderUserInvestments(user) {
+    const entries = Object.entries(user.investments || {});
+    if (!entries.length) return `<div class="empty">No investments found.</div>`;
+    return entries.map(([id, inv]) => `
+      <div class="record"><div class="record-top"><div><div class="record-title">${escapeHTML(inv.plan_name||'Investment')}</div>
+        <div class="record-meta">Amount: $${Number(inv.amount||0).toLocaleString()}<br>Stock: ${escapeHTML(inv.stock_name||'-')}<br>Duration: ${escapeHTML(inv.duration_text||'-')}<br>Expected Return: ${Number(inv.percentage_earned||0)}%<br>Start: ${escapeHTML(inv.start_date||'-')}<br>End: ${escapeHTML(inv.end_date||'-')}</div></div>
+        <span class="status ${statusClass(inv.status)}">${escapeHTML(inv.status||'pending')}</span></div>
+        ${inv.status === 'pending' ? `<div class="record-actions"><button class="btn btn-success" onclick="investmentAction('${currentUid}','${id}','approved')">✓ Approve</button><button class="btn btn-danger" onclick="investmentAction('${currentUid}','${id}','failed')">✕ Fail</button></div>` : ''}
+      </div>`).join("");
+  }
+  function renderUserDeposits(user) {
+    const entries = Object.entries(user.deposits || {});
+    if (!entries.length) return `<div class="empty">No deposits found.</div>`;
+    const uid = currentUid;
+    return entries.map(([id, d]) => {
+      const st = String(d.status || "pending").toLowerCase();
+      const proofUrl = getProofUrl(d);
+      const proofBtn = proofUrl
+        ? `<button class="btn btn-primary" onclick="openProof('${attr(proofUrl)}')"><i class="fas fa-image"></i> View Proof</button>`
+        : `<button class="btn btn-light" disabled><i class="fas fa-image"></i> No Proof</button>`;
+
+      let actionBtns = "";
+      if (st === "pending") {
+        actionBtns = `
+          <button class="btn btn-success" onclick="depositAction('${uid}','${id}','approved')"><i class="fas fa-check"></i> Approve</button>
+          <button class="btn btn-danger"  onclick="depositAction('${uid}','${id}','failed')"><i class="fas fa-times"></i> Fail</button>`;
+      } else if (st === "failed") {
+        actionBtns = `
+          <button class="btn btn-success" onclick="depositAction('${uid}','${id}','approved')"><i class="fas fa-check"></i> Approve</button>`;
+      } else if (st === "approved") {
+        actionBtns = `
+          <button class="btn btn-warning" onclick="depositAction('${uid}','${id}','failed')"><i class="fas fa-undo"></i> Mark Failed</button>`;
+      }
+
+      return `
+      <div class="record">
+        <div class="record-top">
+          <div style="min-width:0;">
+            <div class="record-title">${escapeHTML(d.deposit_type_label||d.deposit_type||'Deposit')}</div>
+            <div class="record-meta">
+              <div><strong>Amount:</strong> <span class="money">$${Number(d.amount||0).toLocaleString()}</span></div>
+              <div><strong>Date:</strong> ${escapeHTML(d.date||'-')}</div>
+              <div><strong>Filename:</strong> ${escapeHTML(d.filename||'-')}</div>
+              <div><strong>File Type:</strong> ${escapeHTML(d.file_type||'-')}</div>
+              ${d.approved_at ? `<div><strong>Approved:</strong> ${escapeHTML(new Date(d.approved_at).toLocaleString())}</div>` : ""}
+            </div>
+          </div>
+          <span class="status ${statusClass(d.status)}">${escapeHTML(d.status||'pending')}</span>
+        </div>
+        <div class="record-actions">
+          ${proofBtn}
+          ${actionBtns}
+        </div>
+      </div>`;
+    }).join("");
+  }
+  function renderUserWithdrawals(user) {
+    const entries = Object.entries(user.withdrawals || {});
+    if (!entries.length) return `<div class="empty">No withdrawals found.</div>`;
+    return entries.map(([id, w]) => `
+      <div class="record"><div class="record-top"><div><div class="record-title">$${Number(w.amount||0).toLocaleString()}</div>
+        <div class="record-meta">Bank: ${escapeHTML(w.bank||'-')}<br>Account Number: ${escapeHTML(w.account_number||'-')}<br>Account Name: ${escapeHTML(w.account_name||'-')}<br>Date: ${escapeHTML(w.date||'-')}</div></div>
+        <span class="status ${statusClass(w.status)}">${escapeHTML(w.status||'pending')}</span></div>
+        ${w.status === 'pending' ? `<div class="record-actions"><button class="btn btn-success" onclick="withdrawalAction('${currentUid}','${id}','approved')">✓ Approve</button><button class="btn btn-danger" onclick="withdrawalAction('${currentUid}','${id}','failed')">✕ Fail</button></div>` : ''}
+      </div>`).join("");
+  }
+
+  async function investmentAction(uid, id, status) {
+    try {
+      await db.ref(`users/${uid}/investments/${id}/status`).set(status);
+
+      const snap = await db.ref(`users/${uid}/investments/${id}`).once("value");
+      const inv = snap.val() || {};
+      const amt = Number(inv.amount || 0);
+      const plan = inv.plan_name || "your investment";
+
+      if (status === "approved") {
+        sendNotification(uid, {
+          title: "Investment Approved",
+          message: `Dear User, your investment of $${amt.toFixed(2)} in ${plan} has been approved.`,
+          type: "investment",
+          status: "approved",
+          amount: amt
+        });
+      } else {
+        sendNotification(uid, {
+          title: "Investment Failed",
+          message: `Dear User, your investment of $${amt.toFixed(2)} in ${plan} was not successful.`,
+          type: "error",
+          status: "failed",
+          amount: amt
+        });
+      }
+
+      toast(status==="approved"?"Investment approved.":"Investment marked failed.");
+      openUser(uid);
+    }
+    catch(e) { console.error(e); toast("Investment update failed."); }
+  }
+
+  async function withdrawalAction(uid, id, status) {
+    try {
+      const snapBefore = await db.ref(`users/${uid}/withdrawals/${id}`).once("value");
+      const w = snapBefore.val() || {};
+      const amt = Number(w.amount || 0);
+
+      await db.ref(`users/${uid}/withdrawals/${id}/status`).set(status);
+
+      if (status === "approved") {
+        const userSnap = await db.ref(`users/${uid}`).once("value");
+        const u = userSnap.val() || {};
+        const currentBalance = Number(u.balance || 0);
+        const newBalance = Math.max(0, currentBalance - amt);
+        await db.ref(`users/${uid}/balance`).set(newBalance);
+
+        sendNotification(uid, {
+          title: "Withdrawal Approved",
+          message: `Dear User, your withdrawal of $${amt.toFixed(2)} has been approved. Your new balance is $${newBalance.toFixed(2)}.`,
+          type: "withdrawal",
+          status: "approved",
+          amount: amt
+        });
+      } else {
+        sendNotification(uid, {
+          title: "Withdrawal Failed",
+          message: `Dear User, your withdrawal of $${amt.toFixed(2)} was not successful. Please contact support.`,
+          type: "error",
+          status: "failed",
+          amount: amt
+        });
+      }
+
+      toast(status==="approved"?"Withdrawal approved.":"Withdrawal marked failed.");
+      openUser(uid);
+    }
+    catch(e) { console.error(e); toast("Withdrawal update failed."); }
+  }
+
+  async function depositAction(uid, id, status) {
+    if (!uid || !id) return;
+    const verb = status === "approved" ? "approve" : "fail";
+    if (!confirm(`Are you sure you want to ${verb} this deposit?`)) return;
+
+    try {
+      await db.ref(`users/${uid}/deposits/${id}/status`).set(status);
+
+      const depSnap = await db.ref(`users/${uid}/deposits/${id}`).once("value");
+      const dep = depSnap.val() || {};
+      const amt = Number(dep.amount || 0);
+
+      if (status === "approved") {
+        await db.ref(`users/${uid}/deposits/${id}`).update({
+          approved_at: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        const userSnap = await db.ref(`users/${uid}`).once("value");
+        const u = userSnap.val() || {};
+        const currentBalance = Number(u.balance || 0);
+        const newBalance = currentBalance + amt;
+        await db.ref(`users/${uid}/balance`).set(newBalance);
+
+        sendNotification(uid, {
+          title: "Deposit Approved",
+          message: `Dear User, your deposit of $${amt.toFixed(2)} has been approved and added to your account. Your new balance is $${newBalance.toFixed(2)}.`,
+          type: "deposit",
+          status: "approved",
+          amount: amt
+        });
+      } else if (status === "failed") {
+        sendNotification(uid, {
+          title: "Deposit Failed",
+          message: `Dear User, your deposit of $${amt.toFixed(2)} could not be approved. Please contact support.`,
+          type: "error",
+          status: "failed",
+          amount: amt
+        });
+      }
+
+      toast(status === "approved" ? "Deposit approved." : "Deposit marked failed.");
+
+      if (currentUid === uid) openUser(uid);
+      renderDeposits();
+      updateStats();
+    } catch (e) {
+      console.error("depositAction error:", e);
+      toast("Deposit update failed: " + e.message);
+    }
+  }
+
+  // ===== ALL LISTS =====
+  function renderInvestments() {
+    const c = document.getElementById("allInvestments");
+    const filter = document.getElementById("investmentStatusFilter")?.value || "all";
+    c.innerHTML = ""; let found = false;
+    Object.entries(users).forEach(([uid, user]) => {
+      Object.entries(user.investments || {}).forEach(([id, inv]) => {
+        if (filter !== "all" && inv.status !== filter) return;
+        found = true;
+        const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "User";
+        const div = document.createElement("div"); div.className = "record";
+        div.innerHTML = `
+          <div class="record-top"><div><div class="record-title">${escapeHTML(inv.plan_name||'Investment')} • ${escapeHTML(name)}</div>
+            <div class="record-meta">Amount: $${Number(inv.amount||0).toLocaleString()}<br>Stock: ${escapeHTML(inv.stock_name||'-')}<br>Duration: ${escapeHTML(inv.duration_text||'-')}<br>UID: ${escapeHTML(uid)}</div></div>
+            <span class="status ${statusClass(inv.status)}">${escapeHTML(inv.status||'pending')}</span></div>
+          ${inv.status === 'pending' ? `<div class="record-actions"><button class="btn btn-success" onclick="investmentAction('${uid}','${id}','approved')">✓ Approve</button><button class="btn btn-danger" onclick="investmentAction('${uid}','${id}','failed')">✕ Fail</button></div>` : ''}`;
+        c.appendChild(div);
+      });
+    });
+    if (!found) c.innerHTML = `<div class="empty">No investments found.</div>`;
+  }
+
+  function renderDeposits() {
+    const c = document.getElementById("allDeposits");
+    const filter = document.getElementById("depositStatusFilter")?.value || "all";
+    c.innerHTML = "";
+
+    const flat = [];
+    Object.entries(users).forEach(([uid, user]) => {
+      Object.entries(user.deposits || {}).forEach(([id, d]) => {
+        if (filter !== "all" && d.status !== filter) return;
+        flat.push({ uid, user, id, d });
+      });
+    });
+
+    flat.sort((a, b) => Number(b.d.created_at || Date.parse(b.d.date) || 0) - Number(a.d.created_at || Date.parse(a.d.date) || 0));
+
+    if (!flat.length) { c.innerHTML = `<div class="empty">No deposits found.</div>`; return; }
+
+    flat.forEach(({ uid, user, id, d }) => {
+      const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "User";
+      const st = String(d.status || "pending").toLowerCase();
+
+      const proofUrl = getProofUrl(d);
+      const proofBtn = proofUrl
+        ? `<button class="btn btn-primary" onclick="openProof('${attr(proofUrl)}')"><i class="fas fa-image"></i> View Proof</button>`
+        : `<button class="btn btn-light" disabled><i class="fas fa-image"></i> No Proof</button>`;
+
+      let actionBtns = "";
+      if (st === "pending") {
+        actionBtns = `
+          <button class="btn btn-success" onclick="depositAction('${uid}','${id}','approved')"><i class="fas fa-check"></i> Approve</button>
+          <button class="btn btn-danger"  onclick="depositAction('${uid}','${id}','failed')"><i class="fas fa-times"></i> Fail</button>`;
+      } else if (st === "failed") {
+        actionBtns = `
+          <button class="btn btn-success" onclick="depositAction('${uid}','${id}','approved')"><i class="fas fa-check"></i> Approve</button>`;
+      } else if (st === "approved") {
+        actionBtns = `
+          <button class="btn btn-warning" onclick="depositAction('${uid}','${id}','failed')"><i class="fas fa-undo"></i> Mark Failed</button>`;
+      }
+
+      const div = document.createElement("div");
+      div.className = "record";
+      div.innerHTML = `
+        <div class="record-top">
+          <div style="min-width:0;">
+            <div class="record-title">${escapeHTML(name)}</div>
+            <div class="record-meta">
+              <div><strong>Amount:</strong> <span class="money">$${Number(d.amount||0).toLocaleString()}</span></div>
+              <div><strong>Type:</strong> ${escapeHTML(d.deposit_type_label||d.deposit_type||'-')}</div>
+              <div><strong>Date:</strong> ${escapeHTML(d.date||'-')}</div>
+              <div style="word-break:break-all;"><strong>UID:</strong> ${escapeHTML(uid)}</div>
+              ${d.approved_at ? `<div><strong>Approved:</strong> ${escapeHTML(new Date(d.approved_at).toLocaleString())}</div>` : ""}
+            </div>
+          </div>
+          <span class="status ${statusClass(d.status)}">${escapeHTML(d.status||'pending')}</span>
+        </div>
+        <div class="record-actions">
+          ${proofBtn}
+          <button class="btn btn-light" onclick="openUser('${uid}')"><i class="fas fa-user"></i> Open</button>
+          ${actionBtns}
+        </div>`;
+      c.appendChild(div);
+    });
+  }
+
+  function renderWithdrawals() {
+    const c = document.getElementById("allWithdrawals");
+    const filter = document.getElementById("withdrawalStatusFilter")?.value || "all";
+    c.innerHTML = ""; let found = false;
+    Object.entries(users).forEach(([uid, user]) => {
+      Object.entries(user.withdrawals || {}).forEach(([id, w]) => {
+        if (filter !== "all" && w.status !== filter) return;
+        found = true;
+        const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "User";
+        const div = document.createElement("div"); div.className = "record";
+        div.innerHTML = `
+          <div class="record-top"><div><div class="record-title">${escapeHTML(name)}</div>
+            <div class="record-meta">Amount: $${Number(w.amount||0).toLocaleString()}<br>Bank: ${escapeHTML(w.bank||'-')}<br>Account: ${escapeHTML(w.account_number||'-')}<br>Account Name: ${escapeHTML(w.account_name||'-')}<br>UID: ${escapeHTML(uid)}</div></div>
+            <span class="status ${statusClass(w.status)}">${escapeHTML(w.status||'pending')}</span></div>
+          ${w.status === 'pending' ? `<div class="record-actions"><button class="btn btn-success" onclick="withdrawalAction('${uid}','${id}','approved')">✓ Approve</button><button class="btn btn-danger" onclick="withdrawalAction('${uid}','${id}','failed')">✕ Fail</button></div>` : ''}`;
+        c.appendChild(div);
+      });
+    });
+    if (!found) c.innerHTML = `<div class="empty">No withdrawals found.</div>`;
+  }
+
+  // ============================================================
+  // CHAT
+  // ============================================================
+  function getChatMessages(chatEntry) {
+    const msgs = {};
+    if (!chatEntry) return msgs;
+    Object.keys(chatEntry).forEach(k => {
+      if (k === "_meta" || k === "email" || k === "userKey" || k === "lastMessage" || k === "lastSender" || k === "updatedAt" || k === "createdAt" || k === "lastSeen") return;
+      const v = chatEntry[k];
+      if (v && typeof v === "object" && (
+        v.message !== undefined ||
+        v.text !== undefined ||
+        v.content !== undefined ||
+        v.image_url !== undefined
+      )) {
+        msgs[k] = v;
+      }
+    });
+    if (chatEntry.messages && typeof chatEntry.messages === "object") {
+      Object.keys(chatEntry.messages).forEach(k => { msgs[k] = chatEntry.messages[k]; });
+    }
+    return msgs;
+  }
+
+  function getLastMessage(chatEntry) {
+    const msgs = getChatMessages(chatEntry);
+    const items = Object.entries(msgs).map(([id, m]) => ({ id, ...m }));
+    if (!items.length) return null;
+    items.sort((a,b) => Number(a.timestamp || a.createdAt || 0) - Number(b.timestamp || b.createdAt || 0));
+    return items[items.length - 1];
+  }
+
+  function getUnreadCount(userKey, chatEntry) {
+    const msgs = getChatMessages(chatEntry);
+    const lastRead = Number((chatEntry && chatEntry._meta && chatEntry._meta.adminLastRead) || 0);
+    let count = 0;
+    Object.values(msgs).forEach(m => {
+      const sender = String(m.sender || "").toLowerCase();
+      const ts = Number(m.timestamp || m.createdAt || 0);
+      if (sender !== "customer" && sender !== "user" && sender !== "client") return;
+      if (ts > lastRead) count++;
+    });
+    return count;
+  }
+
+  function formatChatTime(ts) {
+    if (!ts) return "";
+    const d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return "";
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+    const diffDays = Math.floor((now - d) / 86400000);
+    if (diffDays < 7) return d.toLocaleDateString([], { weekday: "short" });
+    return d.toLocaleDateString([], { day: "2-digit", month: "short" });
+  }
+  function formatMessageTime(ts) {
+    if (!ts) return "";
+    const d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleString([], { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+  function formatDateSeparator(ts) {
+    const d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return "";
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) return "Today";
+    const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+    return d.toLocaleDateString([], { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+  }
+
+  function setChatFilter(f) {
+    chatFilter = f;
+    document.querySelectorAll(".chat-filter-chip").forEach(c => c.classList.toggle("active", c.dataset.filter === f));
+    renderChatList();
+  }
+
+  function updateChatNavBadge() {
+    let total = 0;
+    Object.entries(chats).forEach(([k, c]) => { total += getUnreadCount(k, c); });
+    const badge = document.getElementById("chatNavBadge");
+    if (total > 0) { badge.textContent = total > 99 ? "99+" : String(total); badge.style.display = "flex"; }
+    else badge.style.display = "none";
+
+    if (total > lastAggregateUnread && lastAggregateUnread !== 0) {
+      const diff = total - lastAggregateUnread;
+      toast(`💬 ${diff} new chat message${diff > 1 ? "s" : ""}`);
+    }
+    lastAggregateUnread = total;
+  }
+
+  function renderChatList() {
+    const container = document.getElementById("chatList");
+    const entries = Object.entries(chats).map(([key, entry]) => {
+      const last = getLastMessage(entry);
+      const unread = getUnreadCount(key, entry);
+      const name = getUserDisplayName(key, entry);
+      const email = getUserEmail(key, entry);
+      return { key, entry, last, unread, name, email };
+    }).filter(e => e.last);
+
+    const unviewed = entries.filter(e => e.unread > 0);
+    const viewed = entries.filter(e => e.unread === 0);
+    document.getElementById("chipUnviewed").textContent = unviewed.length;
+    document.getElementById("chipViewed").textContent = viewed.length;
+    document.getElementById("chipAll").textContent = entries.length;
+
+    let list;
+    if (chatFilter === "unviewed") list = unviewed;
+    else if (chatFilter === "viewed") list = viewed;
+    else list = entries;
+
+    list.sort((a,b) => Number(b.last.timestamp || b.last.createdAt || 0) - Number(a.last.timestamp || a.last.createdAt || 0));
+
+    container.innerHTML = "";
+    if (!list.length) {
+      container.innerHTML = `<div class="empty" style="padding:40px 20px;">${chatFilter === "unviewed" ? "No unviewed chats 🎉" : chatFilter === "viewed" ? "No viewed chats yet." : "No chats yet."}</div>`;
+      return;
+    }
+
+    if (chatFilter === "all") {
+      if (unviewed.length) {
+        const t = document.createElement("div"); t.className = "chat-list-section-title"; t.textContent = `Unviewed · ${unviewed.length}`;
+        container.appendChild(t);
+        unviewed.sort((a,b) => Number(b.last.timestamp||0) - Number(a.last.timestamp||0)).forEach(e => container.appendChild(buildChatListItem(e)));
+      }
+      if (viewed.length) {
+        const t = document.createElement("div"); t.className = "chat-list-section-title"; t.textContent = `Viewed · ${viewed.length}`;
+        container.appendChild(t);
+        viewed.sort((a,b) => Number(b.last.timestamp||0) - Number(a.last.timestamp||0)).forEach(e => container.appendChild(buildChatListItem(e)));
+      }
+    } else {
+      list.forEach(e => container.appendChild(buildChatListItem(e)));
+    }
+  }
+
+  function buildChatListItem({ key, entry, last, unread, name, email }) {
+    const item = document.createElement("div");
+    item.className = "chat-list-item" + (unread > 0 ? " unread" : "") + (activeChatKey === key ? " active" : "");
+    item.dataset.key = key;
+    item.onclick = () => openConversation(key);
+    const initials = initialsFromEmail(email, name);
+
+    const previewRaw = String(last.message || last.text || last.content || "");
+    const isImageMsg = (last.type === "image") || (last.image_url && String(last.image_url).length > 4);
+    const previewBase = isImageMsg
+      ? (previewRaw && previewRaw !== "[image]" ? previewRaw : "📷 Photo")
+      : previewRaw;
+    const preview = escapeHTML(previewBase.length > 60 ? previewBase.slice(0,60) + "…" : previewBase);
+
+    const senderRaw = String(last.sender || "").toLowerCase();
+    const senderPrefix = (senderRaw === "care" || senderRaw === "admin") ? "You: " : "";
+
+    item.innerHTML = `
+      <div class="user-avatar">${escapeHTML(initials)}</div>
+      <div class="chat-list-body">
+        <div class="chat-list-top">
+          <div class="chat-list-name">${escapeHTML(name)}</div>
+          <div class="chat-list-time">${escapeHTML(formatChatTime(last.timestamp || last.createdAt))}</div>
+        </div>
+        <div class="chat-list-preview">${senderPrefix}${preview || "<em style='color:#5a6c8a;'>No message</em>"}</div>
+      </div>
+      ${unread > 0 ? `<div class="chat-unread-badge">${unread > 99 ? "99+" : unread}</div>` : ""}
+    `;
+    return item;
+  }
+
+  function openConversation(userKey) {
+    activeChatKey = userKey;
+    const entry = chats[userKey] || {};
+    const name = getUserDisplayName(userKey, entry);
+    const email = getUserEmail(userKey, entry);
+    const initials = initialsFromEmail(email, name);
+
+    document.getElementById("convoAvatar").textContent = initials;
+    document.getElementById("convoName").textContent = name;
+    document.getElementById("convoEmail").textContent = email;
+
+    document.getElementById("chatConvoHeader").style.display = "flex";
+    document.getElementById("chatConvoEmpty").style.display  = "none";
+    document.getElementById("chatMessages").style.display    = "flex";
+    document.getElementById("chatComposer").style.display    = "flex";
+
+    document.getElementById("chatPage").classList.add("has-active");
+    if (isMobile()) document.body.classList.add("chat-convo-open");
+
+    document.querySelectorAll(".chat-list-item").forEach(el =>
+      el.classList.toggle("active", el.dataset.key === userKey)
+    );
+
+    const input = document.getElementById("chatInput");
+    input.value = "";
+    input.style.height = "42px";
+
+    attachActiveChatListener(userKey);
+    markChatAsRead(userKey);
+
+    setTimeout(() => {
+      const box = document.getElementById("chatMessages");
+      if (box) box.scrollTop = box.scrollHeight;
+    }, 50);
+
+    if (!isMobile()) setTimeout(() => input.focus(), 200);
+  }
+
+  function attachActiveChatListener(userKey) {
+    if (activeMessagesListener && activeChatRef) {
+      activeChatRef.off("value", activeMessagesListener);
+      activeMessagesListener = null;
+    }
+    activeChatRef = db.ref("chat/" + userKey);
+    activeMessagesListener = activeChatRef.on("value", snap => {
+      const data = snap.val() || {};
+      chats[userKey] = data;
+      if (!chats[userKey].messages) chats[userKey].messages = {};
+      if (!chats[userKey]._meta) chats[userKey]._meta = {};
+      if (activeChatKey === userKey) renderConversation(data);
+    });
+  }
+
+  function refreshActiveConvoIfOpen() {
+    if (activeChatKey && chats[activeChatKey]) renderConversation(chats[activeChatKey]);
+  }
+
+  async function markChatAsRead(userKey) {
+    try {
+      await db.ref(`chat/${userKey}/_meta/adminLastRead`).set(firebase.database.ServerValue.TIMESTAMP);
+      if (chats[userKey]) {
+        if (!chats[userKey]._meta) chats[userKey]._meta = {};
+        chats[userKey]._meta.adminLastRead = Date.now();
+      }
+      renderChatList();
+      updateChatNavBadge();
+    } catch(e) { console.error("markRead error:", e); }
+  }
+
+  function renderConversation(entry) {
+    const box = document.getElementById("chatMessages");
+    const msgs = getChatMessages(entry);
+    const items = Object.entries(msgs).map(([id, m]) => ({ id, ...m }));
+    items.sort((a,b) => Number(a.timestamp || a.createdAt || 0) - Number(b.timestamp || b.createdAt || 0));
+
+    const userLastRead = Number(
+      (entry && entry._meta && entry._meta.userLastRead) || 0
+    );
+
+    if (!items.length) {
+      box.innerHTML = `<div class="empty" style="margin:auto;">No messages yet. Say hello 👋</div>`;
+      return;
+    }
+
+    const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+    box.innerHTML = "";
+    let lastDateKey = "";
+
+    items.forEach(m => {
+      const ts = Number(m.timestamp || m.createdAt || 0);
+      const dateKey = ts ? new Date(ts).toDateString() : "";
+      if (dateKey && dateKey !== lastDateKey) {
+        const sep = document.createElement("div");
+        sep.className = "chat-date-sep";
+        sep.textContent = formatDateSeparator(ts);
+        box.appendChild(sep);
+        lastDateKey = dateKey;
+      }
+
+      const senderRaw = String(m.sender || m.role || "").toLowerCase();
+      const isCustomer = senderRaw === "customer" || senderRaw === "user" || senderRaw === "client" || (!senderRaw && m.email);
+
+      const row = document.createElement("div");
+      row.className = "chat-msg-row " + (isCustomer ? "customer" : "care");
+
+      const bubble = document.createElement("div");
+      bubble.className = "chat-bubble";
+
+      const isImage =
+        (m.type === "image" && m.image_url) ||
+        (typeof m.image_url === "string" && m.image_url.length > 4);
+
+      if (isImage) {
+        bubble.classList.add("chat-bubble-image");
+
+        const img = document.createElement("img");
+        img.src = m.image_url;
+        img.alt = m.filename || "chat image";
+        img.loading = "lazy";
+        img.referrerPolicy = "no-referrer";
+        img.crossOrigin = "anonymous";
+        img.addEventListener("click", () => {
+          if (typeof openProof === "function") {
+            openProof(m.image_url);
+          } else {
+            window.open(m.image_url, "_blank", "noopener,noreferrer");
+          }
+        });
+
+        bubble.appendChild(img);
+
+        if (m.message && String(m.message).trim() !== "" && m.message !== "[image]") {
+          const cap = document.createElement("span");
+          cap.className = "chat-image-caption";
+          cap.textContent = String(m.message);
+          bubble.appendChild(cap);
+        }
+      } else {
+        const text = document.createElement("div");
+        const raw = String(m.message ?? m.text ?? m.content ?? "");
+        text.innerHTML = escapeHTML(raw).replace(/\n/g, "<br>");
+        bubble.appendChild(text);
+      }
+
+      const t = document.createElement("span");
+      t.className = "chat-msg-time";
+      t.textContent = formatMessageTime(ts);
+      bubble.appendChild(t);
+
+      if (isCustomer && ts > 0) {
+        const seen = userLastRead > 0 && ts <= userLastRead;
+        const receipt = document.createElement("div");
+        receipt.className = "chat-receipt " + (seen ? "seen" : "delivered");
+        receipt.innerHTML = seen
+          ? `<i class="fas fa-check-double"></i> Seen`
+          : `<i class="fas fa-check"></i> Delivered`;
+        bubble.appendChild(receipt);
+      }
+
+      row.appendChild(bubble);
+      box.appendChild(row);
+    });
+
+    if (nearBottom) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+  }
+
+  function closeConvoMobile() {
+    document.getElementById("chatPage").classList.remove("has-active");
+    document.body.classList.remove("chat-convo-open");
+
+    document.getElementById("chatConvoHeader").style.display = "none";
+    document.getElementById("chatMessages").style.display    = "none";
+    document.getElementById("chatComposer").style.display    = "none";
+    document.getElementById("chatConvoEmpty").style.display  = "flex";
+
+    document.querySelectorAll(".chat-list-item").forEach(el => el.classList.remove("active"));
+
+    if (activeMessagesListener && activeChatRef) {
+      activeChatRef.off("value", activeMessagesListener);
+      activeMessagesListener = null;
+    }
+    activeChatKey = null;
+
+    renderChatList();
+    updateChatNavBadge();
+  }
+
+  async function sendAdminReply() {
+    if (!activeChatKey) return;
+    const input = document.getElementById("chatInput");
+    const message = String(input.value || "").trim();
+    if (!message) { input.focus(); return; }
+    if (message.length > 2000) { toast("Message too long (max 2000)."); return; }
+
+    const btn = document.getElementById("chatSendBtn");
+    btn.disabled = true;
+    try {
+      const ref = db.ref("chat/" + activeChatKey).push();
+      await ref.set({
+        email: getUserEmail(activeChatKey, chats[activeChatKey] || {}),
+        message: message,
+        sender: "care",
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+      await db.ref("chat/" + activeChatKey + "/_meta").update({
+        lastAdminReplyAt: firebase.database.ServerValue.TIMESTAMP
+      });
+      input.value = "";
+      input.style.height = "42px";
+      if (!isMobile()) input.focus();
+    } catch(e) {
+      console.error("sendAdminReply error:", e);
+      toast("Failed to send reply. Try again.");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function sendAdminImage(file) {
+    if (!activeChatKey) { toast("Open a conversation first."); return; }
+    if (!file) return;
+    if (!file.type || !file.type.startsWith("image/")) {
+      toast("Only image files are allowed.");
+      return;
+    }
+    if (file.size > SUPABASE_MAX_BYTES) {
+      toast("Image is too large (max 8 MB).");
+      return;
+    }
+
+    const attachBtn = document.getElementById("adminChatAttachBtn");
+    const sendBtn = document.getElementById("chatSendBtn");
+    const fileInput = document.getElementById("adminChatFileInput");
+
+    if (attachBtn) { attachBtn.disabled = true; attachBtn.classList.add("is-uploading"); }
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+      const uploaded = await uploadChatImage(file);
+
+      const ref = db.ref("chat/" + activeChatKey).push();
+      await ref.set({
+        email: getUserEmail(activeChatKey, chats[activeChatKey] || {}),
+        message: "[image]",
+        type: "image",
+        image_url: uploaded.publicUrl,
+        image_path: uploaded.path,
+        filename: uploaded.filename,
+        file_size: uploaded.size,
+        file_type: uploaded.mime,
+        sender: "care",
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      await db.ref("chat/" + activeChatKey + "/_meta").update({
+        lastAdminReplyAt: firebase.database.ServerValue.TIMESTAMP
+      });
+
+      toast("📷 Photo sent.");
+      if (!isMobile()) {
+        const input = document.getElementById("chatInput");
+        if (input) input.focus();
+      }
+    } catch (e) {
+      console.error("sendAdminImage error:", e);
+      toast("Failed to send photo: " + (e.message || "unknown error"));
+    } finally {
+      if (attachBtn) { attachBtn.disabled = false; attachBtn.classList.remove("is-uploading"); }
+      if (sendBtn) sendBtn.disabled = false;
+      if (fileInput) fileInput.value = "";
+    }
+  }
+
+  function bindAdminChatAttach() {
+    const attachBtn = document.getElementById("adminChatAttachBtn");
+    const fileInput = document.getElementById("adminChatFileInput");
+    if (!attachBtn || !fileInput) return;
+    if (attachBtn.dataset.bound === "1") return;
+    attachBtn.dataset.bound = "1";
+
+    attachBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!activeChatKey) { toast("Open a conversation first."); return; }
+      fileInput.value = "";
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      sendAdminImage(f);
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("chatInput");
+    if (!input) return;
+    input.addEventListener("input", function() {
+      this.style.height = "42px";
+      const target = Math.min(this.scrollHeight, 110);
+      this.style.height = Math.max(target, 42) + "px";
+    });
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey && !isMobile()) {
+        e.preventDefault();
+        sendAdminReply();
+      }
+    });
+
+    bindAdminChatAttach();
+  });
+
+  function showSection(section) {
+    const sections = ["dashboard","users","chats","verifications","investments","deposits","withdrawals"];
+    sections.forEach(name => {
+      const el = document.getElementById(name + "Section");
+      if (el) el.style.display = name === section ? "block" : "none";
+    });
+    const titles = { dashboard:"Dashboard", users:"Users", chats:"Chats", verifications:"Verifications", investments:"Investments", deposits:"Deposits", withdrawals:"Withdrawals" };
+    document.getElementById("pageTitle").textContent = titles[section];
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    const buttons = document.querySelectorAll(".nav button");
+    const idx = sections.indexOf(section);
+    if (idx >= 0 && buttons[idx]) buttons[idx].classList.add("active");
+
+    if (section !== "chats") {
+      const page = document.getElementById("chatPage");
+      if (page.classList.contains("has-active")) {
+        page.classList.remove("has-active");
+      }
+      document.body.classList.remove("chat-convo-open");
+    } else {
+      renderChatList();
+      updateChatNavBadge();
+    }
+    if (section === "verifications") {
+      renderVerifications();
+    }
+    closeSidebar();
+  }
+
+  function openChatFromUser(uid) {
+    closeDrawer();
+    showSection("chats");
+    if (!chats[uid]) {
+      chats[uid] = { email: getUserEmail(uid, {}), userKey: uid, messages: {}, _meta: {} };
+    }
+    setTimeout(() => openConversation(uid), 50);
+  }
+
+  function closeDrawer() {
+    document.getElementById("overlay").classList.remove("show");
+    currentUid = null;
+    document.body.style.overflow = "";
+  }
+  document.getElementById("overlay").addEventListener("click", e => { if (e.target.id === "overlay") closeDrawer(); });
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    sidebar.classList.toggle("open");
+    backdrop.classList.toggle("show");
+  }
+  function closeSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    sidebar.classList.remove("open");
+    backdrop.classList.remove("show");
+  }
+
+  function openProof(url) {
+    if (!url) { toast("No proof image available."); return; }
+    const overlay   = document.getElementById("proofOverlay");
+    const container = document.getElementById("proofContent");
+    const headerActions = document.getElementById("proofHeaderActions");
+
+    container.innerHTML = "";
+    if (headerActions) headerActions.innerHTML = "";
+
+    let safeUrl = url;
+    try { safeUrl = decodeURIComponent(url); } catch (e) { safeUrl = url; }
+
+    if (headerActions) {
+      const a = document.createElement("a");
+      a.href = safeUrl;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = "Open ↗";
+      a.style.cssText = "color:#60a5fa;font-size:12px;text-decoration:underline;padding:8px 10px;";
+      headerActions.appendChild(a);
+    }
+
+    const img = document.createElement("img");
+    img.alt = "Payment proof";
+    img.src = safeUrl;
+    img.referrerPolicy = "no-referrer";
+    img.crossOrigin = "anonymous";
+
+    img.onerror = function () {
+      container.innerHTML = `
+        <div style="color:#f87171;text-align:center;padding:30px;font-size:14px;line-height:1.7;">
+          <div style="font-size:34px;margin-bottom:10px;">⚠️</div>
+          Unable to load payment proof.<br>
+          <span style="color:#7a8dad;font-size:12px;">The file may have been deleted or the storage bucket is private.</span><br>
+          <a href="${escapeHTML(safeUrl)}" target="_blank" rel="noopener noreferrer"
+             style="color:#60a5fa;text-decoration:underline;word-break:break-all;display:inline-block;margin-top:10px;">
+            Try opening directly ↗
+          </a>
+        </div>`;
+    };
+
+    container.appendChild(img);
+    overlay.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeProof() {
+    document.getElementById("proofOverlay").classList.remove("show");
+    document.getElementById("proofContent").innerHTML = "";
+    const headerActions = document.getElementById("proofHeaderActions");
+    if (headerActions) headerActions.innerHTML = "";
+    document.body.style.overflow = "";
+  }
+  document.getElementById("proofOverlay").addEventListener("click", e => { if (e.target.id === "proofOverlay") closeProof(); });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (document.getElementById("proofOverlay").classList.contains("show")) closeProof();
+      else if (document.getElementById("overlay").classList.contains("show")) closeDrawer();
+    }
+  });
+
+  document.addEventListener("focusin", e => {
+    if (e.target && e.target.id === "chatInput") {
+      setTimeout(() => {
+        const box = document.getElementById("chatMessages");
+        if (box) box.scrollTop = box.scrollHeight;
+      }, 300);
+    }
+  });
+
+  let lastW = window.innerWidth;
+  window.addEventListener("resize", () => {
+    const w = window.innerWidth;
+    if ((lastW > 900 && w <= 900) || (lastW <= 900 && w > 900)) {
+      renderChatList();
+      if (activeChatKey && chats[activeChatKey]) renderConversation(chats[activeChatKey]);
+    }
+    lastW = w;
+  });
+
+  // ============================================================
+  // VERIFICATION MANAGEMENT
+  // ============================================================
+  function getUserVerification(user) {
+    if (!user) return null;
+    const vp = user.verification_payment || null;
+    let status = user.verification_status || user.verificationStatus;
+    if (!status && user.verified === true) status = "approved";
+    if (!status && vp && vp.status) status = vp.status;
+    if (!status) status = "unverified";
+    return { status: String(status).toLowerCase().trim(), payment: vp };
+  }
+
+  function collectVerifications() {
+    const list = [];
+    Object.entries(users).forEach(([uid, user]) => {
+      const v = getUserVerification(user);
+      if (!v) return;
+      if (v.status === "unverified" && !v.payment) return;
+      list.push({ uid, user, status: v.status, payment: v.payment });
+    });
+    list.sort((a, b) => {
+      const ta = Number(
+        (a.payment && (a.payment.created_at || Date.parse(a.payment.date))) ||
+        a.user.verification_requested_at || 0
+      );
+      const tb = Number(
+        (b.payment && (b.payment.created_at || Date.parse(b.payment.date))) ||
+        b.user.verification_requested_at || 0
+      );
+      return tb - ta;
+    });
+    return list;
+  }
+
+  function formatVerifyDate(payment, user) {
+    let ts = 0;
+    if (payment) ts = Number(payment.created_at || Date.parse(payment.date)) || 0;
+    if (!ts && user) ts = Number(user.verification_requested_at) || 0;
+    if (!ts) return "—";
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleString([], { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function verificationStatusClass(status) {
+    if (status === "approved" || status === "verified" || status === "completed") return "approved";
+    if (status === "failed" || status === "rejected" || status === "declined") return "failed";
+    return "pending";
+  }
+
+  function renderVerifications() {
+    const container = document.getElementById("allVerifications");
+    if (!container) return;
+    const filter = document.getElementById("verificationStatusFilter")?.value || "pending";
+    const all = collectVerifications();
+    const filtered = filter === "all"
+      ? all
+      : all.filter(v => verificationStatusClass(v.status) === filter);
+
+    container.innerHTML = "";
+    if (!filtered.length) {
+      container.innerHTML = `<div class="empty">No ${filter === "all" ? "" : filter + " "}verifications found.</div>`;
+      return;
+    }
+
+    filtered.forEach(({ uid, user, status, payment }) => {
+      const name = `${user.first_name||''} ${user.last_name||''}`.trim() || "Unnamed User";
+      const email = user.email || (payment && payment.user_email) || "-";
+      const statusCls = verificationStatusClass(status);
+      const statusLabel = status === "unverified" ? "No request" : status;
+      const method = (payment && (payment.method_label || payment.method)) || "-";
+      const amount = payment && payment.amount != null ? `$${Number(payment.amount).toLocaleString()}` : "-";
+      const dateStr = formatVerifyDate(payment, user);
+      const proofUrl = getProofUrl(payment);
+
+      const el = document.createElement("div");
+      el.className = "record";
+      el.innerHTML = `
+        <div class="record-top">
+          <div style="min-width:0;">
+            <div class="record-title">${escapeHTML(name)}</div>
+            <div class="record-meta">
+              <div style="word-break:break-all;"><strong>Email:</strong> ${escapeHTML(email)}</div>
+              <div><strong>Method:</strong> ${escapeHTML(method)}</div>
+              <div><strong>Amount:</strong> ${escapeHTML(amount)}</div>
+              <div><strong>Submitted:</strong> ${escapeHTML(dateStr)}</div>
+              <div style="word-break:break-all;"><strong>UID:</strong> ${escapeHTML(uid)}</div>
+            </div>
+          </div>
+          <span class="status ${statusCls}">${escapeHTML(statusLabel)}</span>
+        </div>
+        <div class="record-actions">
+          ${proofUrl
+            ? `<button class="btn btn-primary" onclick="openProof('${attr(proofUrl)}')">📎 View Proof</button>`
+            : `<button class="btn btn-light" disabled>No Proof</button>`}
+          <button class="btn btn-light" onclick="openUser('${uid}')">👤 Open User</button>
+          ${statusCls === "pending"
+            ? `<button class="btn btn-success" onclick="verificationAction('${uid}','approved')">✓ Approve</button>
+               <button class="btn btn-danger"  onclick="verificationAction('${uid}','failed')">✕ Fail</button>`
+            : statusCls === "failed"
+              ? `<button class="btn btn-success" onclick="verificationAction('${uid}','approved')">✓ Approve</button>`
+              : `<button class="btn btn-warning" onclick="verificationAction('${uid}','failed')">↺ Mark Failed</button>`}
+        </div>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function renderUserVerification(user, uid) {
+    const v = getUserVerification(user);
+    if (!v || (v.status === "unverified" && !v.payment)) {
+      return `<div class="empty">No verification request submitted yet.</div>`;
+    }
+    const statusCls = verificationStatusClass(v.status);
+    const payment = v.payment || {};
+    const method = payment.method_label || payment.method || "-";
+    const amount = payment.amount != null ? `$${Number(payment.amount).toLocaleString()}` : "-";
+    const dateStr = formatVerifyDate(payment, user);
+    const proofUrl = getProofUrl(payment);
+
+    return `
+      <div class="record">
+        <div class="record-top">
+          <div style="min-width:0;">
+            <div class="record-title">Verification Payment</div>
+            <div class="record-meta">
+              <div><strong>Method:</strong> ${escapeHTML(method)}</div>
+              <div><strong>Amount:</strong> ${escapeHTML(amount)}</div>
+              <div><strong>Submitted:</strong> ${escapeHTML(dateStr)}</div>
+              ${payment.filename ? `<div style="word-break:break-all;"><strong>File:</strong> ${escapeHTML(payment.filename)}</div>` : ""}
+            </div>
+          </div>
+          <span class="status ${statusCls}">${escapeHTML(v.status === "unverified" ? "No request" : v.status)}</span>
+        </div>
+        <div class="record-actions">
+          ${proofUrl
+            ? `<button class="btn btn-primary" onclick="openProof('${attr(proofUrl)}')">📎 View Proof</button>`
+            : `<button class="btn btn-light" disabled>No Proof</button>`}
+          ${statusCls === "pending"
+            ? `<button class="btn btn-success" onclick="verificationAction('${uid}','approved')">✓ Approve</button>
+               <button class="btn btn-danger"  onclick="verificationAction('${uid}','failed')">✕ Fail</button>`
+            : statusCls === "failed"
+              ? `<button class="btn btn-success" onclick="verificationAction('${uid}','approved')">✓ Approve</button>`
+              : `<button class="btn btn-warning" onclick="verificationAction('${uid}','failed')">↺ Mark Failed</button>`}
+        </div>
+      </div>
+    `;
+  }
+
+  async function verificationAction(uid, newStatus) {
+    if (!uid) return;
+    const verb = newStatus === "approved" ? "approve" : "fail";
+    if (!confirm(`Are you sure you want to ${verb} verification for user ${uid}?`)) return;
+    try {
+      const updates = {
+        verification_status: newStatus,
+        "verification_payment/status": newStatus
+      };
+      if (newStatus === "approved") updates.verified = true;
+      if (newStatus === "failed")   updates.verified = false;
+      await db.ref(`users/${uid}`).update(updates);
+
+      if (newStatus === "approved") {
+        sendNotification(uid, {
+          title: "Verification Successful",
+          message: "Dear User, your account has been successfully verified.",
+          type: "success",
+          status: "approved"
+        });
+      } else if (newStatus === "failed") {
+        sendNotification(uid, {
+          title: "Verification Failed",
+          message: "Dear User, your verification request was not successful. Please review your details and try again.",
+          type: "error",
+          status: "failed"
+        });
+      }
+
+      toast(`Verification ${newStatus}.`);
+      renderVerifications();
+      if (currentUid === uid) openUser(uid);
+    } catch (e) {
+      console.error("verificationAction error:", e);
+      toast("Failed to update verification: " + e.message);
+    }
+  }
+
+  function updateVerificationBadge() {
+    const all = collectVerifications();
+    const pending = all.filter(v => verificationStatusClass(v.status) === "pending").length;
+    const badge = document.getElementById("verifyNavBadge");
+    if (badge) {
+      if (pending > 0) {
+        badge.textContent = pending > 99 ? "99+" : String(pending);
+        badge.style.display = "flex";
+      } else {
+        badge.style.display = "none";
+      }
+    }
+    const statEl = document.getElementById("pendingVerifications");
+    if (statEl) statEl.textContent = pending;
+  }
+</script>
+</body>
+</html>

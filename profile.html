@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Profile</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="tesla-logopng" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="demo.css">
+
+	<!-- Font Awesome CDN (for icons) -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+	<style>
+		/* ============================================================
+		   LOADING STATE (dotted pulse for dynamic figures)
+		   ============================================================ */
+		.loading-figure {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 3px;
+			opacity: 0.7;
+		}
+		.loading-figure .loading-dot {
+			display: inline-block;
+			width: 5px;
+			height: 5px;
+			border-radius: 50%;
+			background: currentColor;
+			animation: loadingDotPulse 1.2s infinite ease-in-out;
+		}
+		.loading-figure .loading-dot:nth-child(2) { animation-delay: 0.15s; }
+		.loading-figure .loading-dot:nth-child(3) { animation-delay: 0.30s; }
+		@keyframes loadingDotPulse {
+			0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+			40%           { opacity: 1;    transform: translateY(-2px); }
+		}
+
+		/* ============================================================
+		   PROFILE HERO
+		   ============================================================ */
+		.profile-hero {
+			background: linear-gradient(150deg, rgba(30,42,70,0.85), rgba(14,22,40,0.95));
+			border: 1px solid rgba(255,255,255,0.08);
+			border-radius: 22px;
+			padding: 26px;
+			display: flex;
+			align-items: center;
+			gap: 22px;
+			margin-bottom: 22px;
+			position: relative;
+			overflow: hidden;
+			box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7);
+		}
+		.profile-hero::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(circle at 100% 0%, rgba(74,222,128,0.12), transparent 55%);
+			pointer-events: none;
+		}
+		.profile-hero .avatar-large {
+			width: 88px;
+			height: 88px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 3px solid rgba(74, 222, 128, 0.45);
+			flex-shrink: 0;
+			box-shadow: 0 10px 28px -8px rgba(74, 222, 128, 0.45);
+			background: #1a2540;
+			position: relative;
+			z-index: 1;
+		}
+		.profile-hero-info {
+			flex: 1;
+			min-width: 0;
+			position: relative;
+			z-index: 1;
+		}
+		.profile-hero-info h2 {
+			color: #ffffff;
+			font-weight: 700;
+			font-size: 22px;
+			margin: 0 0 6px 0;
+			letter-spacing: -0.3px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			flex-wrap: wrap;
+		}
+		.profile-hero-info .hero-email {
+			color: rgba(255,255,255,0.6);
+			font-size: 13.5px;
+			margin: 0 0 10px 0;
+			word-break: break-all;
+		}
+		.profile-hero-info .hero-meta {
+			color: rgba(255,255,255,0.55);
+			font-size: 12px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			flex-wrap: wrap;
+		}
+		.profile-hero-info .hero-meta .dot {
+			display: inline-block;
+			width: 3px;
+			height: 3px;
+			background: rgba(255,255,255,0.35);
+			border-radius: 50%;
+		}
+
+		@media (max-width: 576px) {
+			.profile-hero {
+				flex-direction: column;
+				text-align: center;
+				padding: 22px 18px;
+			}
+			.profile-hero-info h2 {
+				justify-content: center;
+				font-size: 19px;
+			}
+			.profile-hero-info .hero-meta { justify-content: center; }
+			.profile-hero .avatar-large { width: 76px; height: 76px; }
+		}
+
+		/* ============================================================
+		   ACCOUNT TIER BADGE (shared look with homepage/admin)
+		   ============================================================ */
+		.tier-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: 0.7px;
+			text-transform: uppercase;
+			border: 1px solid transparent;
+			line-height: 1;
+			white-space: nowrap;
+			user-select: none;
+		}
+		.tier-badge .tier-dot {
+			display: inline-block;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: currentColor;
+			box-shadow: 0 0 8px currentColor;
+		}
+		.tier-badge.loading {
+			background: rgba(255,255,255,0.06);
+			color: #7a8dad;
+			border-color: rgba(255,255,255,0.08);
+			animation: tierPulse 1.4s infinite ease-in-out;
+			min-width: 76px;
+			justify-content: center;
+		}
+		@keyframes tierPulse {
+			0%, 100% { opacity: 0.55; }
+			50%      { opacity: 1; }
+		}
+		.tier-badge.tier-default {
+			background: linear-gradient(145deg, rgba(239,68,68,0.22), rgba(220,38,38,0.14));
+			color: #ff8080;
+			border-color: rgba(239,68,68,0.55);
+			box-shadow: 0 0 16px rgba(239,68,68,0.35);
+		}
+		.tier-badge.tier-silver {
+			background: linear-gradient(145deg, rgba(220,228,240,0.22), rgba(160,172,190,0.14));
+			color: #e4eaf4;
+			border-color: rgba(200,212,228,0.5);
+			box-shadow: 0 0 16px rgba(200,212,228,0.3);
+		}
+		.tier-badge.tier-gold {
+			background: linear-gradient(145deg, rgba(251,191,36,0.24), rgba(217,119,6,0.14));
+			color: #fbbf24;
+			border-color: rgba(251,191,36,0.55);
+			box-shadow: 0 0 18px rgba(251,191,36,0.4);
+		}
+		.tier-badge.tier-diamond {
+			background: linear-gradient(145deg, rgba(96,165,250,0.24), rgba(59,130,246,0.14));
+			color: #7cc0ff;
+			border-color: rgba(96,165,250,0.55);
+			box-shadow: 0 0 18px rgba(96,165,250,0.4);
+		}
+		.tier-badge.tier-ruby {
+			background: linear-gradient(145deg, rgba(248,113,113,0.24), rgba(190,18,60,0.16));
+			color: #ff8080;
+			border-color: rgba(248,113,113,0.6);
+			box-shadow: 0 0 18px rgba(248,113,113,0.45);
+		}
+
+		/* ============================================================
+		   INFO GRID
+		   ============================================================ */
+		.info-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+			gap: 16px;
+			margin-bottom: 22px;
+		}
+		.info-card {
+			background: rgba(255,255,255,0.025);
+			border: 1px solid rgba(255,255,255,0.06);
+			border-radius: 16px;
+			padding: 18px;
+			display: flex;
+			align-items: flex-start;
+			gap: 14px;
+			transition: border-color 0.25s, background 0.25s, transform 0.25s;
+		}
+		.info-card:hover {
+			background: rgba(255,255,255,0.04);
+			border-color: rgba(74,222,128,0.2);
+		}
+		.info-card .info-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			background: rgba(74, 222, 128, 0.1);
+			color: #4ade80;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			flex-shrink: 0;
+		}
+		.info-card.tier .info-icon    { background: rgba(251,191,36,0.12); color: #fbbf24; }
+		.info-card.verify .info-icon  { background: rgba(96,165,250,0.12); color: #60a5fa; }
+		.info-card.country .info-icon { background: rgba(167,139,250,0.12); color: #a78bfa; }
+		.info-card.email .info-icon   { background: rgba(74,222,128,0.12);  color: #4ade80; }
+		.info-card.date .info-icon    { background: rgba(248,113,113,0.12); color: #f87171; }
+
+		.info-card .info-content {
+			flex: 1;
+			min-width: 0;
+		}
+		.info-card .info-label {
+			font-size: 10.5px;
+			text-transform: uppercase;
+			letter-spacing: 0.8px;
+			color: rgba(255,255,255,0.55);
+			font-weight: 700;
+			margin-bottom: 8px;
+		}
+		.info-card .info-value {
+			color: #ffffff;
+			font-size: 15px;
+			font-weight: 600;
+			word-break: break-word;
+			line-height: 1.4;
+		}
+		.info-card .info-value .loading-figure { color: rgba(255,255,255,0.5); }
+
+		/* Verification status pills */
+		.status-pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 11.5px;
+			font-weight: 700;
+			letter-spacing: 0.3px;
+			text-transform: capitalize;
+		}
+		.status-pill.verified {
+			background: rgba(34,197,94,0.15);
+			color: #34d399;
+			border: 1px solid rgba(34,197,94,0.3);
+		}
+		.status-pill.pending {
+			background: rgba(251,191,36,0.15);
+			color: #fbbf24;
+			border: 1px solid rgba(251,191,36,0.3);
+		}
+		.status-pill.failed {
+			background: rgba(239,68,68,0.15);
+			color: #f87171;
+			border: 1px solid rgba(239,68,68,0.3);
+		}
+		.status-pill.unverified {
+			background: rgba(255,255,255,0.06);
+			color: #a6b7d4;
+			border: 1px solid rgba(255,255,255,0.1);
+		}
+
+		/* ============================================================
+		   UPGRADE CTA CARD
+		   ============================================================ */
+		.upgrade-card {
+			background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(167,139,250,0.1));
+			border: 1px solid rgba(251,191,36,0.25);
+			border-radius: 18px;
+			padding: 20px 22px;
+			display: flex;
+			align-items: center;
+			gap: 18px;
+			margin-bottom: 22px;
+			position: relative;
+			overflow: hidden;
+		}
+		.upgrade-card::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: radial-gradient(circle at 90% 50%, rgba(251,191,36,0.15), transparent 55%);
+			pointer-events: none;
+		}
+		.upgrade-card .upgrade-icon {
+			width: 52px;
+			height: 52px;
+			border-radius: 14px;
+			background: linear-gradient(145deg, #fbbf24, #d97706);
+			color: #1a1a2e;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 22px;
+			flex-shrink: 0;
+			box-shadow: 0 10px 22px -6px rgba(251,191,36,0.5);
+			position: relative;
+			z-index: 1;
+		}
+		.upgrade-card .upgrade-text {
+			flex: 1;
+			min-width: 0;
+			position: relative;
+			z-index: 1;
+		}
+		.upgrade-card .upgrade-text h5 {
+			color: #ffffff;
+			font-weight: 700;
+			font-size: 16px;
+			margin: 0 0 4px 0;
+		}
+		.upgrade-card .upgrade-text p {
+			color: rgba(255,255,255,0.65);
+			font-size: 12.5px;
+			margin: 0;
+			line-height: 1.5;
+		}
+		.upgrade-card .btn-upgrade {
+			background: linear-gradient(145deg, #fbbf24, #d97706);
+			color: #1a1a2e;
+			border: none;
+			border-radius: 26px;
+			padding: 11px 22px;
+			font-weight: 700;
+			font-size: 13.5px;
+			white-space: nowrap;
+			text-decoration: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: transform 0.2s, box-shadow 0.2s;
+			position: relative;
+			z-index: 1;
+		}
+		.upgrade-card .btn-upgrade:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 12px 26px -8px rgba(251,191,36,0.6);
+			color: #1a1a2e;
+		}
+
+		@media (max-width: 576px) {
+			.upgrade-card {
+				flex-direction: column;
+				text-align: center;
+			}
+			.upgrade-card .btn-upgrade { width: 100%; justify-content: center; }
+		}
+
+		/* ============================================================
+		   EDIT PROFILE CARD
+		   ============================================================ */
+		.edit-card {
+			background: rgba(255,255,255,0.025);
+			border: 1px solid rgba(255,255,255,0.06);
+			border-radius: 18px;
+			padding: 22px;
+			margin-bottom: 22px;
+		}
+		.edit-card h5 {
+			color: #ffffff;
+			font-weight: 700;
+			font-size: 15px;
+			margin: 0 0 4px 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.edit-card h5 i { color: #4ade80; }
+		.edit-card .edit-desc {
+			color: rgba(255,255,255,0.55);
+			font-size: 12.5px;
+			margin: 0 0 20px 0;
+		}
+
+		/* Form field styling on dark */
+		.edit-card .form-group label {
+			color: rgba(255,255,255,0.65);
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.3px;
+			margin-bottom: 8px;
+		}
+		.edit-card .form-control {
+			background: rgba(255,255,255,0.05);
+			border: 1px solid rgba(255,255,255,0.08);
+			color: #ffffff;
+			border-radius: 10px;
+			padding: 11px 14px;
+			font-size: 14px;
+			transition: border-color 0.2s, box-shadow 0.2s;
+		}
+		.edit-card .form-control:focus {
+			background: rgba(255,255,255,0.07);
+			border-color: #4ade80;
+			box-shadow: 0 0 0 3px rgba(74,222,128,0.15);
+			color: #ffffff;
+		}
+		.edit-card .form-control::placeholder { color: rgba(255,255,255,0.3); }
+		.edit-card .form-control.bg-2 {
+			background: rgba(255,255,255,0.03);
+			color: rgba(255,255,255,0.55);
+		}
+		.edit-card input[type="file"] {
+			padding: 8px 12px;
+			font-size: 13px;
+		}
+		.edit-card .btn-save {
+			background: linear-gradient(145deg, #4ade80, #22c55e);
+			border: none;
+			color: #1a1a2e;
+			font-weight: 700;
+			font-size: 14px;
+			padding: 12px 24px;
+			border-radius: 12px;
+			width: 100%;
+			cursor: pointer;
+			transition: transform 0.2s, box-shadow 0.2s;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+		}
+		.edit-card .btn-save:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 10px 24px -8px rgba(74,222,128,0.5);
+			color: #1a1a2e;
+		}
+
+		/* ============================================================
+		   PAGE WRAPPER TWEAKS
+		   ============================================================ */
+		.page-inner { padding-bottom: 40px; }
+		.card { background: transparent; border: none; box-shadow: none; }
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+	    <div class="main-header">
+			<!-- Logo Header -->
+			<div class="logo-header" data-background-color="dark2">
+				<a href="index.html" class="logo">
+					<img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+				</a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon">
+						<i class="icon-menu"></i>
+					</span>
+				</button>
+				<button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+				<div class="nav-toggle">
+					<button class="btn btn-toggle toggle-sidebar">
+						<i class="icon-menu"></i>
+					</button>
+				</div>
+			</div>
+			<!-- End Logo Header -->
+
+			<!-- Navbar Header -->
+			<nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+				<div class="container-fluid">
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						<li class="nav-item dropdown hidden-caret">
+							<a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+								<div class="avatar-sm">
+									<img id="navbarAvatar" src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+								</div>
+							</a>
+							<ul class="dropdown-menu dropdown-user animated fadeIn">
+								<div class="dropdown-user-scroll scrollbar-outer">
+									<li>
+										<div class="user-box">
+											<div class="avatar-lg">
+												<img id="dropdownAvatar" src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+											</div>
+											<div class="u-text">
+												<h4 id="navFullName">Loading...</h4>
+												<p class="text-muted" id="navEmail">Loading...</p>
+												<a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="dropdown-divider"></div>
+										<button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+											<i class="fas fa-sign-out-alt"></i> Logout
+										</button>
+									</li>
+								</div>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+			<!-- End Navbar -->
+		</div>
+		<!-- End main-header -->
+
+		<!-- Sidebar -->
+		<div class="sidebar sidebar-style-2" data-background-color="dark2">
+			<div class="sidebar-wrapper scrollbar scrollbar-inner">
+				<div class="sidebar-content">
+					<div class="user">
+						<div class="avatar-sm float-left mr-2">
+							<img id="sidebarAvatar" src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+						</div>
+						<div class="info">
+							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+								<span>
+									<span id="sidebarFirstName">Loading...</span>
+									<span class="user-level" id="sidebarLastName">Loading...</span>
+									<span class="caret"></span>
+								</span>
+							</a>
+							<div class="clearfix"></div>
+
+							<div class="collapse in" id="collapseExample">
+								<ul class="nav">
+									<li>
+										<a href="profile.html">
+											<span class="link-collapse">My Profile</span>
+										</a>
+									</li>
+									<li>
+										<a href="password.html">
+											<span class="link-collapse">Password</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<ul class="nav nav-primary">
+						<li class="nav-item">
+							<a href="homepage.html">
+								<i class="fas fa-home"></i>
+								<p>Dashboard</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="deposit.html">
+								<i class="fas fa-hotel"></i>
+								<p>Deposit</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="transactions.html">
+								<i class="fas fa-receipt"></i>
+								<p>Transactions</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="stocks.html">
+								<i class="fas fa-layer-group"></i>
+								<p>Tesla Stocks</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+								<i class="fas fa-coins"></i>
+								<p>Investment</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="invest">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="investment-plan.html">
+											<span class="sub-item">Investment Plan</span>
+										</a>
+									</li>
+									<li>
+										<a href="invest.html">
+											<span class="sub-item">Invest</span>
+										</a>
+									</li>
+									<li>
+										<a href="my-investment.html">
+											<span class="sub-item">My Investment</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+								<i class="fas fa-credit-card"></i>
+								<p>Withdrawal</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="withdrawal">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="wallet.html">
+											<span class="sub-item">Wallet</span>
+										</a>
+									</li>
+									<li>
+										<a href="wallet-pin.html">
+											<span class="sub-item">Wallet Pin</span>
+										</a>
+									</li>
+									<li>
+										<a href="withdrawal-request.html">
+											<span class="sub-item">Withdrawal Request</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a href="verification.html">
+								<i class="fas fa-id-card"></i>
+								<p>Verification</p>
+							</a>
+						</li>
+						<li class="nav-item active">
+							<a href="profile.html">
+								<i class="fas fa-user"></i>
+								<p>Profile</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+								<i class="fa fa-power-off"></i> Sign Out
+							</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<div class="content">
+				<div class="page-inner">
+					<div class="page-header">
+						<h4 class="page-title">Profile</h4>
+						<ul class="breadcrumbs">
+							<li class="nav-home">
+								<a href="#">
+									<i class="fas fa-id-badge"></i>
+								</a>
+							</li>
+						</ul>
+					</div>
+
+					<!-- ============================================================
+					     PROFILE HERO
+					     ============================================================ -->
+					<div class="profile-hero">
+						<img id="heroAvatar" src="../assets/img/profile.png" alt="Profile" class="avatar-large">
+						<div class="profile-hero-info">
+							<h2>
+								<span id="heroFullName">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</span>
+								<span id="heroTierBadge" class="tier-badge loading">
+									<span class="tier-dot"></span>...
+								</span>
+							</h2>
+							<p class="hero-email" id="heroEmail">
+								<span class="loading-figure">
+									<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+								</span>
+							</p>
+							<div class="hero-meta">
+								<span>
+									<i class="fas fa-calendar-alt" style="margin-right: 5px; opacity: 0.7;"></i>
+									Member since
+									<span id="heroMemberSince">
+										<span class="loading-figure">
+											<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+										</span>
+									</span>
+								</span>
+								<span class="dot"></span>
+								<span>
+									<i class="fas fa-shield-alt" style="margin-right: 5px; opacity: 0.7;"></i>
+									<span id="heroVerifyInline">
+										<span class="loading-figure">
+											<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+										</span>
+									</span>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- ============================================================
+					     INFO GRID
+					     ============================================================ -->
+					<div class="info-grid">
+
+						<!-- Account Tier -->
+						<div class="info-card tier">
+							<div class="info-icon"><i class="fas fa-crown"></i></div>
+							<div class="info-content">
+								<div class="info-label">Account Tier</div>
+								<div class="info-value" id="infoTier">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Verification Status -->
+						<div class="info-card verify">
+							<div class="info-icon"><i class="fas fa-shield-alt"></i></div>
+							<div class="info-content">
+								<div class="info-label">Verification Status</div>
+								<div class="info-value" id="infoVerification">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Country -->
+						<div class="info-card country">
+							<div class="info-icon"><i class="fas fa-globe-americas"></i></div>
+							<div class="info-content">
+								<div class="info-label">Country</div>
+								<div class="info-value" id="infoCountry">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Email -->
+						<div class="info-card email">
+							<div class="info-icon"><i class="fas fa-envelope"></i></div>
+							<div class="info-content">
+								<div class="info-label">Email Address</div>
+								<div class="info-value" id="infoEmail">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Account Created -->
+						<div class="info-card date">
+							<div class="info-icon"><i class="fas fa-calendar-plus"></i></div>
+							<div class="info-content">
+								<div class="info-label">Account Created</div>
+								<div class="info-value" id="infoCreatedAt">
+									<span class="loading-figure">
+										<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+									</span>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+					<!-- ============================================================
+					     UPGRADE CTA
+					     ============================================================ -->
+					<div class="upgrade-card">
+						<div class="upgrade-icon"><i class="fas fa-crown"></i></div>
+						<div class="upgrade-text">
+							<h5>Unlock Premium Benefits</h5>
+							<p>Upgrade your account to Silver, Gold, Diamond, or Ruby tier and enjoy exclusive features, higher limits, and priority support.</p>
+						</div>
+						<a href="upgrade.html" class="btn-upgrade">
+							<i class="fas fa-arrow-up"></i> Upgrade Now
+						</a>
+					</div>
+
+					<!-- ============================================================
+					     EDIT PROFILE
+					     ============================================================ -->
+					<div class="edit-card">
+						<h5><i class="fas fa-user-edit"></i> Edit Profile</h5>
+						<p class="edit-desc">Update your personal information. Your email cannot be changed.</p>
+
+						<form id="profileForm" enctype="multipart/form-data">
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="first_name">First Name</label>
+										<input type="text" class="form-control" id="first_name" name="first_name" placeholder="Loading..." value="">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label for="last_name">Last Name</label>
+										<input type="text" class="form-control" id="last_name" name="last_name" placeholder="Loading..." value="">
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="email">Email</label>
+								<input type="text" class="form-control bg-2" id="email" name="email" placeholder="Loading..." value="" disabled>
+							</div>
+
+							<div class="form-group">
+								<label for="icon">Profile Picture</label>
+								<input type="file" class="form-control" id="icon" name="icon" accept="image/*">
+							</div>
+
+							<div class="form-group" style="margin-bottom: 0;">
+								<button type="submit" class="btn-save">
+									<i class="fas fa-save"></i> Save Changes
+								</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="copyright ml-auto">
+						All Rights Reserved &copy; <span id="myyear"></span> Laravel
+					</div>
+				</div>
+			</footer>
+
+			<script>
+				document.getElementById('myyear').textContent = new Date().getFullYear();
+			</script>
+		</div>
+	</div>
+
+	<!-- Firebase SDKs -->
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+	<script>
+		// ===== Firebase Configuration =====
+		const firebaseConfig = {
+			apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+			authDomain: "elon-54b86.firebaseapp.com",
+			databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+			projectId: "elon-54b86",
+			storageBucket: "elon-54b86.firebasestorage.app",
+			messagingSenderId: "78755255517",
+			appId: "1:78755255517:web:65af61b0c573589ec0f734",
+			measurementId: "G-R4SQFCQPFP"
+		};
+
+		firebase.initializeApp(firebaseConfig);
+		const auth = firebase.auth();
+		const database = firebase.database();
+
+		let currentUserData = null;
+		let currentUserUid = null;
+		let userListenerRef = null;
+		let userListener = null;
+
+		/* ============================================================
+		   HELPERS
+		   ============================================================ */
+		const LOADING_HTML =
+			'<span class="loading-figure">' +
+				'<span class="loading-dot"></span>' +
+				'<span class="loading-dot"></span>' +
+				'<span class="loading-dot"></span>' +
+			'</span>';
+
+		function escapeHTML(v) {
+			return String(v ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+		}
+
+		// Country code map (covers codes seen in current RTDB data)
+		const COUNTRY_MAP = {
+			"14": "Nigeria",
+			"15": "Ghana",
+			"160": "Nigeria",
+			"212": "Morocco"
+		};
+		function resolveCountry(raw) {
+			if (raw === undefined || raw === null || String(raw).trim() === "") return null;
+			const key = String(raw).trim();
+			if (COUNTRY_MAP[key]) return COUNTRY_MAP[key];
+			// If the value is purely numeric, prefix with "Country #"
+			if (/^\d+$/.test(key)) return "Country #" + key;
+			// Otherwise, return as-is (may already be a name)
+			return key;
+		}
+
+		// Account tier helpers (mirror homepage/admin)
+		const TIER_LABELS = {
+			default: "Default",
+			silver:  "Silver",
+			gold:    "Gold",
+			diamond: "Diamond",
+			ruby:    "Ruby"
+		};
+		function normalizeTier(t) {
+			const v = String(t == null ? "" : t).toLowerCase().trim();
+			return Object.prototype.hasOwnProperty.call(TIER_LABELS, v) ? v : "default";
+		}
+		function getUserTier(user) {
+			if (!user) return "default";
+			return normalizeTier(user.account_tier || user.accountTier || user.tier);
+		}
+		function tierBadgeHTML(tier) {
+			const key = normalizeTier(tier);
+			const label = TIER_LABELS[key];
+			return '<span class="tier-badge tier-' + key + '"><span class="tier-dot"></span>' +
+				escapeHTML(label === "Default" ? "Upgrade Your Account" : label + " Account") +
+				'</span>';
+		}
+
+		// Verification status helpers
+		function getUserVerificationStatus(user) {
+			if (!user) return "unverified";
+			const vp = user.verification_payment || null;
+			let status = user.verification_status || user.verificationStatus;
+			if (!status && user.verified === true) status = "approved";
+			if (!status && vp && vp.status) status = vp.status;
+			if (!status) status = "unverified";
+			return String(status).toLowerCase().trim();
+		}
+		function verificationPillHTML(status) {
+			const s = String(status || "unverified").toLowerCase();
+			let cls = "unverified";
+			let icon = '<i class="fas fa-minus-circle"></i>';
+			let label = "Not Verified";
+
+			if (s === "approved" || s === "verified" || s === "completed") {
+				cls = "verified";
+				icon = '<i class="fas fa-check-circle"></i>';
+				label = "Verified";
+			} else if (s === "pending") {
+				cls = "pending";
+				icon = '<i class="fas fa-hourglass-half"></i>';
+				label = "Pending Review";
+			} else if (s === "failed" || s === "rejected" || s === "declined") {
+				cls = "failed";
+				icon = '<i class="fas fa-times-circle"></i>';
+				label = "Failed";
+			}
+			return '<span class="status-pill ' + cls + '">' + icon + ' ' + label + '</span>';
+		}
+
+		function formatMemberSince(ts) {
+			const n = Number(ts);
+			if (!Number.isFinite(n) || n <= 0) return null;
+			const d = new Date(n);
+			if (isNaN(d.getTime())) return null;
+			return d.toLocaleDateString(undefined, { day: "2-digit", month: "long", year: "numeric" });
+		}
+
+		/* ============================================================
+		   LOAD USER DATA (realtime — stays in sync with admin changes)
+		   ============================================================ */
+		function loadUserData() {
+			auth.onAuthStateChanged((user) => {
+				if (!user) {
+					window.location.href = 'login.html';
+					return;
+				}
+
+				console.log('User logged in:', user.uid);
+
+				let userUid = localStorage.getItem('userUid');
+				if (!userUid) {
+					userUid = user.uid;
+				}
+				currentUserUid = userUid;
+
+				// Reset UI to loading state on every load
+				setAllLoading();
+
+				// Tear down any previous listener
+				if (userListenerRef && userListener) {
+					userListenerRef.off("value", userListener);
+					userListenerRef = null;
+					userListener = null;
+				}
+
+				userListenerRef = database.ref('users/' + userUid);
+				userListener = userListenerRef.on('value', (snapshot) => {
+					const userData = snapshot.val();
+
+					if (!userData) {
+						console.error('No user data found for UID:', userUid);
+						showError('User data not found. Please contact support.');
+						return;
+					}
+
+					currentUserData = userData;
+					localStorage.setItem('userUid', userUid);
+					localStorage.setItem('userData', JSON.stringify(userData));
+
+					populateProfile(userData);
+				}, (error) => {
+					console.error('Error loading user data:', error);
+					showError('Error loading user data: ' + error.message);
+				});
+			});
+		}
+
+		/* ============================================================
+		   LOADING / POPULATE
+		   ============================================================ */
+		function setAllLoading() {
+			const ids = [
+				"heroFullName", "heroEmail", "heroMemberSince", "heroVerifyInline",
+				"infoTier", "infoVerification", "infoCountry", "infoEmail", "infoCreatedAt"
+			];
+			ids.forEach(id => {
+				const el = document.getElementById(id);
+				if (el) el.innerHTML = LOADING_HTML;
+			});
+			// Tier badge in the hero (special handling)
+			const htb = document.getElementById("heroTierBadge");
+			if (htb) {
+				htb.className = "tier-badge loading";
+				htb.innerHTML = '<span class="tier-dot"></span>...';
+			}
+		}
+
+		function populateProfile(userData) {
+			const firstName = userData.first_name || 'User';
+			const lastName  = userData.last_name  || '';
+			const fullName  = (firstName + ' ' + lastName).trim();
+			const email     = userData.email || '';
+
+			// ---- Navbar & Sidebar ----
+			document.getElementById('navFullName').textContent = fullName;
+			document.getElementById('navEmail').textContent    = email || '—';
+			document.getElementById('sidebarFirstName').textContent = firstName;
+			document.getElementById('sidebarLastName').textContent  = lastName;
+
+			// ---- Avatars ----
+			if (userData.icon) {
+				document.getElementById('navbarAvatar').src   = userData.icon;
+				document.getElementById('dropdownAvatar').src = userData.icon;
+				document.getElementById('sidebarAvatar').src  = userData.icon;
+				document.getElementById('heroAvatar').src     = userData.icon;
+			}
+
+			// ---- Hero ----
+			document.getElementById('heroFullName').textContent = fullName;
+			document.getElementById('heroEmail').textContent    = email || '—';
+
+			// Tier badge (hero)
+			const tierKey = getUserTier(userData);
+			const heroTier = document.getElementById("heroTierBadge");
+			if (heroTier) {
+				heroTier.className = "tier-badge tier-" + tierKey;
+				const label = TIER_LABELS[tierKey];
+				heroTier.innerHTML = '<span class="tier-dot"></span>' +
+					escapeHTML(label === "Default" ? "Upgrade Your Account" : label + " Account");
+			}
+
+			// Member since
+			const memberSince = formatMemberSince(userData.created_at);
+			document.getElementById("heroMemberSince").textContent = memberSince || "—";
+
+			// Verification (inline hero)
+			const vStatus = getUserVerificationStatus(userData);
+			const heroVerifyInline = document.getElementById("heroVerifyInline");
+			if (heroVerifyInline) {
+				// Strip the outer <span class="status-pill">...</span> shell for inline look
+				let shortLabel = "Not Verified";
+				let shortColor = "rgba(255,255,255,0.65)";
+				if (vStatus === "approved" || vStatus === "verified" || vStatus === "completed") {
+					shortLabel = "Verified"; shortColor = "#34d399";
+				} else if (vStatus === "pending") {
+					shortLabel = "Pending Review"; shortColor = "#fbbf24";
+				} else if (vStatus === "failed" || vStatus === "rejected" || vStatus === "declined") {
+					shortLabel = "Failed"; shortColor = "#f87171";
+				}
+				heroVerifyInline.innerHTML = '<span style="color:' + shortColor + ';font-weight:600;">' + escapeHTML(shortLabel) + '</span>';
+			}
+
+			// ---- Info Grid ----
+
+			// Account Tier card
+			document.getElementById("infoTier").innerHTML = tierBadgeHTML(tierKey);
+
+			// Verification card
+			document.getElementById("infoVerification").innerHTML = verificationPillHTML(vStatus);
+
+			// Country card
+			const country = resolveCountry(userData.country);
+			document.getElementById("infoCountry").textContent = country || "Not set";
+
+			// Email card
+			document.getElementById("infoEmail").textContent = email || "Not set";
+
+			// Created At card
+			const createdTs = Number(userData.created_at);
+			let createdStr = "—";
+			if (Number.isFinite(createdTs) && createdTs > 0) {
+				const d = new Date(createdTs);
+				if (!isNaN(d.getTime())) {
+					createdStr = d.toLocaleString(undefined, {
+						day: "2-digit", month: "short", year: "numeric",
+						hour: "2-digit", minute: "2-digit"
+					});
+				}
+			}
+			document.getElementById("infoCreatedAt").textContent = createdStr;
+
+			// ---- Edit Form ----
+			document.getElementById('first_name').value = firstName;
+			document.getElementById('last_name').value  = lastName;
+			document.getElementById('email').value      = email;
+
+			// Page title
+			document.title = fullName + ' — Profile';
+		}
+
+		function showError(message) {
+			console.error(message);
+			// Show the error message in place of the loading state on the info cards
+			const ids = ["heroFullName", "heroEmail", "heroMemberSince", "heroVerifyInline",
+						 "infoTier", "infoVerification", "infoCountry", "infoEmail", "infoCreatedAt"];
+			ids.forEach(id => {
+				const el = document.getElementById(id);
+				if (el) el.innerHTML = '<span style="color:#f87171;font-size:12px;">Unavailable</span>';
+			});
+			document.getElementById('first_name').placeholder = 'Error';
+			document.getElementById('last_name').placeholder  = 'Error';
+			document.getElementById('email').placeholder      = message;
+		}
+
+		/* ============================================================
+		   LOGOUT
+		   ============================================================ */
+		function handleLogout() {
+			try {
+				if (userListenerRef && userListener) {
+					userListenerRef.off("value", userListener);
+					userListenerRef = null;
+					userListener = null;
+				}
+			} catch (e) {}
+
+			auth.signOut()
+				.then(() => {
+					localStorage.removeItem('userData');
+					localStorage.removeItem('userUid');
+					localStorage.removeItem('isLoggedIn');
+					window.location.href = 'login.html';
+				})
+				.catch((error) => {
+					console.error('Logout error:', error);
+				});
+		}
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const logoutBtn        = document.getElementById('logoutBtn');
+			const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+			if (logoutBtn)        logoutBtn.addEventListener('click', handleLogout);
+			if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+
+			// Prevent the edit form from actually submitting (no backend wired here)
+			const form = document.getElementById('profileForm');
+			if (form) {
+				form.addEventListener('submit', function (e) {
+					e.preventDefault();
+					alert('Profile update is not wired to a backend in this demo.');
+				});
+			}
+		});
+
+		// Initialize
+		loadUserData();
+	</script>
+
+	<!--   Core JS Files   -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery UI -->
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Chart JS -->
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+	<!-- jQuery Sparkline -->
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart Circle -->
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+	<!-- Datatables -->
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+	<!-- Bootstrap Notify -->
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+	<!-- jQuery Vector Maps -->
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+	<!-- Sweet Alert -->
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+	<!-- Atlantis JS -->
+	<script src="../assets/js/atlantis.min.js"></script>
+</body>
+</html>

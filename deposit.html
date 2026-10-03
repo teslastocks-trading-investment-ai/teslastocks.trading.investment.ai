@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Laravel - Deposit</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+	<style>
+		/* ============================================================
+		   NOTIFICATION BELL (top navbar)
+		   ============================================================ */
+		.notif-bell-btn {
+			position: relative;
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0;
+			font-size: 17px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s;
+			margin-right: 10px;
+		}
+		.notif-bell-btn:hover {
+			background: rgba(59, 130, 246, 0.18);
+			color: #fff;
+			transform: translateY(-1px);
+		}
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 20px;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+			border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+
+		@keyframes bellPulse {
+			0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+			70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		}
+		.notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+		.nav-item .notif-side-badge {
+			margin-left: auto;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			padding: 2px 8px;
+			border-radius: 12px;
+			min-width: 20px;
+			text-align: center;
+			display: none;
+			box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+
+		@media (max-width: 991px) {
+			.notif-bell-btn {
+				width: 38px;
+				height: 38px;
+				font-size: 15px;
+				margin-right: 6px;
+			}
+			.notif-bell-btn .notif-bell-badge {
+				min-width: 18px;
+				height: 18px;
+				font-size: 10px;
+			}
+		}
+
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE FIX
+		   ============================================================ */
+		.sidenav-toggler,
+		.toggle-sidebar,
+		.topbar-toggler,
+		.navbar-toggler {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+			cursor: pointer;
+			pointer-events: auto !important;
+			position: relative;
+			z-index: 20;
+		}
+
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			-webkit-backdrop-filter: blur(4px);
+			backdrop-filter: blur(4px);
+			z-index: 999;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+		.sidebar-backdrop.show { display: block; opacity: 1; }
+		@media (min-width: 992px) {
+			.sidebar-backdrop,
+			.sidebar-backdrop.show { display: none !important; }
+		}
+		@media (max-width: 991px) {
+			.sidebar { z-index: 1000 !important; }
+			.sidebar.open {
+				transform: translateX(0) !important;
+				left: 0 !important;
+				visibility: visible !important;
+				pointer-events: auto !important;
+			}
+		}
+
+		/* ============================================================
+		   DEPOSIT PAGE STYLES
+		   ============================================================ */
+		.dep-wrap {
+			max-width: 720px;
+			margin: 0 auto;
+			width: 100%;
+		}
+
+		.dep-card {
+			background: #111a2b;
+			border: 1px solid #1f2c44;
+			border-radius: 14px;
+			padding: 26px 24px 24px;
+		}
+		@media (max-width: 480px) {
+			.dep-card { padding: 20px 16px 18px; border-radius: 12px; }
+		}
+		@media (max-width: 360px) {
+			.dep-card { padding: 16px 13px 15px; }
+		}
+
+		/* ---------- Header / user card ---------- */
+		.dep-header-card {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			background: linear-gradient(145deg, #131a2c, #0e1424);
+			border: 1px solid rgba(255,255,255,0.06);
+			border-radius: 14px;
+			padding: 18px 20px;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+		}
+		.dep-header-avatar {
+			width: 52px;
+			height: 52px;
+			border-radius: 50%;
+			background: rgba(74,222,128,0.1);
+			border: 1px solid rgba(74,222,128,0.25);
+			color: #4ade80;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			flex-shrink: 0;
+		}
+		.dep-header-info {
+			flex: 1 1 180px;
+			min-width: 0;
+		}
+		.dep-header-name {
+			color: #eef2f6;
+			font-size: 15px;
+			font-weight: 700;
+			margin: 0 0 3px;
+			line-height: 1.35;
+			/* allow natural wrapping on word boundaries, only break as a last resort */
+			overflow-wrap: break-word;
+			word-break: normal;
+			white-space: normal;
+		}
+		.dep-header-sub {
+			color: #7a8dad;
+			font-size: 12.5px;
+			margin: 0;
+			line-height: 1.4;
+			overflow-wrap: break-word;
+			word-break: normal;
+		}
+		.dep-header-balance {
+			text-align: right;
+			flex-shrink: 0;
+			min-width: 140px;
+		}
+		.dep-header-balance .lbl {
+			color: #7a8dad;
+			font-size: 11.5px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			margin: 0 0 4px;
+			font-weight: 700;
+		}
+		.dep-header-balance .val {
+			color: #4ade80;
+			font-size: 20px;
+			font-weight: 800;
+			letter-spacing: 0.3px;
+			margin: 0;
+			line-height: 1.1;
+			word-break: keep-all;
+		}
+		.dep-header-balance .loading-dots {
+			display: inline-flex;
+			align-items: baseline;
+			gap: 3px;
+			line-height: 1;
+		}
+		.dep-header-balance .loading-dots span {
+			display: inline-block;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: #4ade80;
+			opacity: 0.35;
+			animation: depDotPulse 1.2s infinite ease-in-out;
+		}
+		.dep-header-balance .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+		.dep-header-balance .loading-dots span:nth-child(3) { animation-delay: 0.30s; }
+		.dep-header-balance .loading-dots span:nth-child(4) { animation-delay: 0.45s; }
+		.dep-header-balance .loading-dots span:nth-child(5) { animation-delay: 0.60s; }
+		@keyframes depDotPulse {
+			0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+			40% { opacity: 1; transform: translateY(-3px); }
+		}
+
+		/* Tablet / narrow — stack balance below info */
+		@media (max-width: 640px) {
+			.dep-header-card { padding: 16px 16px; gap: 14px; }
+			.dep-header-avatar { width: 46px; height: 46px; font-size: 18px; }
+			.dep-header-info { flex: 1 1 auto; }
+			.dep-header-balance {
+				min-width: 100%;
+				text-align: left;
+				margin-top: 4px;
+				padding-top: 12px;
+				border-top: 1px dashed rgba(255,255,255,0.06);
+			}
+			.dep-header-balance .val { font-size: 18px; }
+		}
+
+		/* Phone — stack avatar above info too */
+		@media (max-width: 380px) {
+			.dep-header-card {
+				flex-direction: column;
+				align-items: flex-start;
+				text-align: left;
+				gap: 12px;
+			}
+			.dep-header-avatar { width: 42px; height: 42px; font-size: 17px; }
+			.dep-header-name { font-size: 14.5px; }
+			.dep-header-sub { font-size: 12px; }
+			.dep-header-balance .val { font-size: 17px; }
+		}
+
+		/* ---------- Alert ---------- */
+		.alert-custom {
+			border-radius: 10px;
+			margin-top: 0;
+			margin-bottom: 18px;
+			display: none;
+			padding: 12px 15px;
+			font-size: 13px;
+			font-weight: 500;
+			line-height: 1.5;
+		}
+		.alert-custom.show { display: block; }
+		.alert-custom.success {
+			background: rgba(74,222,128,0.1);
+			border: 1px solid rgba(74,222,128,0.25);
+			color: #4ade80;
+		}
+		.alert-custom.danger {
+			background: rgba(239,68,68,0.1);
+			border: 1px solid rgba(239,68,68,0.25);
+			color: #f87171;
+		}
+		.alert-custom.info {
+			background: rgba(96,165,250,0.1);
+			border: 1px solid rgba(96,165,250,0.25);
+			color: #60a5fa;
+		}
+
+		/* ---------- Sections ---------- */
+		.dep-section { margin-bottom: 22px; }
+		.dep-section:last-of-type { margin-bottom: 0; }
+
+		.dep-label {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			color: #cbd5e1;
+			font-size: 12.5px;
+			font-weight: 600;
+			letter-spacing: 0.3px;
+			margin-bottom: 10px;
+		}
+		.dep-label .step {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 20px;
+			height: 20px;
+			background: #1e293b;
+			border: 1px solid #334155;
+			border-radius: 50%;
+			font-size: 11px;
+			color: #94a3b8;
+			font-weight: 700;
+			flex-shrink: 0;
+		}
+
+		/* ---------- Inputs / Selects ---------- */
+		.form-control {
+			background: #0b1220;
+			border: 1px solid #223049;
+			color: #e2e8f0;
+			font-size: 14px;
+			padding: 12px 14px;
+			border-radius: 10px;
+			height: auto;
+			transition: border-color 0.15s, box-shadow 0.15s;
+			width: 100%;
+			min-height: 46px;
+		}
+		.form-control:focus {
+			background: #0b1220;
+			border-color: #4ade80;
+			color: #e2e8f0;
+			box-shadow: 0 0 0 3px rgba(74,222,128,0.14);
+			outline: none;
+		}
+		.form-control option { background: #0b1220; color: #e2e8f0; }
+		.form-control::placeholder { color: #4d6080; }
+
+		/* Larger text on mobile to prevent iOS auto-zoom and improve readability */
+		@media (max-width: 768px) {
+			.form-control,
+			.dep-amount-group input { font-size: 16px; }
+			.dep-wallet-address .addr { font-size: 13px; }
+		}
+
+		/* ---------- Wallet address panel ---------- */
+		.dep-wallet-panel {
+			display: none;
+			background: rgba(59,130,246,0.05);
+			border: 1px solid rgba(59,130,246,0.22);
+			border-radius: 12px;
+			padding: 14px 14px 14px;
+			margin-top: 12px;
+		}
+		.dep-wallet-panel.show { display: block; }
+
+		.dep-wallet-head {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			color: #60a5fa;
+			font-size: 11.5px;
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: 0.6px;
+			margin-bottom: 10px;
+			flex-wrap: wrap;
+		}
+		.dep-wallet-head i { font-size: 12px; }
+
+		.dep-wallet-address {
+			display: flex;
+			align-items: stretch;
+			background: #0b1220;
+			border: 1px solid rgba(255,255,255,0.07);
+			border-radius: 10px;
+			overflow: hidden;
+			min-height: 48px;
+			flex-wrap: nowrap;
+		}
+		.dep-wallet-address .addr {
+			flex: 1;
+			min-width: 0;
+			padding: 12px 14px;
+			font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+			font-size: 12.5px;
+			letter-spacing: 0.2px;
+			color: #eef2f6;
+			word-break: break-all;
+			overflow-wrap: anywhere;
+			line-height: 1.5;
+			display: flex;
+			align-items: center;
+		}
+		.dep-wallet-address .copy-btn {
+			flex-shrink: 0;
+			background: rgba(59,130,246,0.1);
+			border: none;
+			border-left: 1px solid rgba(255,255,255,0.07);
+			color: #60a5fa;
+			padding: 0 16px;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: 0.2px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			transition: background 0.2s, color 0.2s;
+			white-space: nowrap;
+			font-family: inherit;
+			min-width: 56px;
+		}
+		.dep-wallet-address .copy-btn:hover {
+			background: rgba(59,130,246,0.2);
+			color: #fff;
+		}
+		.dep-wallet-address .copy-btn:active { transform: scale(0.97); }
+		.dep-wallet-address .copy-btn.copied {
+			background: rgba(34,197,94,0.18);
+			color: #4ade80;
+		}
+		.dep-wallet-address .copy-btn i { font-size: 12px; }
+
+		.dep-wallet-note {
+			color: #7a8dad;
+			font-size: 11.5px;
+			margin: 10px 0 0;
+			line-height: 1.55;
+			display: flex;
+			gap: 6px;
+		}
+		.dep-wallet-note i { color: #60a5fa; margin-top: 2px; flex-shrink: 0; }
+
+		@media (max-width: 480px) {
+			.dep-wallet-address .addr { font-size: 12.5px; padding: 10px 12px; }
+			.dep-wallet-address .copy-btn { padding: 0 12px; font-size: 12px; }
+			.dep-wallet-address .copy-btn span.label { display: none; }
+		}
+
+		/* ---------- Amount field with USD prefix ---------- */
+		.dep-amount-group {
+			display: flex;
+			align-items: stretch;
+			background: #0b1220;
+			border: 1px solid #223049;
+			border-radius: 10px;
+			overflow: hidden;
+			transition: border-color 0.15s, box-shadow 0.15s;
+		}
+		.dep-amount-group:focus-within {
+			border-color: #4ade80;
+			box-shadow: 0 0 0 3px rgba(74,222,128,0.14);
+		}
+		.dep-amount-group .prefix {
+			display: flex;
+			align-items: center;
+			padding: 0 16px;
+			background: #0f1729;
+			border-right: 1px solid #223049;
+			color: #94a3b8;
+			font-size: 12.5px;
+			font-weight: 700;
+			letter-spacing: 0.5px;
+			flex-shrink: 0;
+		}
+		.dep-amount-group input {
+			flex: 1;
+			min-width: 0;
+			background: transparent;
+			border: none;
+			padding: 12px 14px;
+			color: #e2e8f0;
+			font-size: 14px;
+			font-weight: 600;
+			outline: none;
+			width: 100%;
+			min-height: 46px;
+		}
+		.dep-amount-group input::placeholder { color: #4d6080; font-weight: 400; }
+
+		/* ---------- File upload ---------- */
+		.dep-file-wrap {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			background: rgba(255,255,255,0.025);
+			border: 1.5px dashed rgba(255,255,255,0.14);
+			border-radius: 12px;
+			padding: 16px;
+			cursor: pointer;
+			transition: border-color 0.2s, background 0.2s;
+			margin: 0;
+			user-select: none;
+			width: 100%;
+		}
+		.dep-file-wrap:hover {
+			border-color: #4ade80;
+			background: rgba(74,222,128,0.04);
+		}
+		.dep-file-wrap.has-file {
+			border-style: solid;
+			border-color: rgba(74,222,128,0.4);
+			background: rgba(74,222,128,0.05);
+		}
+		.dep-file-icon {
+			width: 46px;
+			height: 46px;
+			border-radius: 12px;
+			background: rgba(74,222,128,0.1);
+			color: #4ade80;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			flex-shrink: 0;
+			transition: background 0.2s;
+		}
+		.dep-file-wrap.has-file .dep-file-icon { background: rgba(74,222,128,0.18); }
+		.dep-file-text { flex: 1; min-width: 0; }
+		.dep-file-text .t1 {
+			color: #eef2f6;
+			font-size: 13.5px;
+			font-weight: 600;
+			margin: 0 0 3px;
+			word-break: break-all;
+			overflow-wrap: anywhere;
+			line-height: 1.35;
+		}
+		.dep-file-text .t2 {
+			color: #7a8dad;
+			font-size: 11.5px;
+			margin: 0;
+			line-height: 1.4;
+		}
+		.dep-file-input { display: none; }
+
+		@media (max-width: 420px) {
+			.dep-file-wrap { padding: 14px 12px; gap: 12px; }
+			.dep-file-icon { width: 42px; height: 42px; font-size: 18px; }
+			.dep-file-text .t1 { font-size: 13px; }
+			.dep-file-text .t2 { font-size: 11px; }
+		}
+
+		/* ---------- Submit button ---------- */
+		.dep-submit-wrap {
+			margin-top: 26px;
+			padding-top: 22px;
+			border-top: 1px solid #1f2c44;
+		}
+		.dep-submit-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			width: 100%;
+			background: linear-gradient(145deg, #4ade80, #22c55e);
+			color: #0b1220;
+			border: none;
+			border-radius: 12px;
+			padding: 14px 20px;
+			font-size: 14.5px;
+			font-weight: 800;
+			letter-spacing: 0.3px;
+			cursor: pointer;
+			box-shadow: 0 10px 24px -10px rgba(74,222,128,0.7);
+			transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+			font-family: inherit;
+			min-height: 50px;
+			line-height: 1.2;
+		}
+		.dep-submit-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 14px 30px -10px rgba(74,222,128,0.85);
+		}
+		.dep-submit-btn:active { transform: translateY(0); }
+		.dep-submit-btn:disabled {
+			opacity: 0.7;
+			cursor: not-allowed;
+			transform: none;
+			box-shadow: none;
+		}
+		.dep-submit-btn .spinner {
+			display: none;
+			width: 18px;
+			height: 18px;
+			border: 2px solid rgba(11,18,32,0.25);
+			border-top: 2px solid #0b1220;
+			border-radius: 50%;
+			animation: depSpin 0.8s linear infinite;
+			margin: 0;
+		}
+		.dep-submit-btn .spinner.active { display: inline-block; }
+		@keyframes depSpin { to { transform: rotate(360deg); } }
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+		<!-- Main Header -->
+		<div class="main-header">
+			<div class="logo-header" data-background-color="dark2">
+				<a href="index.html" class="logo">
+					<img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+				</a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
+				</button>
+				<button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+				<div class="nav-toggle">
+					<button class="btn btn-toggle toggle-sidebar" type="button">
+						<i class="icon-menu"></i>
+					</button>
+				</div>
+			</div>
+
+			<nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+				<div class="container-fluid">
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						<li class="nav-item mr-2">
+							<a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+								<i class="fas fa-bell"></i>
+								<span class="notif-bell-badge" id="notifBellBadge">0</span>
+							</a>
+						</li>
+						<li class="nav-item dropdown hidden-caret">
+							<a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+								<div class="avatar-sm">
+									<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+								</div>
+							</a>
+							<ul class="dropdown-menu dropdown-user animated fadeIn">
+								<div class="dropdown-user-scroll scrollbar-outer">
+									<li>
+										<div class="user-box">
+											<div class="avatar-lg">
+												<img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+											</div>
+											<div class="u-text">
+												<h4 id="profileName">Loading...</h4>
+												<p class="text-muted" id="profileEmail">Loading...</p>
+												<a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="dropdown-divider"></div>
+										<button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+											<i class="fas fa-sign-out-alt"></i> Logout
+										</button>
+									</li>
+								</div>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+
+		<!-- Sidebar -->
+		<div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+			<div class="sidebar-wrapper scrollbar scrollbar-inner">
+				<div class="sidebar-content">
+					<div class="user">
+						<div class="avatar-sm float-left mr-2">
+							<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+						</div>
+						<div class="info">
+							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+								<span>
+									<span id="sidebarFirstName">Loading...</span>
+									<span class="user-level" id="sidebarLastName">Loading...</span>
+									<span class="caret"></span>
+								</span>
+							</a>
+							<div class="clearfix"></div>
+							<div class="collapse in" id="collapseExample">
+								<ul class="nav">
+									<li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+									<li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<ul class="nav nav-primary">
+						<li class="nav-item"><a href="homepage.html"><i class="fas fa-home"></i><p>Dashboard</p></a></li>
+						<li class="nav-item active"><a href="deposit.html"><i class="fas fa-hotel"></i><p>Deposit</p></a></li>
+						<li class="nav-item"><a href="transactions.html"><i class="fas fa-receipt"></i><p>Transactions</p></a></li>
+						<li class="nav-item"><a href="stocks.html"><i class="fas fa-layer-group"></i><p>Tesla Stocks</p></a></li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+								<i class="fas fa-coins"></i><p>Investment</p><span class="caret"></span>
+							</a>
+							<div class="collapse" id="invest">
+								<ul class="nav nav-collapse">
+									<li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+									<li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+									<li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+								<i class="fas fa-credit-card"></i><p>Withdrawal</p><span class="caret"></span>
+							</a>
+							<div class="collapse" id="withdrawal">
+								<ul class="nav nav-collapse">
+									<li><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+									<li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+									<li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+									<li><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item"><a href="verification.html"><i class="fas fa-id-card"></i><p>Verification</p></a></li>
+						<li class="nav-item"><a href="upgrade.html"><i class="fas fa-crown"></i><p>Upgrade</p></a></li>
+						<li class="nav-item">
+							<a href="notifications.html">
+								<i class="fas fa-bell"></i><p>Notifications</p>
+								<span class="notif-side-badge" id="notifSideBadge">0</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+								<i class="fa fa-power-off"></i> Sign Out
+							</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- End Sidebar -->
+
+		<!-- Sidebar Backdrop (mobile) -->
+		<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+		<div class="main-panel">
+			<div class="content">
+				<div class="page-inner">
+					<div class="page-header">
+						<h4 class="page-title">Deposit</h4>
+						<ul class="breadcrumbs">
+							<li class="nav-home"><a href="#"><i class="fas fa-hotel"></i></a></li>
+						</ul>
+					</div>
+
+					<div class="row">
+						<div class="col-md-12">
+							<div class="dep-wrap">
+								<div class="dep-card">
+
+									<!-- ============================================================
+									     USER HEADER CARD
+									     ============================================================ -->
+									<div class="dep-header-card" id="userInfoBox">
+										<div class="dep-header-avatar">
+											<i class="fas fa-user"></i>
+										</div>
+										<div class="dep-header-info">
+											<p class="dep-header-name" id="userDisplayName">Loading...</p>
+											<p class="dep-header-sub">Fund your account to start trading</p>
+										</div>
+										<div class="dep-header-balance">
+											<p class="lbl">Available Balance</p>
+											<p class="val" id="userDisplayBalance">
+												<span class="loading-dots">
+													<span></span><span></span><span></span><span></span><span></span>
+												</span>
+											</p>
+										</div>
+									</div>
+
+									<!-- Alert -->
+									<div id="alertMessage" class="alert-custom"></div>
+
+									<form id="depositForm" enctype="multipart/form-data">
+
+										<!-- STEP 1: Payment Method -->
+										<div class="dep-section">
+											<label class="dep-label" for="deposit_type">
+												<span class="step">1</span> Choose Payment Method
+											</label>
+											<select class="form-control" id="deposit_type" name="deposit_type" required>
+												<option value="">Select a payment method</option>
+												<option value="Bitcoin"  data-address="bc1qfpqy9plk45ajqvwrrpgvkj5eh65gz7a3jny5h7">Bitcoin (BTC)</option>
+												<option value="Ethereum" data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">Ethereum (ETH)</option>
+												<option value="USDT"     data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">USDT (Tether)</option>
+												<option value="BNB"      data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">BNB (Binance Coin)</option>
+												<option value="Amazon Gift Card">Amazon Gift Card</option>
+												<option value="Google Play Gift Card">Google Play Gift Card</option>
+												<option value="Apple Gift Card">Apple Gift Card</option>
+												<option value="Steam Gift Card">Steam Gift Card</option>
+											</select>
+
+											<!-- Wallet address panel (shown only for crypto) -->
+											<div class="dep-wallet-panel" id="walletPanel">
+												<div class="dep-wallet-head">
+													<i class="fas fa-wallet"></i>
+													<span id="walletPanelName">Wallet Address</span>
+												</div>
+												<div class="dep-wallet-address">
+													<div class="addr" id="walletAddress">—</div>
+													<button type="button" class="copy-btn" id="copyWalletBtn" aria-label="Copy wallet address">
+														<i class="far fa-copy"></i>
+														<span class="label">Copy</span>
+													</button>
+												</div>
+												<p class="dep-wallet-note">
+													<i class="fas fa-info-circle"></i>
+													<span>Send the exact amount to this address, then upload the payment screenshot below.</span>
+												</p>
+											</div>
+										</div>
+
+										<!-- STEP 2: Amount -->
+										<div class="dep-section">
+											<label class="dep-label" for="amount">
+												<span class="step">2</span> Deposit Amount
+											</label>
+											<div class="dep-amount-group">
+												<span class="prefix">USD</span>
+												<input type="number" id="amount" name="amount" placeholder="0.00" min="1" step="1" required>
+											</div>
+										</div>
+
+										<!-- STEP 3: Proof -->
+										<div class="dep-section">
+											<label class="dep-label">
+												<span class="step">3</span> Proof of Payment
+											</label>
+											<label for="payment" class="dep-file-wrap" id="fileDropLabel">
+												<div class="dep-file-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+												<div class="dep-file-text">
+													<p class="t1" id="fileNameLabel">Click to upload proof of payment</p>
+													<p class="t2">PNG, JPG, JPEG, or WEBP · Maximum 10 MB</p>
+												</div>
+												<input type="file" class="dep-file-input" id="payment" name="payment" accept="image/*" required>
+											</label>
+										</div>
+
+										<!-- Submit -->
+										<div class="dep-submit-wrap">
+											<button type="submit" class="dep-submit-btn" id="submitBtn">
+												<span id="btnText"><i class="fas fa-paper-plane"></i> Submit Deposit</span>
+												<span class="spinner" id="loadingSpinner"></span>
+											</button>
+										</div>
+									</form>
+
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="copyright ml-auto">
+						All Rights Reserved &copy; <span id="myyear"></span> Laravel
+					</div>
+				</div>
+			</footer>
+		</div>
+	</div>
+
+	<!-- Firebase SDKs -->
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+	<!-- Supabase SDK -->
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+	<script>
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE — explicit handler
+		   ============================================================ */
+		(function setupMobileSidebarToggle() {
+			function getSidebar() {
+				return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+			}
+			function getBackdrop() {
+				return document.getElementById("sidebarBackdrop");
+			}
+			function openSidebar() {
+				const sidebar = getSidebar();
+				const backdrop = getBackdrop();
+				if (sidebar) sidebar.classList.add("open");
+				document.body.classList.add("sidebar-open");
+				if (backdrop) backdrop.classList.add("show");
+			}
+			function closeSidebar() {
+				const sidebar = getSidebar();
+				const backdrop = getBackdrop();
+				if (sidebar) sidebar.classList.remove("open");
+				document.body.classList.remove("sidebar-open");
+				if (backdrop) backdrop.classList.remove("show");
+			}
+			function toggleSidebar() {
+				const sidebar = getSidebar();
+				if (!sidebar) return;
+				if (sidebar.classList.contains("open")) closeSidebar();
+				else openSidebar();
+			}
+
+			document.addEventListener("click", function (e) {
+				const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+				if (!btn) return;
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				toggleSidebar();
+			}, true);
+
+			document.addEventListener("DOMContentLoaded", function () {
+				const backdrop = getBackdrop();
+				if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+				const sidebar = getSidebar();
+				if (sidebar) {
+					sidebar.addEventListener("click", function (e) {
+						const link = e.target.closest("a[href]");
+						if (!link) return;
+						if (window.innerWidth <= 991) closeSidebar();
+					});
+				}
+			});
+
+			window.addEventListener("resize", function () {
+				if (window.innerWidth >= 992) closeSidebar();
+			});
+
+			window.openMobileSidebar   = openSidebar;
+			window.closeMobileSidebar  = closeSidebar;
+			window.toggleMobileSidebar = toggleSidebar;
+		})();
+
+		// ============================================================
+		// FIREBASE CONFIGURATION
+		// ============================================================
+		const firebaseConfig = {
+			apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+			authDomain: "elon-54b86.firebaseapp.com",
+			databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+			projectId: "elon-54b86",
+			storageBucket: "elon-54b86.firebasestorage.app",
+			messagingSenderId: "78755255517",
+			appId: "1:78755255517:web:65af61b0c573589ec0f734",
+			measurementId: "G-R4SQFCQPFP"
+		};
+
+		// ============================================================
+		// SUPABASE CONFIGURATION
+		// ============================================================
+		const SUPABASE_URL = "https://mesdakdrdvumkdongjdj.supabase.co";
+		const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Rha2RyZHZ1bWtkb25namRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODYwMzYsImV4cCI6MjEwMzc2MjAzNn0.rwTkCckVTYj-qzRIDK7CPwnxYqLOdZtQnFFYMBWMRHg";
+		const BUCKET_NAME = "proof";
+
+		firebase.initializeApp(firebaseConfig);
+		const auth = firebase.auth();
+		const database = firebase.database();
+
+		let supabaseClient = null;
+		let currentUserData = null;
+		let currentUserUid = null;
+		let notifListenerRef = null;
+		let notifListener = null;
+		let lastUnreadCount = 0;
+
+		// ============================================================
+		// DOM REFERENCES
+		// ============================================================
+		const form = document.getElementById("depositForm");
+		const submitBtn = document.getElementById("submitBtn");
+		const btnText = document.getElementById("btnText");
+		const spinner = document.getElementById("loadingSpinner");
+		const alertMessage = document.getElementById("alertMessage");
+
+		// ============================================================
+		// NOTIFICATION WRITER
+		// ============================================================
+		async function writeNotification(payload) {
+			try {
+				const uid = localStorage.getItem("userUid");
+				if (!uid) {
+					console.warn("[writeNotification] no userUid in localStorage");
+					return;
+				}
+				const ref = database.ref("users/" + uid + "/notifications").push();
+				await ref.set({
+					title: String(payload.title || "Notification").slice(0, 120),
+					message: String(payload.message || "").slice(0, 500),
+					type: payload.type || "info",
+					status: payload.status || null,
+					amount: (payload.amount != null && Number.isFinite(Number(payload.amount)))
+								? Number(payload.amount)
+								: null,
+					createdAt: firebase.database.ServerValue.TIMESTAMP,
+					read: false
+				});
+			} catch (e) {
+				console.warn("[writeNotification] failed:", e);
+			}
+		}
+		window.writeNotification = writeNotification;
+
+		// ============================================================
+		// NOTIFICATION LISTENER (bell + sidebar badge)
+		// ============================================================
+		function attachNotificationListener(uid) {
+			if (notifListenerRef && notifListener) {
+				notifListenerRef.off("value", notifListener);
+				notifListenerRef = null;
+				notifListener = null;
+			}
+			if (!uid) {
+				updateNotifBadges(0);
+				return;
+			}
+			notifListenerRef = database.ref("users/" + uid + "/notifications");
+			notifListener = notifListenerRef.on("value", (snap) => {
+				const data = snap.val() || {};
+				let unread = 0;
+				Object.keys(data).forEach((key) => {
+					if (key === "_meta" || key === "settings") return;
+					const v = data[key];
+					if (!v || typeof v !== "object") return;
+					if (!v.read) unread++;
+				});
+				updateNotifBadges(unread);
+				if (unread > lastUnreadCount) pulseBell();
+				lastUnreadCount = unread;
+			}, (err) => {
+				console.error("Notification listener error:", err);
+			});
+		}
+
+		function updateNotifBadges(count) {
+			const n = Number(count) || 0;
+			const text = n > 99 ? "99+" : String(n);
+
+			const bellBadge = document.getElementById("notifBellBadge");
+			if (bellBadge) {
+				if (n > 0) {
+					bellBadge.textContent = text;
+					bellBadge.classList.add("show");
+				} else {
+					bellBadge.classList.remove("show");
+				}
+			}
+
+			const sideBadge = document.getElementById("notifSideBadge");
+			if (sideBadge) {
+				if (n > 0) {
+					sideBadge.textContent = text;
+					sideBadge.classList.add("show");
+				} else {
+					sideBadge.classList.remove("show");
+				}
+			}
+		}
+
+		function pulseBell() {
+			const btn = document.getElementById("notifBellBtn");
+			if (!btn) return;
+			btn.classList.add("has-new");
+			setTimeout(() => btn.classList.remove("has-new"), 5000);
+		}
+
+		// ============================================================
+		// HELPERS
+		// ============================================================
+		function showAlert(message, type = "danger") {
+			if (!alertMessage) return;
+
+			alertMessage.className = `alert-custom ${type} show`;
+			alertMessage.textContent = message;
+
+			setTimeout(() => {
+				alertMessage.className = "alert-custom";
+			}, 6000);
+		}
+
+		/**
+		 * Set the submit button loading / idle state.
+		 *
+		 * NOTE: `text` may contain HTML (e.g. icons), so we use innerHTML
+		 * to correctly render markup. This prevents raw HTML strings
+		 * like "<i class='fas fa-check'></i> Submitted" from being shown
+		 * to the user as literal text after form submission.
+		 */
+		function setButtonLoading(loading, text = '<i class="fas fa-paper-plane"></i> Submit Deposit') {
+			if (!submitBtn) return;
+
+			submitBtn.disabled = loading;
+
+			if (loading) {
+				submitBtn.classList.add("btn-submit-loading");
+				if (btnText) btnText.innerHTML = text;
+				if (spinner) spinner.classList.add("active");
+			} else {
+				submitBtn.classList.remove("btn-submit-loading");
+				if (btnText) btnText.innerHTML = text;
+				if (spinner) spinner.classList.remove("active");
+			}
+		}
+
+		function makeSafeFolderName(firstName, lastName) {
+			const fullName = `${firstName || ""} ${lastName || ""}`.trim();
+
+			return (fullName || "User")
+				.normalize("NFKD")
+				.replace(/[^\w\s-]/g, "")
+				.trim()
+				.replace(/\s+/g, "_")
+				.replace(/_+/g, "_")
+				.substring(0, 80) || "User";
+		}
+
+		function getFileExtension(file) {
+			const fromName = file.name.includes(".")
+				? file.name.split(".").pop().toLowerCase()
+				: "";
+
+			if (fromName && /^[a-z0-9]+$/.test(fromName)) return fromName;
+
+			const mimeMap = {
+				"image/jpeg": "jpg",
+				"image/jpg": "jpg",
+				"image/png": "png",
+				"image/webp": "webp",
+				"image/gif": "gif"
+			};
+
+			return mimeMap[file.type] || "jpg";
+		}
+
+		function getSupabaseClient() {
+			if (supabaseClient) return supabaseClient;
+
+			if (!window.supabase || typeof window.supabase.createClient !== "function") {
+				throw new Error("Supabase library could not be loaded. Check your internet connection.");
+			}
+
+			supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+			return supabaseClient;
+		}
+
+		// ============================================================
+		// WALLET ADDRESS PANEL
+		// ============================================================
+		const walletPanel = document.getElementById("walletPanel");
+		const walletPanelName = document.getElementById("walletPanelName");
+		const walletAddress = document.getElementById("walletAddress");
+		const copyWalletBtn = document.getElementById("copyWalletBtn");
+		const depositTypeSelect = document.getElementById("deposit_type");
+
+		function updateWalletPanel() {
+			const opt = depositTypeSelect.options[depositTypeSelect.selectedIndex];
+			const address = opt ? opt.getAttribute("data-address") : null;
+
+			if (address) {
+				walletPanelName.textContent = opt.value + " Wallet Address";
+				walletAddress.textContent = address;
+				walletPanel.classList.add("show");
+			} else {
+				walletPanel.classList.remove("show");
+				walletAddress.textContent = "—";
+			}
+		}
+
+		function fallbackCopy(text) {
+			const ta = document.createElement("textarea");
+			ta.value = text;
+			ta.setAttribute("readonly", "");
+			ta.style.position = "fixed";
+			ta.style.opacity = "0";
+			document.body.appendChild(ta);
+			ta.select();
+			try { document.execCommand("copy"); } catch (e) {}
+			document.body.removeChild(ta);
+		}
+
+		async function copyWalletAddress() {
+			const text = walletAddress.textContent.trim();
+			if (!text || text === "—") return;
+
+			let copied = false;
+			try {
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					await navigator.clipboard.writeText(text);
+					copied = true;
+				}
+			} catch (e) {
+				copied = false;
+			}
+			if (!copied) fallbackCopy(text);
+
+			copyWalletBtn.classList.add("copied");
+			copyWalletBtn.innerHTML = '<i class="fas fa-check"></i><span class="label">Copied!</span>';
+			setTimeout(() => {
+				copyWalletBtn.classList.remove("copied");
+				copyWalletBtn.innerHTML = '<i class="far fa-copy"></i><span class="label">Copy</span>';
+			}, 2000);
+		}
+
+		if (depositTypeSelect) depositTypeSelect.addEventListener("change", updateWalletPanel);
+		if (copyWalletBtn) copyWalletBtn.addEventListener("click", copyWalletAddress);
+
+		// ============================================================
+		// FILE INPUT UI
+		// ============================================================
+		const paymentInput = document.getElementById("payment");
+		const fileDropLabel = document.getElementById("fileDropLabel");
+		const fileNameLabel = document.getElementById("fileNameLabel");
+
+		if (paymentInput) {
+			paymentInput.addEventListener("change", function () {
+				const f = this.files && this.files[0];
+				if (f) {
+					fileNameLabel.textContent = f.name;
+					fileDropLabel.classList.add("has-file");
+				} else {
+					fileNameLabel.textContent = "Click to upload proof of payment";
+					fileDropLabel.classList.remove("has-file");
+				}
+			});
+		}
+
+		// ============================================================
+		// UPDATE USER UI
+		// ============================================================
+		function updateUI(userData) {
+			const firstName = userData.first_name || "User";
+			const lastName = userData.last_name || "";
+			const email = userData.email || "";
+			const balance = Number(userData.balance || 0);
+
+			const profileName = document.getElementById("profileName");
+			const profileEmail = document.getElementById("profileEmail");
+			const sidebarFirstName = document.getElementById("sidebarFirstName");
+			const sidebarLastName = document.getElementById("sidebarLastName");
+			const userDisplayName = document.getElementById("userDisplayName");
+			const userDisplayBalance = document.getElementById("userDisplayBalance");
+
+			if (profileName) profileName.textContent = `${firstName} ${lastName}`.trim();
+			if (profileEmail) profileEmail.textContent = email;
+			if (sidebarFirstName) sidebarFirstName.textContent = firstName;
+			if (sidebarLastName) sidebarLastName.textContent = lastName;
+			if (userDisplayName) userDisplayName.textContent = `${firstName} ${lastName}`.trim();
+			if (userDisplayBalance) {
+				userDisplayBalance.textContent = `$${balance.toLocaleString(undefined, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2
+				})}`;
+			}
+		}
+
+		// ============================================================
+		// LOAD USER DATA
+		// ============================================================
+		function loadUserData() {
+			auth.onAuthStateChanged((user) => {
+
+				if (!user) {
+					window.location.href = "login.html";
+					return;
+				}
+
+				let userUid = localStorage.getItem("userUid");
+				if (!userUid) userUid = user.uid;
+
+				database.ref("users/" + userUid).once("value")
+					.then((snapshot) => {
+
+						const userData = snapshot.val();
+
+						if (!userData) {
+							showAlert("User data not found. Please contact support.", "danger");
+							if (submitBtn) submitBtn.disabled = true;
+							return;
+						}
+
+						currentUserData = userData;
+						currentUserUid = userUid;
+
+						localStorage.setItem("userUid", userUid);
+						localStorage.setItem("userData", JSON.stringify(userData));
+						sessionStorage.setItem("userUid", userUid);
+						sessionStorage.setItem("userData", JSON.stringify(userData));
+
+						updateUI(userData);
+
+						if (submitBtn) submitBtn.disabled = false;
+
+						attachNotificationListener(userUid);
+
+					})
+					.catch((error) => {
+						console.error("Error loading user data:", error);
+						showAlert("Error loading user data: " + error.message, "danger");
+						if (submitBtn) submitBtn.disabled = true;
+					});
+			});
+		}
+
+		// ============================================================
+		// LOGOUT
+		// ============================================================
+		function handleLogout() {
+			try {
+				if (notifListenerRef && notifListener) {
+					notifListenerRef.off("value", notifListener);
+					notifListenerRef = null;
+					notifListener = null;
+				}
+			} catch (e) {}
+
+			auth.signOut()
+				.then(() => {
+					localStorage.removeItem("userData");
+					localStorage.removeItem("userUid");
+					localStorage.removeItem("isLoggedIn");
+					sessionStorage.removeItem("userData");
+					sessionStorage.removeItem("userUid");
+					window.location.href = "login.html";
+				})
+				.catch((error) => {
+					console.error("Logout error:", error);
+				});
+		}
+
+		// ============================================================
+		// DEPOSIT SUBMISSION
+		// ============================================================
+		if (form) {
+			form.addEventListener("submit", async function (e) {
+				e.preventDefault();
+
+				if (!currentUserUid || !currentUserData) {
+					showAlert("Your account is still loading. Please wait a moment and try again.", "danger");
+					return;
+				}
+
+				const typeElement = document.getElementById("deposit_type");
+				const amountElement = document.getElementById("amount");
+				const paymentElement = document.getElementById("payment");
+
+				const type = typeElement ? typeElement.value : "";
+				const amount = amountElement ? Number(amountElement.value) : 0;
+				const file = paymentElement && paymentElement.files ? paymentElement.files[0] : null;
+
+				if (!type) {
+					showAlert("Please select a deposit type.", "danger");
+					return;
+				}
+
+				if (!Number.isFinite(amount) || amount <= 0) {
+					showAlert("Please enter a valid deposit amount.", "danger");
+					return;
+				}
+
+				if (!file) {
+					showAlert("Please upload proof of payment.", "danger");
+					return;
+				}
+
+				if (!file.type || !file.type.startsWith("image/")) {
+					showAlert("Please upload an image as proof of payment.", "danger");
+					return;
+				}
+
+				const maxFileSize = 10 * 1024 * 1024;
+				if (file.size > maxFileSize) {
+					showAlert("Proof image must be 10 MB or smaller.", "danger");
+					return;
+				}
+
+				const uid = currentUserUid;
+				const firstName = currentUserData.first_name || "User";
+				const lastName = currentUserData.last_name || "";
+				const userName = `${firstName} ${lastName}`.trim() || "User";
+				const folderName = makeSafeFolderName(firstName, lastName);
+				const extension = getFileExtension(file);
+				const timestamp = Date.now();
+
+				const fileName = `deposit_${timestamp}.${extension}`;
+				const filePath = `${folderName}/${fileName}`;
+
+				setButtonLoading(true, "Uploading…");
+
+				try {
+					const supabase = getSupabaseClient();
+
+					const { data: uploadData, error: uploadError } = await supabase.storage
+						.from(BUCKET_NAME)
+						.upload(filePath, file, {
+							cacheControl: "3600",
+							upsert: false,
+							contentType: file.type
+						});
+
+					if (uploadError) {
+						console.error("Supabase upload error:", uploadError);
+						if (
+							uploadError.message &&
+							(
+								uploadError.message.toLowerCase().includes("permission") ||
+								uploadError.message.includes("403")
+							)
+						) {
+							throw new Error("Supabase rejected the upload. Check the Storage policy for the 'proof' bucket.");
+						}
+						throw new Error("Proof upload failed: " + uploadError.message);
+					}
+
+					const storedPath = uploadData && uploadData.path ? uploadData.path : filePath;
+
+					const { data: publicUrlData } = supabase.storage
+						.from(BUCKET_NAME)
+						.getPublicUrl(storedPath);
+
+					const proofUrl = publicUrlData && publicUrlData.publicUrl ? publicUrlData.publicUrl : "";
+
+					setButtonLoading(true, "Saving…");
+
+					const depositRef = database.ref(`users/${uid}/deposits`).push();
+
+					const depositData = {
+						amount: amount,
+						deposit_type: type,
+						deposit_type_label: type,
+						status: "pending",
+						user_uid: uid,
+						user_name: userName,
+						user_email: currentUserData.email || "",
+						proof_url: proofUrl,
+						proof_path: storedPath,
+						filename: file.name,
+						file_size: file.size,
+						file_type: file.type,
+						created_at: firebase.database.ServerValue.TIMESTAMP,
+						date: new Date().toISOString()
+					};
+
+					await depositRef.set(depositData);
+
+					writeNotification({
+						title: "Deposit Submitted",
+						message: `Dear User, your deposit of $${Number(amount).toFixed(2)} has been received and is under pending review.`,
+						type: "deposit",
+						status: "pending",
+						amount: Number(amount)
+					});
+
+					showAlert("Deposit submitted successfully. It is now pending approval.", "success");
+
+					form.reset();
+					if (fileNameLabel) fileNameLabel.textContent = "Click to upload proof of payment";
+					if (fileDropLabel) fileDropLabel.classList.remove("has-file");
+					if (walletPanel) walletPanel.classList.remove("show");
+
+					setButtonLoading(false, '<i class="fas fa-check"></i> Submitted');
+
+					setTimeout(() => {
+						if (btnText) btnText.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Deposit';
+					}, 3000);
+
+				} catch (error) {
+					console.error("Deposit submission error:", error);
+					showAlert(error.message || "Deposit submission failed.", "danger");
+					setButtonLoading(false, '<i class="fas fa-paper-plane"></i> Submit Deposit');
+				}
+			});
+		}
+
+		// ============================================================
+		// PAGE SETUP
+		// ============================================================
+		document.addEventListener("DOMContentLoaded", function () {
+			const yearElement = document.getElementById("myyear");
+			if (yearElement) yearElement.textContent = new Date().getFullYear();
+
+			const logoutBtn = document.getElementById("logoutBtn");
+			const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+
+			if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+			if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", handleLogout);
+		});
+
+		// Start
+		loadUserData();
+	</script>
+
+	<!-- Core JS Files -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<script src="../assets/js/atlantis.min.js"></script>
+
+</body>
+</html>

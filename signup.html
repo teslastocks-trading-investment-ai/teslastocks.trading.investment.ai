@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="zeTxm5nUmzsR6JoCciI3nVuE76Mo9q73sbWeq8yz">
+
+    <title>Laravel</title>
+
+    <link rel="stylesheet" href="/assets/auth/style.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+    <style>
+        .alert-custom {
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .alert-custom.show {
+            display: block;
+        }
+        .alert-custom.success {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        .alert-custom.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        .field .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        .field .spinner.active {
+            display: inline-block;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="wrapper">
+            <div class="title">
+                <img src="/assets/img/images.png" alt=""><br>
+                Register
+            </div>
+
+            <!-- Alert Messages -->
+            <div id="alertMessage" class="alert-custom"></div>
+
+            <form id="signupForm">
+                <input type="hidden" name="_token" value="zeTxm5nUmzsR6JoCciI3nVuE76Mo9q73sbWeq8yz" autocomplete="off">
+
+                <div class="field">
+                    <input type="text" id="first_name" name="first_name" required autocomplete="first_name">
+                    <label>First Name</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="last_name" name="last_name" required autocomplete="last_name">
+                    <label>Last Name</label>
+                </div>
+
+                <div class="field">
+                    <input type="email" id="email" name="email" required autocomplete="email">
+                    <label>Email Address</label>
+                </div>
+
+                <div class="field">
+                    <input type="text" id="phone_number" name="phone_number" required autocomplete="phone_number">
+                    <label>Phone Number</label>
+                </div>
+
+                <div class="field">
+                    <select name="country" id="countrySelect" required>
+                        <option value="">-- Choose a country --</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="password" name="password" required autocomplete="new-password">
+                    <label>Password</label>
+                </div>
+
+                <div class="field">
+                    <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
+                    <label>Confirm Password</label>
+                </div>
+
+                <div class="field">
+                    <button type="submit" class="submit-button" id="signupBtn">
+                        <span id="btnText">Register</span>
+                        <span class="spinner" id="loadingSpinner"></span>
+                    </button>
+                </div>
+
+                <div class="signup-link">
+                    Already have an account? <a href="login.html" class="text-dark font-weight-bold" id="loginLink">Login</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Country dropdown population -->
+        <script>
+            window.onload = function () {
+                fetch('/api/countries.txt')
+                    .then(response => response.json())
+                    .then(countries => {
+                        const select = document.getElementById('countrySelect');
+                        countries.forEach(country => {
+                            const option = document.createElement('option');
+                            option.value = country.id;
+                            option.textContent = country.name;
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading countries:', error);
+                    });
+            };
+        </script>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Function to generate a random 4-digit PIN
+        function generatePin() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        // Show alert function
+        function showAlert(message, type = 'danger') {
+            const alertEl = document.getElementById('alertMessage');
+            alertEl.className = `alert-custom ${type} show`;
+            alertEl.textContent = message;
+            setTimeout(() => {
+                alertEl.className = 'alert-custom';
+            }, 5000);
+        }
+
+        function hideAlert() {
+            document.getElementById('alertMessage').className = 'alert-custom';
+        }
+
+        // Signup form submission
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phone_number').value.trim();
+            const country = document.getElementById('countrySelect').value;
+            const password = document.getElementById('password').value;
+            const passwordConfirmation = document.getElementById('password_confirmation').value;
+
+            // Validation
+            if (!firstName || !lastName || !email || !phoneNumber || !country) {
+                showAlert('Please fill in all fields.', 'danger');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('Password must be at least 6 characters.', 'danger');
+                return;
+            }
+
+            if (password !== passwordConfirmation) {
+                showAlert('Passwords do not match.', 'danger');
+                return;
+            }
+
+            // Disable button and show loading
+            const btn = document.getElementById('signupBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('loadingSpinner');
+            btn.disabled = true;
+            btnText.textContent = 'Registering...';
+            spinner.classList.add('active');
+
+            // Step 1: First ensure we have an anonymous user
+            function ensureAnonymousUser() {
+                return new Promise((resolve, reject) => {
+                    if (auth.currentUser) {
+                        resolve(auth.currentUser);
+                    } else {
+                        auth.signInAnonymously()
+                            .then((cred) => resolve(cred.user))
+                            .catch(reject);
+                    }
+                });
+            }
+
+            // Step 2: Check if email already exists
+            function checkEmailExists(uid, email) {
+                return database.ref('users').orderByChild('email').equalTo(email).once('value')
+                    .then((snapshot) => {
+                        if (snapshot.exists()) {
+                            // Check if this email belongs to the current user
+                            let isOwnEmail = false;
+                            snapshot.forEach((childSnapshot) => {
+                                if (childSnapshot.key === uid) {
+                                    isOwnEmail = true;
+                                }
+                            });
+                            if (!isOwnEmail) {
+                                showAlert('This email is already registered. Please login.', 'danger');
+                                return Promise.reject('Email already exists');
+                            }
+                        }
+                        return Promise.resolve();
+                    });
+            }
+
+            // Step 3: Save user data
+            function saveUserData(uid, userData) {
+                return database.ref('users/' + uid).set(userData);
+            }
+
+            // Execute the signup flow
+            ensureAnonymousUser()
+                .then((user) => {
+                    const uid = user.uid;
+                    console.log('Anonymous user UID:', uid);
+
+                    // Generate 4-digit PIN
+                    const walletPin = generatePin();
+
+                    // Prepare user data
+                    const userData = {
+                        first_name: firstName,
+                        last_name: lastName,
+                        email: email,
+                        phone_number: phoneNumber,
+                        country: country,
+                        password: password,
+                        password_confirmation: passwordConfirmation,
+                        balance: 0,
+                        wallet_pin: walletPin,
+                        created_at: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    // Check if email exists first, then save
+                    return checkEmailExists(uid, email)
+                        .then(() => {
+                            return saveUserData(uid, userData);
+                        })
+                        .then(() => {
+                            return { uid, walletPin, userData };
+                        });
+                })
+                .then((result) => {
+                    console.log('User data saved successfully.');
+
+                    // Store user data in localStorage
+                    localStorage.setItem('userData', JSON.stringify(result.userData));
+                    localStorage.setItem('userUid', result.uid);
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', email);
+
+                    // Show success message
+                    showAlert('Account created successfully!', 'success');
+
+                    // Reset button
+                    const btn = document.getElementById('signupBtn');
+                    const btnText = document.getElementById('btnText');
+                    const spinner = document.getElementById('loadingSpinner');
+                    btn.disabled = false;
+                    btnText.textContent = '✓ Registered!';
+                    spinner.classList.remove('active');
+
+                    // Redirect after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'homepage.html';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    if (error === 'Email already exists') {
+                        // Already handled
+                        const btn = document.getElementById('signupBtn');
+                        const btnText = document.getElementById('btnText');
+                        const spinner = document.getElementById('loadingSpinner');
+                        btn.disabled = false;
+                        btnText.textContent = 'Register';
+                        spinner.classList.remove('active');
+                        return;
+                    }
+                    console.error('Signup error:', error);
+                    showAlert('Error: ' + error.message, 'danger');
+                    const btn = document.getElementById('signupBtn');
+                    const btnText = document.getElementById('btnText');
+                    const spinner = document.getElementById('loadingSpinner');
+                    btn.disabled = false;
+                    btnText.textContent = 'Register';
+                    spinner.classList.remove('active');
+                });
+        });
+
+        // Check if user is already logged in (anonymous)
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const storedData = localStorage.getItem('userData');
+                if (storedData) {
+                    window.location.href = 'homepage.html';
+                }
+            }
+        });
+
+        // ============================================================
+        // 🚀 FIX: Intercept Login link to prevent redirect to app.tslpa.com
+        // ============================================================
+        (function() {
+            'use strict';
+
+            // Helper: check if an anchor is a login link
+            function isLoginLink(el) {
+                if (!el || el.tagName !== 'A') return false;
+
+                const href = (el.getAttribute('href') || '').toLowerCase();
+                const text = (el.textContent || '').trim().toLowerCase();
+
+                // Match by known ID
+                if (el.id === 'loginLink') return true;
+
+                // Match by text content (exact "login" or contains "login")
+                if (text === 'login' || text.includes('login')) return true;
+
+                // Match by href – catches any tslpa.com/login or /login
+                if (href.includes('tslpa.com/login') || href.includes('/login') ||
+                    href === '#login' || href === 'login.html') {
+                    return true;
+                }
+
+                return false;
+            }
+
+            // Main click interceptor – runs in the CAPTURE phase
+            document.addEventListener('click', function(e) {
+                const anchor = e.target.closest('a');
+                if (!anchor) return;
+
+                if (!isLoginLink(anchor)) return;
+
+                // Intercept!
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                // Redirect to our own login page
+                window.location.href = 'login.html';
+
+                return false;
+            }, true); // capture phase
+
+            // Also explicitly override onclick as a safety net
+            document.addEventListener('DOMContentLoaded', function() {
+                const loginLink = document.getElementById('loginLink');
+                if (loginLink) {
+                    loginLink.onclick = function(e) {
+                        e.preventDefault();
+                        window.location.href = 'login.html';
+                        return false;
+                    };
+                }
+                console.log('✅ Login link interceptor active (signup page)');
+            });
+
+        })();
+    </script>
+
+    <!-- Livewire Scripts -->
+    <script src="/livewire/livewire.js?id=8a199ab2" data-csrf="zeTxm5nUmzsR6JoCciI3nVuE76Mo9q73sbWeq8yz" data-update-uri="/livewire/update" data-navigate-once="true"></script>
+</body>
+</html>

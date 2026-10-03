@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="zxx" dir="ltr">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+    <!-- Standard Meta -->
+    <meta charset="utf-8">
+    <meta name="description" content="Tesla Public Holdings| A spacex investment platform">
+    <meta name="keywords" content="bitcoin, crypto, investment, smart crypto, mining">
+    <meta name="author" content="Tesla Public Holdings - Homepage">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f3f5" />
+    <!-- Site Properties -->
+    <title>Tesla Public Holdings - Homepage</title>
+    <!-- Critical preload -->
+    <link rel="preload" href="js/vendors/uikit.min.js" as="script">
+    <link rel="preload" href="css/vendors/uikit.min.css" as="style">
+    <link rel="preload" href="css/style.css" as="style">
+    <!-- Icon preload -->
+    <link rel="preload" href="fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Font preload -->
+    <link rel="preload" href="fonts/inter-v2-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/inter-v2-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/inter-v2-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Favicon and apple icon -->
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/vendors/uikit.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.scss">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        .swal2-input { margin: 1em auto; }
+        .swal2-popup { width: 80%; max-width: 400px; }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --success: #00b894;
+            --premium: #fdcb6e;
+            --elite: #e84393;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        .plans-container {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;
+        }
+        .plan-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; position: relative; }
+        .plan-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .plan-header { padding: 25px; color: white; text-align: center; position: relative; }
+        .plan-badge { position: absolute; top: -10px; right: 20px; background: white; color: var(--dark); padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .plan-title { font-size: 1.5rem; margin-bottom: 5px; font-weight: 700; }
+        .plan-price { font-size: 2.5rem; font-weight: 700; margin: 15px 0; }
+        .plan-price span { font-size: 1rem; font-weight: normal; }
+        .plan-duration { font-size: 0.9rem; opacity: 0.9; }
+        .plan-features { padding: 25px; }
+        .plan-features ul { list-style: none; }
+        .plan-features li { padding: 8px 0; display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .plan-features li:last-child { border-bottom: none; }
+        .plan-features i { margin-right: 10px; color: var(--success); font-size: 0.9rem; }
+        .plan-button { display: block; margin: 0 25px 25px; padding: 12px; text-align: center; background: white; color: var(--dark); border: 2px solid; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .plan-button:hover { background: var(--dark); color: white; }
+        .basic .plan-header { background: var(--primary); }
+        .basic .plan-button { border-color: var(--primary); color: var(--primary); }
+        .basic .plan-button:hover { background: var(--primary); }
+        .standard .plan-header { background: var(--success); }
+        .standard .plan-button { border-color: var(--success); color: var(--success); }
+        .standard .plan-button:hover { background: var(--success); }
+        .premium .plan-header { background: var(--premium); color: var(--dark); }
+        .premium .plan-button { border-color: var(--premium); color: var(--premium); }
+        .premium .plan-button:hover { background: var(--premium); color: white; }
+        .pro .plan-header { background: var(--elite); }
+        .pro .plan-button { border-color: var(--elite); color: var(--elite); }
+        .pro .plan-button:hover { background: var(--elite); }
+        .vip .plan-header { background: var(--dark); }
+        .vip .plan-button { border-color: var(--dark); color: var(--dark); }
+        .vip .plan-button:hover { background: var(--dark); }
+
+        @media (max-width: 768px) {
+            .plans-container { grid-template-columns: 1fr; max-width: 400px; }
+            .plan-card { margin-bottom: 20px; }
+        }
+    </style>
+
+    <!-- ============================================================
+         CHAT WIDGET STYLES
+         ============================================================ -->
+    <style>
+        .chat-fab {
+            position: fixed; bottom: 24px; right: 24px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 12px 28px -6px rgba(26, 90, 223, 0.7);
+            z-index: 1050;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1);
+        }
+        .chat-fab:hover { transform: scale(1.06); }
+        .chat-fab:active { transform: scale(0.94); }
+        .chat-fab .chat-fab-badge {
+            position: absolute; top: -2px; right: -2px;
+            min-width: 22px; height: 22px; padding: 0 6px;
+            border-radius: 20px; background: #22c55e; color: #fff;
+            font-size: 11px; font-weight: 800;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.65);
+        }
+        .chat-fab .chat-fab-badge.show { display: flex; }
+
+        .chat-widget-backdrop {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1051; display: none;
+        }
+        .chat-widget-backdrop.show { display: block; }
+
+        .chat-widget {
+            position: fixed; bottom: 96px; right: 24px;
+            width: 380px; max-width: calc(100vw - 32px);
+            height: 560px; max-height: calc(100vh - 140px);
+            background: #0b0f1a;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            box-shadow: 0 30px 70px -20px rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; overflow: hidden;
+            z-index: 1052;
+            opacity: 0; transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            transition: opacity 0.25s cubic-bezier(0.2,0.9,0.4,1),
+                        transform 0.25s cubic-bezier(0.2,0.9,0.4,1);
+        }
+        .chat-widget.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+        .chat-widget-header {
+            flex: 0 0 auto; padding: 14px 16px;
+            background: linear-gradient(145deg, #1a2540, #0f1828);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .chat-widget-header .cw-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; color: #fff; font-weight: 700;
+            flex-shrink: 0; overflow: hidden;
+        }
+        .chat-widget-header .cw-avatar img {
+            width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%;
+        }
+        .chat-widget-header .cw-info { flex: 1; min-width: 0; }
+        .chat-widget-header .cw-info strong { display: block; color: #eef2f6; font-size: 14px; font-weight: 700; }
+        .chat-widget-header .cw-info span { display: block; color: #7a8dad; font-size: 11px; }
+        .chat-widget-header .cw-close {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.06); border: none;
+            color: #b0c4e0; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .chat-widget-header .cw-close:hover { background: rgba(255,255,255,0.12); }
+
+        .chat-widget-messages {
+            flex: 1; min-height: 0; overflow-y: auto;
+            padding: 14px 12px;
+            display: flex; flex-direction: column; gap: 8px;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            background: #0b0f1a;
+        }
+        .cw-msg-row { display: flex; width: 100%; }
+        .cw-msg-row.customer { justify-content: flex-end; }
+        .cw-msg-row.care { justify-content: flex-start; }
+        .cw-bubble {
+            max-width: 82%; padding: 9px 13px;
+            border-radius: 16px; font-size: 13.5px; line-height: 1.45;
+            word-break: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        }
+        .cw-msg-row.customer .cw-bubble {
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff; border-bottom-right-radius: 4px;
+        }
+        .cw-msg-row.care .cw-bubble {
+            background: rgba(255,255,255,0.07);
+            color: #eef2f6;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-bottom-left-radius: 4px;
+        }
+        .cw-msg-time { display: block; margin-top: 3px; font-size: 10px; opacity: 0.7; text-align: right; }
+        .cw-date-sep {
+            align-self: center; margin: 6px 0;
+            padding: 4px 12px; border-radius: 20px;
+            background: rgba(255,255,255,0.04);
+            color: #7a8dad; font-size: 10px; font-weight: 600;
+            letter-spacing: 0.4px;
+        }
+        .cw-empty {
+            margin: auto; text-align: center; color: #5a6c8a;
+            font-size: 13px; padding: 20px;
+        }
+        .cw-empty .cw-empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+        /* ---------- Email gate ---------- */
+        .cw-gate {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 24px 20px; text-align: center; background: #0b0f1a;
+        }
+        .cw-gate .cw-gate-icon {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; color: #fff; margin-bottom: 16px;
+            box-shadow: 0 10px 24px -6px rgba(26,90,223,0.7);
+        }
+        .cw-gate h3 { color: #eef2f6; font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+        .cw-gate p { color: #7a8dad; font-size: 12.5px; line-height: 1.5; margin-bottom: 18px; max-width: 280px; }
+        .cw-gate input {
+            width: 100%; max-width: 300px;
+            padding: 12px 16px; border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: #fff; font-size: 14px; outline: none;
+            margin-bottom: 10px; font-family: inherit;
+            -webkit-appearance: none;
+        }
+        .cw-gate input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+        .cw-gate input::placeholder { color: #5a6c8a; }
+        .cw-gate button {
+            width: 100%; max-width: 300px; padding: 12px;
+            border-radius: 12px; border: none;
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff; font-weight: 700; font-size: 14px; cursor: pointer;
+            box-shadow: 0 8px 20px -6px rgba(26,90,223,0.7);
+            transition: transform 0.15s, opacity 0.2s;
+        }
+        .cw-gate button:hover { transform: translateY(-1px); }
+        .cw-gate button:active { transform: scale(0.97); }
+        .cw-gate button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .cw-gate .cw-gate-error { color: #f87171; font-size: 12px; margin-top: 8px; min-height: 16px; }
+        .cw-gate .cw-gate-note { color: #5a6c8a; font-size: 11px; margin-top: 14px; max-width: 280px; line-height: 1.5; }
+
+        /* ---------- Image bubbles ---------- */
+        .cw-bubble.cw-bubble-image {
+            padding: 4px; background: rgba(255,255,255,0.06) !important;
+            border: 1px solid rgba(255,255,255,0.06); max-width: 78%;
+        }
+        .cw-bubble.cw-bubble-image img {
+            display: block; max-width: 100%; max-height: 260px;
+            width: auto; height: auto; border-radius: 12px;
+            cursor: zoom-in; background: #000;
+        }
+        .cw-bubble.cw-bubble-image .cw-image-caption {
+            display: block; margin-top: 4px; padding: 0 6px 4px;
+            font-size: 10px; color: #9aa7bd; text-align: right;
+            opacity: 0.85; word-break: break-word;
+        }
+
+        /* ---------- Composer ---------- */
+        .cw-attach {
+            display: flex; width: 44px; height: 44px; flex: 0 0 44px;
+            border: none; border-radius: 50%;
+            background: rgba(255,255,255,0.08); color: #d0dcf0;
+            cursor: pointer; font-size: 16px;
+            align-items: center; justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .cw-attach:hover { background: rgba(255,255,255,0.16); }
+        .cw-attach:active { transform: scale(0.92); }
+        .cw-attach:disabled { opacity: 0.5; cursor: not-allowed; }
+        .cw-attach.is-uploading i { animation: cwSpin 0.9s linear infinite; }
+        @keyframes cwSpin { to { transform: rotate(360deg); } }
+
+        #cwFileInput { display: none; }
+
+        .chat-widget-composer {
+            flex: 0 0 auto; padding: 8px;
+            background: rgba(8, 14, 26, 0.98);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: flex-end; gap: 8px;
+        }
+        .chat-widget-composer textarea {
+            flex: 1; min-width: 0; min-height: 42px; max-height: 110px;
+            resize: none; border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px; padding: 11px 14px; outline: none;
+            font-size: 14px; line-height: 1.4;
+            background: rgba(255,255,255,0.04); color: #fff;
+            font-family: inherit; -webkit-appearance: none;
+        }
+        .chat-widget-composer textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+        .chat-widget-composer textarea::placeholder { color: #5a6c8a; }
+        .chat-widget-composer .cw-send {
+            width: 44px; height: 44px; flex: 0 0 44px;
+            border: none; border-radius: 50%;
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff; cursor: pointer; font-size: 16px;
+            box-shadow: 0 6px 14px -4px rgba(26,90,223,0.65);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .chat-widget-composer .cw-send:active { transform: scale(0.92); }
+        .chat-widget-composer .cw-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .chat-widget.gate-active .chat-widget-composer,
+        .chat-widget.gate-active #cwFileInput { display: none; }
+
+        @media (max-width: 600px) {
+            .chat-widget {
+                bottom: 0; right: 0; left: 0; top: 0;
+                width: 100%; max-width: 100%;
+                height: 100%; max-height: 100%;
+                border-radius: 0;
+            }
+            .chat-widget.open ~ .chat-fab { display: none; }
+            .chat-widget-composer textarea { font-size: 16px; }
+            .cw-gate input { font-size: 16px; }
+        }
+    </style>
+
+</head>
+
+
+<body>
+    <!-- preloader begin -->
+    <div class="in-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+    <!-- preloader end -->
+    <header>
+        <!-- header content begin -->
+        <div class="uk-section uk-padding-remove-vertical">
+            <nav class="uk-navbar-container" data-uk-sticky="show-on-up: true; animation: uk-animation-slide-top;">
+                <div class="uk-container" data-uk-navbar>
+                    <div class="uk-navbar-left">
+                        <div class="uk-navbar-item">
+                            <!-- logo begin -->
+                            <a class="uk-logo" href="index.html">
+                                <img src="img/in-lazy.gif" data-src="img/logo.png" alt="logo" width="200" data-uk-img>
+                            </a>
+                            <!-- logo end -->
+                            <!-- navigation begin -->
+                            <ul class="uk-navbar-nav uk-visible@m" style="background-color:black; color:white;">
+                                <li><a href="index.html">Home</a></li>
+                                <li><a href="about.html">About</a></li>
+                                <li><a href="how-to-invest.html">Invest</a></li>
+                                <li><a href="spacex.html">SpaceX</a></li>
+                                <li><a href="nueralink.html">Nueralink</a></li>
+                                <li><a href="openai.html">OpenAI</a></li>
+                                <li><a href="solarcity.html">SolarCity</a></li>
+                                <li><a href="contact.html">Contact</a></li>
+                            </ul>
+                            <!-- navigation end -->
+                        </div>
+                    </div>
+                    <div class="uk-navbar-right">
+                        <div class="uk-navbar-item uk-visible@m in-optional-nav">
+                            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+                            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+                            <a href="signup.html" class="uk-button uk-button-primary uk-border-rounded">JOIN</a>&nbsp;&nbsp;
+                            <a href="login.html" id="loginButton" class="uk-button uk-button-info uk-border-rounded">Login <i class="fas fa-user-circle"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <!-- header content end -->
+    </header>
+    <main>
+        <!-- slideshow content begin -->
+        <div class="uk-section uk-padding-remove-vertical">
+            <div class="uk-light in-slideshow uk-background-cover uk-background-top-center" style="background-image: url(img/in-liquid-slide-bg.png);" data-uk-slideshow>
+
+                <video id="myVideo" class="overlay" width="100%" height="100%" autoplay="" playsinline="" muted="" loop="">
+                    <source src="icons/bg1.webm" type="video/mp4">
+                </video>
+
+                <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-previous data-uk-slideshow-item="previous"></a>
+                <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-next data-uk-slideshow-item="next"></a>
+                <div class="uk-section uk-padding-remove-vertical in-slideshow-features uk-visible@m">
+                    <div class="uk-container">
+                        <ul class="uk-grid uk-child-width-1-5@m uk-text-center" data-uk-grid>
+                            <li>
+                                <img src="img/in-lazy.gif" data-src="img/in-liquid-payment-1.svg" alt="ticker-image" data-width data-height data-uk-img width="75">
+                                <span class="uk-label uk-label-success uk-margin-left"><i class="fas fa-caret-up"></i>$105151.81</span>
+                            </li>
+                            <li>
+                                <img src="img/in-lazy.gif" data-src="https://www.pngkey.com/png/full/152-1525847_ethereum-logo-png-ethereum-logo-large.png" alt="ticker-image" data-width data-height data-uk-img width="75">
+                                <span class="uk-label uk-label-success uk-margin-left"><i class="fas fa-caret-up"></i>$3419.44</span>
+                            </li>
+                            <li>
+                                <img src="img/in-lazy.gif" data-src="https://bitcoincash.org/img/green/bitcoin-cash-logo-horizontal.png" alt="ticker-image" data-width data-height data-uk-img width="75">
+                                <span class="uk-label uk-label-danger uk-margin-left"><i class="fas fa-caret-down"></i>$461.23</span>
+                            </li>
+                            <li>
+                                <img src="img/in-lazy.gif" data-src="https://upload.wikimedia.org/wikipedia/commons/2/24/6_Full_Logo_S-2.png" alt="ticker-image" data-width data-height data-uk-img width="75">
+                                <span class="uk-label uk-label-success uk-margin-left"><i class="fas fa-caret-up"></i>$123.81</span>
+                            </li>
+                            <li>
+                                <img src="img/in-lazy.gif" data-src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Tether_Logo.svg/2560px-Tether_Logo.svg.png" alt="ticker-image" data-width data-height data-uk-img width="75">
+                                <span class="uk-label uk-label-success uk-margin-left"><i class="fas fa-caret-up"></i>1.01</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- slideshow content end -->
+
+        <style>
+            .card-custom { overflow: hidden; min-height: 450px; box-shadow: 0 0 15px rgba(10,10,10,0.3); }
+            .card-custom-img { height: 200px; min-height: 200px; background-repeat: no-repeat; background-size: cover; background-position: center; border-color: inherit; }
+            .card-custom-img::after {
+                position: absolute; content: ''; top: 161px; left: 0;
+                width: 0; height: 0; border-style: solid;
+                border-top-width: 40px; border-right-width: 0; border-bottom-width: 0;
+                border-left-width: 545px; border-left-width: calc(575px - 5vw);
+                border-top-color: transparent; border-right-color: transparent;
+                border-bottom-color: transparent; border-left-color: inherit;
+            }
+            .card-custom-avatar img {
+                border-radius: 50%; box-shadow: 0 0 15px rgba(10,10,10,0.3);
+                position: absolute; top: 100px; left: 1.25rem; width: 100px; height: 100px;
+            }
+        </style>
+
+        <div class="container">
+            <div class="row pt-5 m-auto">
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0">
+                        <div class="card-custom-img" style="background-image: url(img/explore-1.jpeg);"></div>
+                        <div class="card-body" style="overflow-y: auto">
+                            <h5 class="card-title">Want more out of your Stock trading?</h5>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="signup.html">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0">
+                        <div class="card-custom-img" style="background-image: url(img/explore-2.jpeg);"></div>
+                        <div class="card-body" style="overflow-y: auto">
+                            <h5 class="card-title">High-tech solutions meet Instant execution</h5>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="login.html">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0">
+                        <div class="card-custom-img" style="background-image: url(img/explore-3.jpeg);"></div>
+                        <div class="card-body" style="overflow-y: auto">
+                            <h5 class="card-title">One of the world’s most trusted brokers</h5>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="signup.html">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- section content begin -->
+        <div class="uk-section uk-section-secondary in-liquid-1">
+            <div class="uk-container uk-light">
+                <div class="uk-grid uk-flex uk-flex-middle">
+                    <div class="uk-width-1-2@m">
+                        <h2>Tesla Investiment <span class="in-highlight">Categories </span></h2>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                        <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="how-to-invest.html">Find out more<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                    </div>
+                </div>
+                <div class="uk-child-width-1-3@m" data-uk-grid>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/spacex-logo-black-and-white.png" />
+                                <h3><span class="in-highlight">SpaceX </span></h3>
+                                <p style="text-align:justify; font-size: 15px;">SpaceX is a revolutionary space technology company founded by Elon Musk in 2002. With a vision to reduce space launch costs and eventually establish a human colony on Mars, SpaceX has made tremendous strides in rocket propulsion, reusable launch vehicles, human spaceflight, and satellite constellation technology.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/e8c82599697617.5ef8cb0cdbeee.png" />
+                                <h3><span class="in-highlight">Neuralink </span></h3>
+                                <p style="text-align:justify; font-size: 15px;">Neuralink is a neurotechnology company founded by Elon Musk in 2016, aiming to develop implantable brain-computer interfaces (BCIs) that enable people to control devices with their thoughts. The company's primary goal is to help individuals with paralysis or other motor disorders regain lost communication skills and mobility.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/openai-white-lockup.png" />
+                                <h3><span class="in-highlight">OpenAI </span></h3>
+                                <p style="text-align:justify; font-size: 15px;">OpenAI is a leading artificial intelligence research organization founded in 2015 by a group of tech entrepreneurs and researchers, including Elon Musk, Sam Altman, Greg Brockman, and Ilya Sutskever. The company's primary goal is to develop and promote friendly AI that benefits humanity</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- section content end -->
+
+        <video id="myVideo" class="overlay" width="100%" height="100%" autoplay="" playsinline="" muted="" loop="">
+            <source src="icons/bg3.webm" type="video/mp4">
+        </video>
+
+        <div class="uk-section">
+            <div class="uk-container">
+                <div class="uk-grid">
+                    <div class="uk-width-1-1 uk-flex uk-flex-center">
+                        <div class="uk-width-3-4@m uk-text-center">
+                            <img src="icons/meta-trader4.png" /> AND <img src="icons/meta-trader5.png" />
+                            <h2 class="uk-margin-small-bottom">Tesla Investment <span class="in-highlight">Plans</span></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0 text-center shadow-sm">
+                        <div class="card-custom-img" style="background-image: url(img/slide3.jpg);"></div>
+                        <div class="card-header bg-transparent border-0">
+                            <h4 class="text-primary mb-0">Tesla Plan</h4>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="card-title pricing-card-title">$200 <small class="text-muted">/min</small></h2>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li>✅ 10% ROI</li>
+                                <li>✅ 7 Days Duration</li>
+                                <li>✅ Withdraw Anytime</li>
+                            </ul>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="https://app.tslpa.com/register">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0 text-center shadow-sm">
+                        <div class="card-custom-img" style="background-image: url(img/slide2.jpeg);"></div>
+                        <div class="card-header bg-transparent border-0">
+                            <h4 class="text-primary mb-0">SPACEx Plan</h4>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="card-title pricing-card-title">$999 <small class="text-muted">/min</small></h2>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li>✅ 15% ROI</li>
+                                <li>✅ 7 Days Duration</li>
+                                <li>✅ Withdraw Anytime</li>
+                            </ul>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="https://app.tslpa.com/register">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 pb-3">
+                    <div class="card card-custom bg-white border-white border-0 text-center shadow-sm">
+                        <div class="card-custom-img" style="background-image: url(img/slide1.jpeg);"></div>
+                        <div class="card-header bg-transparent border-0">
+                            <h4 class="text-primary mb-0">OpenAI Plan</h4>
+                        </div>
+                        <div class="card-body">
+                            <h2 class="card-title pricing-card-title">$9,999 <small class="text-muted">/min</small></h2>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li>✅ 20% ROI</li>
+                                <li>✅ 7 Days Duration</li>
+                                <li>✅ Withdraw Anytime</li>
+                            </ul>
+                            <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="https://app.tslpa.com/register">Get Started<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .columnx { float: left; width: 20%; padding: 0 10px; }
+            .rowx { margin: 0 -5px; }
+            .rowx:after { content: ""; display: table; clear: both; }
+            @media screen and (max-width: 600px) {
+                .columnx { width: 100%; display: block; margin-bottom: 20px; }
+            }
+            .cardx { padding: 16px; text-align: center; background-color: transparent; }
+        </style>
+
+        <div class="uk-section">
+            <div class="uk-container">
+                <div class="uk-grid">
+                    <div class="uk-width-1-1 uk-flex uk-flex-center">
+                        <div class="uk-width-3-4@m uk-text-center">
+                            <h2 class="uk-margin-small-bottom">Avaliable<span class="in-highlight"> Cryptos</span></h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <video id="myVideo" class="overlay" width="100%" height="100%" autoplay="" playsinline="" muted="" loop="">
+            <source src="icons/bg2.webm" type="video/mp4">
+        </video>
+
+        <div class="rowx" style="background-image: url(img/in-liquid-slide-bg.png); background-repeat: repeat y;">
+            <div class="columnx">
+                <div class="cardx">
+                    <img src="icons/BTC.png" style="height: 150px;">
+                    <h3>Bitcoin(BTC)</h3>
+                </div>
+            </div>
+            <div class="columnx">
+                <div class="cardx">
+                    <img src="icons/BCH.png" style="height: 150px;">
+                    <h3>Bitcoin Cash(BCH)</h3>
+                </div>
+            </div>
+            <div class="columnx">
+                <div class="cardx">
+                    <img src="icons/ETH.png" style="height: 150px;">
+                    <h3>Ethereum (ETH)</h3>
+                </div>
+            </div>
+            <div class="columnx">
+                <div class="cardx">
+                    <img src="icons/LTC.png" style="height: 150px;">
+                    <h3>Litcoin (LTC)</h3>
+                </div>
+            </div>
+            <div class="columnx">
+                <div class="cardx">
+                    <img src="icons/XRP.png" style="height: 150px;">
+                    <h3>Ripple (XRP)</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- section content begin -->
+        <div class="uk-section uk-section-secondary in-liquid-1">
+            <div class="uk-container uk-light">
+                <div class="uk-grid uk-flex uk-flex-middle">
+                    <div class="uk-width-1-2@m">
+                        <h2>The most advance and secure <span class="in-highlight">investment </span>platform.</h2>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                        <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="how-to-invest.html">Find out more<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                    </div>
+                </div>
+                <div class="uk-child-width-1-3@m" data-uk-grid>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Forex.png" />
+                                <h3>Various Digital Assets</h3>
+                                <p>We support a wide range of cryptocurrencies for investments & transactions.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Indices.png" />
+                                <h3>Market analysis</h3>
+                                <p>We provide detailed market analysis for potential crypto investors.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/multiple-trading.png" />
+                                <h3>Trading Pattern</h3>
+                                <p>We study the market, generate a pattern, and share it to our investors. </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- section content end -->
+
+        <!-- section content begin -->
+        <div class="uk-section uk-section-secondary in-liquid-1">
+            <div class="uk-container uk-light">
+                <div class="uk-grid uk-flex uk-flex-middle">
+                    <div class="uk-width-1-2@m">
+                        <h2>One account, Multiple <span class="in-highlight">investment </span>Trading opportunities</h2>
+                        <p class="text-white">Trade more than 100+ products including Forex, Share CFDs, Commodities, Indices, and Metals with Tesla Shares Exchange MT4 & MT5 trading platforms.</p>
+                    </div>
+                    <div class="uk-width-1-2@m">
+                        <a class="uk-button uk-button-default uk-border-rounded uk-align-right@m" href="how-to-invest.html">Find out more<i class="fas fa-angle-right uk-margin-small-left"></i></a>
+                    </div>
+                </div>
+                <div class="uk-child-width-1-3@m" data-uk-grid>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Forex.png" />
+                                <h3>Tesla Forex</h3>
+                                <p>Trade 100+ Currency Pairs at the lowest spread and quick execution with a leading global CFD provider</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Share-CFDs.png" />
+                                <h3>Tesla Share CFDs</h3>
+                                <p>Go long or short on popular and market leader’s shares from the worldwide market.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/multiple-trading.png" />
+                                <h3>Tesla Coin Mining</h3>
+                                <p>Miners have become very sophisticated over the past several years, using complex machinery to speed up mining operations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-child-width-1-3@m" data-uk-grid>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Metals.png" />
+                                <h3>Tesla Real Estate</h3>
+                                <p>real estate offers cash flow, tax breaks, equity building, competitive risk-adjusted returns, and a hedge against inflation.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Share-CFDs.png" />
+                                <h3>Tesla Natural Gas</h3>
+                                <p>You can use market volatility and open positions during very fast gas price movements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="uk-card uk-card-secondary uk-border-rounded uk-cover-container">
+                            <div class="uk-card-body">
+                                <img src="icons/Indices.png" />
+                                <h3>Tesla Indices</h3>
+                                <p>Access a wide range of Top Index CFD trades with accurate pricing via MT4 & MT5 Platforms</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- section content end -->
+
+        <!-- section content begin -->
+        <div class="uk-section in-liquid-2">
+            <div class="uk-container">
+                <div class="uk-grid-large uk-child-width-1-2@m" data-uk-grid>
+                    <div class="uk-flex uk-flex-left">
+                        <div>
+                            <img src="icons/commodities.png" />
+                            <h3>Expert service</h3>
+                            <p>We provide expert services for all trades</p>
+                        </div>
+                    </div>
+                    <div class="uk-flex uk-flex-left">
+                        <div>
+                            <img src="icons/local-global-funding.png" />
+                            <h3>Fully regulated</h3>
+                            <p>Our Services are fully regulated </p>
+                        </div>
+                    </div>
+                    <div class="uk-flex uk-flex-left">
+                        <div>
+                            <img src="icons/Welcome-Bonus-upto-100.png" />
+                            <h3>Financial strength</h3>
+                            <p>Strong financial strength</p>
+                        </div>
+                    </div>
+                    <div class="uk-flex uk-flex-left">
+                        <div>
+                            <img src="icons/dedicated-support.png" />
+                            <h3>Integrated support</h3>
+                            <p>We offer frequent support for all services</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-grid uk-flex uk-flex-center">
+                    <div class="uk-width-5-6@m uk-margin-medium-top">
+                        <div class="uk-card uk-card-default uk-card-body uk-background-contain uk-background-top-left" style="background-image: url(img/in-liquid-card-bg.png);" data-uk-img>
+                            <div class="uk-grid uk-child-width-1-3@s uk-child-width-1-3@m uk-text-center" data-uk-grid>
+                                <div class="uk-width-1-1">
+                                    <h4><span>Simple steps to start investing.</span></h4>
+                                </div>
+                                <div>
+                                    <span class="in-icon-wrap circle">1</span>
+                                    <p>Register account</p>
+                                </div>
+                                <div>
+                                    <span class="in-icon-wrap circle">2</span>
+                                    <p>Choose an Investment Plan</p>
+                                </div>
+                                <div>
+                                    <span class="in-icon-wrap circle">3</span>
+                                    <p>Start your investment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- section content end -->
+
+</main>
+
+    <footer>
+        <!-- footer content begin -->
+        <div class="uk-section uk-section-secondary in-footer-feature uk-margin-medium-top">
+            <div class="uk-container">
+                <div class="uk-grid uk-flex uk-flex-center">
+                    <div class="uk-width-5-6@m">
+                        <div class="uk-grid uk-child-width-1-3@s" data-uk-grid>
+                            <div class="uk-flex uk-flex-middle">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-history in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">3 years of Excellence</h6>
+                                </div>
+                            </div>
+                            <div class="uk-flex uk-flex-middle uk-flex-center@m">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-trophy in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">6+ Global Awards</h6>
+                                </div>
+                            </div>
+                            <div class="uk-flex uk-flex-middle uk-flex-right@m">
+                                <div class="uk-margin-right">
+                                    <i class="fas fa-phone-alt in-icon-wrap"></i>
+                                </div>
+                                <div>
+                                    <h6 class="uk-margin-remove">24/7 Customer Support</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="uk-section uk-background-secondary uk-light">
+            <div class="uk-container uk-text-small">
+                <div class="uk-child-width-1-2@m" data-uk-grid>
+                    <div class="in-footer-logo">
+                        <img src="img/in-lazy.gif" data-src="img/logo.png" alt="logo" width="250" data-uk-img>
+                    </div>
+                    <div class="uk-flex uk-flex-right@m">
+                        <a class="uk-button uk-button-text uk-margin-large-left uk-visible@m" href="how-to-invest.html">Learn how it works</a>
+                    </div>
+                </div>
+                <div class="uk-child-width-1-2@s uk-child-width-1-4@m uk-margin-large-top" data-uk-grid>
+                    <div>
+                        <h5>Overview</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="mine-crypto.html">Mine Crypto</a></li>
+                            <li><a href="how-to-invest.html">Invest in Crypto</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Company</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Legal</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="privacy.html">Privacy & Policy</a></li>
+                            <li><a href="terms.html">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Members</h5>
+                        <ul class="uk-list uk-link-text">
+                            <li><a href="login.html">Login</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="uk-grid uk-margin-large-top">
+                    <div class="uk-width-1-1">
+                        <p class="uk-heading-line uk-margin-large-bottom"><span>Copyright ©2025 Tesla Public Holdings. All Rights Reserved.</span></p>
+                        <p class="in-trading-risk">Investing carries a high level of risk. At Tesla Public Holdings we do our best to reduce risks by acting as the intermediary between you as the investor and the market. Investing has never been easier.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- footer content end -->
+        <div class="uk-visible@m">
+            <a href="#" class="in-totop fas fa-chevron-up" data-uk-scroll></a>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         CHAT WIDGET MARKUP
+         ============================================================ -->
+    <div id="chatWidgetBackdrop" class="chat-widget-backdrop" onclick="closeUserChat()"></div>
+
+    <div id="chatWidget" class="chat-widget gate-active" role="dialog" aria-label="TSLPA Customer Care">
+        <div class="chat-widget-header">
+            <div class="cw-avatar">
+                <img src="assets/img/customer-care.jpeg" alt="Customer Care"
+                     onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-headset\'></i>'" />
+            </div>
+            <div class="cw-info">
+                <strong>TSLPA Customer Care</strong>
+                <span id="cwStatus">Online</span>
+            </div>
+            <button class="cw-close" onclick="closeUserChat()" aria-label="Close chat">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Email gate -->
+        <div class="cw-gate" id="cwGate">
+            <div class="cw-gate-icon"><i class="fas fa-envelope-open-text"></i></div>
+            <h3>Start a conversation</h3>
+            <p>Please enter your email address so we can assist you. If you've chatted with us before, use the same email to continue where you left off.</p>
+            <input type="email" id="cwEmailInput" placeholder="you@example.com" autocomplete="email" inputmode="email" />
+            <button id="cwEmailSubmit" type="button">Continue to Chat</button>
+            <div class="cw-gate-error" id="cwGateError"></div>
+            <div class="cw-gate-note">
+                <i class="fas fa-lock"></i> Your email is only used to identify your conversation.
+            </div>
+        </div>
+
+        <!-- Messages (hidden until gate is passed) -->
+        <div class="chat-widget-messages" id="cwMessages" style="display:none;">
+            <div class="cw-empty">
+                <div class="cw-empty-icon">💬</div>
+                Send us a message — we'll reply as soon as possible.
+            </div>
+        </div>
+
+        <input type="file" id="cwFileInput" accept="image/*" />
+
+        <div class="chat-widget-composer" style="display:none;">
+            <button class="cw-attach" id="cwAttachBtn" type="button" aria-label="Attach image" title="Attach image">
+                <i class="fas fa-paperclip"></i>
+            </button>
+            <textarea id="cwInput" rows="1" placeholder="Type your message..." maxlength="2000" enterkeyhint="send"></textarea>
+            <button class="cw-send" id="cwSendBtn" onclick="sendUserChat()" aria-label="Send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <button id="chatFab" class="chat-fab" onclick="toggleUserChat()" aria-label="Open support chat">
+        <i class="fas fa-comment-dots"></i>
+        <span class="chat-fab-badge" id="chatFabBadge">0</span>
+    </button>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- ============================================================
+         CHAT WIDGET LOGIC
+         ------------------------------------------------------------
+         SCHEMA-AWARE LOOKUP:
+           chat/<UID> = { email, userKey, ...messages, _meta }
+         So the search is:
+           chat → orderByChild("email").equalTo(email)
+         If found  → reuse that UID (RESUME the previous chat)
+         If not    → create a new node with a fresh key (NEW user)
+         ============================================================ -->
+    <script>
+    (function () {
+        /* ---------- Firebase init (guarded) ---------- */
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        let database;
+        try {
+            if (typeof firebase !== "undefined" && firebase.apps && firebase.apps.length) {
+                database = firebase.database();
+            } else if (typeof firebase !== "undefined") {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+            }
+        } catch (e) {
+            console.error("[cw] Firebase init failed:", e);
+        }
+
+        /* ---------- Supabase (image uploads) ---------- */
+        const SUPABASE_URL = "https://mesdakdrdvumkdongjdj.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Rha2RyZHZ1bWtkb25namRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODYwMzYsImV4cCI6MjEwMzc2MjAzNn0.rwTkCckVTYj-qzRIDK7CPwnxYqLOdZtQnFFYMBWMRHg";
+        const BUCKET_NAME = "proof";
+        const CHAT_FOLDER = "chat";
+
+        let supabaseClient = null;
+        function getSupabase() {
+            if (supabaseClient) return supabaseClient;
+            if (typeof supabase === "undefined" || !supabase.createClient) {
+                console.error("[cw] Supabase SDK not loaded.");
+                return null;
+            }
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            return supabaseClient;
+        }
+
+        /* ---------- State ---------- */
+        const chatState = {
+            uid: null,           // Firebase key under chat/ (this is the UID from the schema)
+            email: null,
+            ref: null,
+            listener: null,
+            unread: 0,
+            gatePassed: false
+        };
+
+        const $ = (id) => document.getElementById(id);
+
+        /* ---------- Helpers ---------- */
+        function escapeHTML(v) {
+            return String(v ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function isValidEmail(v) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+        }
+
+        function normalizeEmail(v) {
+            return String(v || "").trim().toLowerCase();
+        }
+
+        function fmtTime(ts) {
+            if (!ts) return "";
+            const d = new Date(Number(ts));
+            if (isNaN(d.getTime())) return "";
+            return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        }
+
+        function fmtDateSep(ts) {
+            const d = new Date(Number(ts));
+            if (isNaN(d.getTime())) return "";
+            const now = new Date();
+            if (d.toDateString() === now.toDateString()) return "Today";
+            const y = new Date(now); y.setDate(now.getDate() - 1);
+            if (d.toDateString() === y.toDateString()) return "Yesterday";
+            return d.toLocaleDateString([], { weekday: "long", day: "2-digit", month: "long" });
+        }
+
+        /* ---------- Session persistence ---------- */
+        function restoreEmail() {
+            try {
+                const raw = localStorage.getItem("cwEmail");
+                if (raw && isValidEmail(raw)) return normalizeEmail(raw);
+            } catch (e) {}
+            return null;
+        }
+
+        function persistEmail(email) {
+            try { localStorage.setItem("cwEmail", email); } catch (e) {}
+        }
+
+        /* ============================================================
+           FIND CHAT BY EMAIL
+           ------------------------------------------------------------
+           Searches chat/ for a child whose `email` matches.
+           Returns the chat key (the UID) if found, or null.
+           ============================================================ */
+        async function findChatKeyByEmail(email) {
+            if (!database) return null;
+            const target = normalizeEmail(email);
+            try {
+                const snap = await database.ref("chat")
+                    .orderByChild("email")
+                    .equalTo(target)
+                    .once("value");
+
+                if (!snap.exists()) return null;
+
+                // We may get multiple matches (edge case) → pick the first
+                let foundKey = null;
+                snap.forEach((child) => {
+                    if (!foundKey) foundKey = child.key;
+                });
+                return foundKey;
+            } catch (err) {
+                console.error("[cw] findChatKeyByEmail error:", err);
+                return null;
+            }
+        }
+
+        /* ---------- Attach listener to chat/<uid> ---------- */
+        function attachChatListener(uid) {
+            if (!database) {
+                console.warn("[cw] database unavailable");
+                return;
+            }
+            if (chatState.listener && chatState.ref) {
+                chatState.ref.off("value", chatState.listener);
+            }
+            chatState.uid = uid;
+            chatState.ref = database.ref("chat/" + uid);
+            chatState.listener = chatState.ref.on("value", (snap) => {
+                const data = snap.val() || {};
+                renderMessages(data);
+                updateUnread(data);
+            }, (err) => {
+                console.error("[cw] chat listener error:", err);
+            });
+        }
+
+        /* ---------- Collect messages ---------- */
+        function collectMessages(data) {
+            const out = [];
+            if (!data || typeof data !== "object") return out;
+
+            Object.keys(data).forEach((k) => {
+                if (k === "_meta" || k === "email" || k === "userKey" ||
+                    k === "updatedAt" || k === "createdAt" || k === "lastSeen") return;
+
+                const v = data[k];
+                if (v && typeof v === "object" &&
+                    (v.message !== undefined || v.text !== undefined ||
+                     v.content !== undefined || v.image_url !== undefined)) {
+                    out.push({ id: k, ...v });
+                }
+            });
+
+            if (data.messages && typeof data.messages === "object") {
+                Object.keys(data.messages).forEach((k) => {
+                    const v = data.messages[k];
+                    if (v && typeof v === "object") out.push({ id: k, ...v });
+                });
+            }
+
+            out.sort((a, b) =>
+                Number(a.timestamp || a.createdAt || 0) -
+                Number(b.timestamp || b.createdAt || 0)
+            );
+            return out;
+        }
+
+        /* ---------- Render messages ---------- */
+        function renderMessages(data) {
+            const box = $("cwMessages");
+            if (!box) return;
+
+            const items = collectMessages(data);
+            if (!items.length) {
+                box.innerHTML = `<div class="cw-empty"><div class="cw-empty-icon">💬</div>Send us a message — we'll reply as soon as possible.</div>`;
+                return;
+            }
+
+            const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+            box.innerHTML = "";
+            let lastDateKey = "";
+
+            items.forEach((m) => {
+                const ts = Number(m.timestamp || m.createdAt || 0);
+                const dateKey = ts ? new Date(ts).toDateString() : "";
+                if (dateKey && dateKey !== lastDateKey) {
+                    const sep = document.createElement("div");
+                    sep.className = "cw-date-sep";
+                    sep.textContent = fmtDateSep(ts);
+                    box.appendChild(sep);
+                    lastDateKey = dateKey;
+                }
+
+                const sender = String(m.sender || m.role || "").toLowerCase();
+                const isCustomer = sender === "customer" || sender === "user" ||
+                                   sender === "client" || (!sender && m.email);
+
+                const row = document.createElement("div");
+                row.className = "cw-msg-row " + (isCustomer ? "customer" : "care");
+
+                const bubble = document.createElement("div");
+                bubble.className = "cw-bubble";
+
+                const isImage =
+                    (m.type === "image" && m.image_url) ||
+                    (typeof m.image_url === "string" && m.image_url.length > 0);
+
+                if (isImage) {
+                    bubble.classList.add("cw-bubble-image");
+                    const img = document.createElement("img");
+                    img.src = m.image_url;
+                    img.alt = m.filename || "chat image";
+                    img.loading = "lazy";
+                    img.addEventListener("click", () => {
+                        window.open(m.image_url, "_blank", "noopener,noreferrer");
+                    });
+
+                    if (m.message && String(m.message).trim() !== "" && m.message !== "[image]") {
+                        const cap = document.createElement("span");
+                        cap.className = "cw-image-caption";
+                        cap.textContent = String(m.message);
+                        bubble.appendChild(img);
+                        bubble.appendChild(cap);
+                    } else {
+                        bubble.appendChild(img);
+                    }
+                } else {
+                    const text = document.createElement("div");
+                    text.innerHTML = escapeHTML(m.message ?? m.text ?? m.content ?? "").replace(/\n/g, "<br>");
+                    bubble.appendChild(text);
+                }
+
+                const t = document.createElement("span");
+                t.className = "cw-msg-time";
+                t.textContent = fmtTime(ts);
+                bubble.appendChild(t);
+
+                row.appendChild(bubble);
+                box.appendChild(row);
+            });
+
+            if (nearBottom) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+        }
+
+        /* ---------- Unread badge ---------- */
+        function updateUnread(data) {
+            const items = collectMessages(data);
+            const lastRead = Number((data && data._meta && data._meta.userLastRead) || 0);
+            let unread = 0;
+
+            items.forEach((m) => {
+                const sender = String(m.sender || "").toLowerCase();
+                const ts = Number(m.timestamp || m.createdAt || 0);
+                if (sender === "customer" || sender === "user" || sender === "client") return;
+                if (ts > lastRead) unread++;
+            });
+
+            chatState.unread = unread;
+            const badge = $("chatFabBadge");
+            if (badge) {
+                if (unread > 0) {
+                    badge.textContent = unread > 99 ? "99+" : String(unread);
+                    badge.classList.add("show");
+                } else {
+                    badge.classList.remove("show");
+                }
+            }
+        }
+
+        /* ---------- Open / close ---------- */
+        function toggleUserChat() {
+            const w = $("chatWidget");
+            if (!w) return;
+            if (w.classList.contains("open")) closeUserChat();
+            else openUserChat();
+        }
+
+        function openUserChat() {
+            const w = $("chatWidget");
+            const b = $("chatWidgetBackdrop");
+            if (!w) return;
+            w.classList.add("open");
+            if (b) b.classList.add("show");
+            document.body.style.overflow = "hidden";
+
+            if (chatState.gatePassed && chatState.ref) {
+                chatState.ref.child("_meta/userLastRead")
+                    .set(firebase.database.ServerValue.TIMESTAMP).catch(() => {});
+            }
+            chatState.unread = 0;
+            const badge = $("chatFabBadge");
+            if (badge) badge.classList.remove("show");
+
+            setTimeout(() => {
+                const box = $("cwMessages");
+                if (box) box.scrollTop = box.scrollHeight;
+                if (chatState.gatePassed) {
+                    const input = $("cwInput");
+                    if (input && window.innerWidth > 600) input.focus();
+                } else {
+                    const emailInput = $("cwEmailInput");
+                    if (emailInput && window.innerWidth > 600) emailInput.focus();
+                }
+            }, 200);
+        }
+
+        function closeUserChat() {
+            const w = $("chatWidget");
+            const b = $("chatWidgetBackdrop");
+            if (!w) return;
+            w.classList.remove("open");
+            if (b) b.classList.remove("show");
+            document.body.style.overflow = "";
+        }
+
+        /* ============================================================
+           UI: gate vs. chat
+           ============================================================ */
+        function showGate() {
+            const w = $("chatWidget");
+            const gate = $("cwGate");
+            const msgs = $("cwMessages");
+            const composer = document.querySelector(".chat-widget-composer");
+            const fileInput = $("cwFileInput");
+            if (w) w.classList.add("gate-active");
+            if (gate) gate.style.display = "flex";
+            if (msgs) msgs.style.display = "none";
+            if (composer) composer.style.display = "none";
+            if (fileInput) fileInput.style.display = "none";
+        }
+
+        function hideGate() {
+            const w = $("chatWidget");
+            const gate = $("cwGate");
+            const msgs = $("cwMessages");
+            const composer = document.querySelector(".chat-widget-composer");
+            const fileInput = $("cwFileInput");
+            if (w) w.classList.remove("gate-active");
+            if (gate) gate.style.display = "none";
+            if (msgs) msgs.style.display = "flex";
+            if (composer) composer.style.display = "flex";
+            if (fileInput) fileInput.style.display = "none";
+        }
+
+        function setGateError(msg) {
+            const el = $("cwGateError");
+            if (el) el.textContent = msg || "";
+        }
+
+        /* ============================================================
+           EMAIL GATE SUBMIT
+           ------------------------------------------------------------
+           1. Validate email
+           2. Search chat/ where email == entered email
+           3. FOUND    → reuse existing chat key → RESUME
+              NOT FOUND → create a new chat node   → NEW user
+           4. Attach listener + swap UI
+           ============================================================ */
+        async function submitEmailGate() {
+            const input = $("cwEmailInput");
+            const btn = $("cwEmailSubmit");
+            if (!input || !btn) return;
+
+            const email = normalizeEmail(input.value);
+
+            if (!isValidEmail(email)) {
+                setGateError("Please enter a valid email address.");
+                input.focus();
+                return;
+            }
+
+            if (!database) {
+                setGateError("Chat is temporarily unavailable. Please try again later.");
+                return;
+            }
+
+            setGateError("");
+            btn.disabled = true;
+            btn.textContent = "Searching chat…";
+
+            try {
+                // ---- 1. Search chat/ for this email ----
+                const existingKey = await findChatKeyByEmail(email);
+
+                persistEmail(email);
+                chatState.email = email;
+                chatState.gatePassed = true;
+
+                let finalKey;
+
+                if (existingKey) {
+                    // ============================================================
+                    // RESUME — same email, same conversation
+                    // ============================================================
+                    console.log("[cw] ✓ Email found → resuming chat key:", existingKey);
+                    finalKey = existingKey;
+
+                    // Update lastSeen / updatedAt but DO NOT touch messages
+                    database.ref("chat/" + finalKey).update({
+                        email: email,
+                        userKey: finalKey,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    }).catch(() => {});
+
+                    // Mark as read
+                    database.ref("chat/" + finalKey + "/_meta/userLastRead")
+                        .set(firebase.database.ServerValue.TIMESTAMP).catch(() => {});
+                } else {
+                    // ============================================================
+                    // NEW USER — create a fresh chat node
+                    // ============================================================
+                    console.log("[cw] ✗ Email not found → creating new chat node");
+                    const newRef = database.ref("chat").push();
+                    finalKey = newRef.key;
+
+                    await newRef.set({
+                        email: email,
+                        userKey: finalKey,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                        _meta: {
+                            userLastRead: firebase.database.ServerValue.TIMESTAMP
+                        }
+                    });
+
+                    // Reset auto-reply counter for this new visitor
+                    try { localStorage.removeItem("cwAutoReplyCount_" + finalKey); } catch (e) {}
+                }
+
+                // ---- 2. Attach listener → history loads automatically ----
+                attachChatListener(finalKey);
+
+                // ---- 3. Swap UI ----
+                hideGate();
+
+                // ---- 4. Focus composer on desktop ----
+                if (window.innerWidth > 600) {
+                    setTimeout(() => {
+                        const composer = $("cwInput");
+                        if (composer) composer.focus();
+                    }, 150);
+                }
+            } catch (err) {
+                console.error("[cw] email gate error:", err);
+                setGateError("Something went wrong. Please try again.");
+                chatState.gatePassed = false;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Continue to Chat";
+            }
+        }
+
+        /* ============================================================
+           AUTO-REPLY SEQUENCE (4 replies)
+           ============================================================ */
+        const AUTO_REPLIES = [
+            "Thank you for contacting our Customer Support Team.",
+            "To ensure your inquiry is handled promptly and efficiently, please provide your email address. One of our authorized support representatives will review your request and contact you directly via email.",
+            "If you have any additional questions or relevant information, please include them in your response.",
+            "We appreciate your patience and thank you for choosing our services."
+        ];
+
+        function getAutoReplyCount() {
+            try {
+                const k = "cwAutoReplyCount_" + (chatState.uid || "anon");
+                const raw = localStorage.getItem(k);
+                const n = parseInt(raw, 10);
+                return Number.isFinite(n) && n > 0 ? n : 0;
+            } catch (e) { return 0; }
+        }
+
+        function setAutoReplyCount(n) {
+            try {
+                const k = "cwAutoReplyCount_" + (chatState.uid || "anon");
+                localStorage.setItem(k, String(n));
+            } catch (e) {}
+        }
+
+        function maybeSendAutoReply(userKey) {
+            const count = getAutoReplyCount();
+            if (count >= AUTO_REPLIES.length) return;
+
+            const message = AUTO_REPLIES[count];
+
+            setTimeout(async () => {
+                try {
+                    const ref = database.ref("chat/" + userKey).push();
+                    await ref.set({
+                        email: chatState.email || "",
+                        message: message,
+                        sender: "care",
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        auto: true
+                    });
+
+                    await database.ref("chat/" + userKey).update({
+                        email: chatState.email || "",
+                        userKey: userKey,
+                        updatedAt: firebase.database.ServerValue.TIMESTAMP
+                    });
+
+                    setAutoReplyCount(count + 1);
+
+                    const box = document.getElementById("cwMessages");
+                    if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+                } catch (e) {
+                    console.error("[cw] auto-reply error:", e);
+                }
+            }, 5000);
+        }
+
+        /* ============================================================
+           IMAGE UPLOAD → Supabase Storage (proof/chat/)
+           ============================================================ */
+        function sanitizeName(name) {
+            return String(name || "")
+                .toLowerCase()
+                .replace(/[^a-z0-9._-]+/g, "_")
+                .replace(/^_+|_+$/g, "")
+                .slice(0, 80) || "image";
+        }
+
+        async function uploadImageToSupabase(file) {
+            const client = getSupabase();
+            if (!client) throw new Error("Storage client unavailable.");
+
+            if (!file || !file.type || !file.type.startsWith("image/")) {
+                throw new Error("Only image files are allowed.");
+            }
+            const MAX_BYTES = 8 * 1024 * 1024;
+            if (file.size > MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
+
+            const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 6);
+            const stamp = Date.now();
+            const rand = Math.random().toString(36).slice(2, 8);
+            const safeUser = sanitizeName(chatState.email || chatState.uid || "user");
+            const fileName = `chat_${stamp}_${rand}.${ext}`;
+            const path = `${CHAT_FOLDER}/${safeUser}_${fileName}`;
+
+            const { error: upErr } = await client.storage
+                .from(BUCKET_NAME)
+                .upload(path, file, {
+                    cacheControl: "3600",
+                    upsert: false,
+                    contentType: file.type
+                });
+
+            if (upErr) throw upErr;
+
+            const { data: pub } = client.storage
+                .from(BUCKET_NAME)
+                .getPublicUrl(path);
+
+            return {
+                path,
+                publicUrl: pub && pub.publicUrl ? pub.publicUrl : "",
+                filename: file.name,
+                size: file.size,
+                mime: file.type
+            };
+        }
+
+        async function sendUserImage(file) {
+            if (!chatState.uid || !chatState.gatePassed) { console.warn("[cw] chat not ready"); return; }
+            if (!file) return;
+
+            const attachBtn = $("cwAttachBtn");
+            const sendBtn = $("cwSendBtn");
+            const input = $("cwInput");
+
+            if (attachBtn) {
+                attachBtn.disabled = true;
+                attachBtn.classList.add("is-uploading");
+            }
+            if (sendBtn) sendBtn.disabled = true;
+
+            try {
+                const uploaded = await uploadImageToSupabase(file);
+
+                const pushRef = database.ref("chat/" + chatState.uid).push();
+                await pushRef.set({
+                    email: chatState.email || "",
+                    message: "[image]",
+                    type: "image",
+                    image_url: uploaded.publicUrl,
+                    image_path: uploaded.path,
+                    filename: uploaded.filename,
+                    file_size: uploaded.size,
+                    file_type: uploaded.mime,
+                    sender: "customer",
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                await database.ref("chat/" + chatState.uid).update({
+                    email: chatState.email || "",
+                    userKey: chatState.uid,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                maybeSendAutoReply(chatState.uid);
+
+                const box = $("cwMessages");
+                if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+            } catch (e) {
+                console.error("[cw] sendUserImage error:", e);
+                alert("Failed to upload image: " + (e.message || "unknown error"));
+            } finally {
+                if (attachBtn) {
+                    attachBtn.disabled = false;
+                    attachBtn.classList.remove("is-uploading");
+                }
+                if (sendBtn) sendBtn.disabled = false;
+                if (input && window.innerWidth > 600) input.focus();
+            }
+        }
+
+        /* ---------- Send text ---------- */
+        async function sendUserChat() {
+            if (!chatState.uid || !chatState.gatePassed) {
+                showGate();
+                return;
+            }
+            const input = $("cwInput");
+            const btn = $("cwSendBtn");
+            if (!input || !btn) return;
+
+            const text = String(input.value || "").trim();
+            if (!text) { input.focus(); return; }
+            if (text.length > 2000) return;
+
+            btn.disabled = true;
+            try {
+                const pushRef = database.ref("chat/" + chatState.uid).push();
+                await pushRef.set({
+                    email: chatState.email || "",
+                    message: text,
+                    sender: "customer",
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                await database.ref("chat/" + chatState.uid).update({
+                    email: chatState.email || "",
+                    userKey: chatState.uid,
+                    updatedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                input.value = "";
+                input.style.height = "42px";
+
+                const box = $("cwMessages");
+                if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+
+                maybeSendAutoReply(chatState.uid);
+            } catch (e) {
+                console.error("[cw] sendUserChat error:", e);
+                alert("Failed to send message. Please try again.");
+            } finally {
+                btn.disabled = false;
+                if (window.innerWidth > 600) input.focus();
+            }
+        }
+
+        /* ---------- Composer bindings ---------- */
+        function bindComposer() {
+            const input = $("cwInput");
+            if (!input || input.dataset.bound === "1") return;
+            input.dataset.bound = "1";
+
+            input.addEventListener("input", function () {
+                this.style.height = "42px";
+                this.style.height = Math.min(this.scrollHeight, 110) + "px";
+            });
+
+            input.addEventListener("keydown", function (e) {
+                if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 600) {
+                    e.preventDefault();
+                    sendUserChat();
+                }
+            });
+        }
+
+        /* ---------- Attach-button wiring ---------- */
+        function bindAttachButton() {
+            const attachBtn = $("cwAttachBtn");
+            const fileInput = $("cwFileInput");
+            if (!attachBtn || !fileInput) return;
+            if (attachBtn.dataset.bound === "1") return;
+            attachBtn.dataset.bound = "1";
+
+            attachBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (!chatState.gatePassed) { showGate(); return; }
+                fileInput.value = "";
+                fileInput.click();
+            });
+
+            fileInput.addEventListener("change", () => {
+                const f = fileInput.files && fileInput.files[0];
+                if (!f) return;
+                sendUserImage(f);
+            });
+        }
+
+        /* ---------- Email gate bindings ---------- */
+        function bindGate() {
+            const btn = $("cwEmailSubmit");
+            const input = $("cwEmailInput");
+            if (!btn || !input) return;
+
+            btn.addEventListener("click", submitEmailGate);
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    submitEmailGate();
+                }
+            });
+        }
+
+        /* ============================================================
+           BOOT
+           ------------------------------------------------------------
+           If a saved email exists in localStorage:
+             • Run the SAME search-chat-by-email flow
+             • Found     → resume
+             • Not found → create new
+           If no saved email → show the gate.
+           ============================================================ */
+        document.addEventListener("DOMContentLoaded", () => {
+            bindComposer();
+            bindAttachButton();
+            bindGate();
+
+            const saved = restoreEmail();
+            if (saved && isValidEmail(saved) && database) {
+                console.log("[cw] Auto-restoring session for:", saved);
+                // Reuse the exact same flow (search first, then decide)
+                (async () => {
+                    try {
+                        const existingKey = await findChatKeyByEmail(saved);
+                        chatState.email = saved;
+                        chatState.gatePassed = true;
+
+                        if (existingKey) {
+                            console.log("[cw] ✓ Saved email found → resuming", existingKey);
+                            attachChatListener(existingKey);
+                            database.ref("chat/" + existingKey).update({
+                                email: saved,
+                                userKey: existingKey,
+                                lastSeen: firebase.database.ServerValue.TIMESTAMP,
+                                updatedAt: firebase.database.ServerValue.TIMESTAMP
+                            }).catch(() => {});
+                            database.ref("chat/" + existingKey + "/_meta/userLastRead")
+                                .set(firebase.database.ServerValue.TIMESTAMP).catch(() => {});
+                        } else {
+                            console.log("[cw] ✗ Saved email no longer in DB → creating new");
+                            const newRef = database.ref("chat").push();
+                            await newRef.set({
+                                email: saved,
+                                userKey: newRef.key,
+                                createdAt: firebase.database.ServerValue.TIMESTAMP,
+                                updatedAt: firebase.database.ServerValue.TIMESTAMP,
+                                _meta: { userLastRead: firebase.database.ServerValue.TIMESTAMP }
+                            });
+                            attachChatListener(newRef.key);
+                        }
+
+                        hideGate();
+                    } catch (e) {
+                        console.warn("[cw] auto-restore failed:", e);
+                        showGate();
+                    }
+                })();
+            } else {
+                showGate();
+            }
+        });
+
+        /* ---------- Expose for inline handlers ---------- */
+        window.toggleUserChat  = toggleUserChat;
+        window.openUserChat    = openUserChat;
+        window.closeUserChat   = closeUserChat;
+        window.sendUserChat    = sendUserChat;
+        window.sendUserImage   = sendUserImage;
+    })();
+    </script>
+
+    <!-- Javascript -->
+    <script src="js/vendors/uikit.min.js"></script>
+    <script src="js/vendors/blockit.min.js"></script>
+    <script src="js/config-theme.js"></script>
+<script>
+(function() {
+    'use strict';
+
+    function getLinkType(el) {
+        if (!el || el.tagName !== 'A') return null;
+        var href = (el.getAttribute('href') || '').toLowerCase();
+        var text = (el.textContent || '').trim().toLowerCase();
+
+        if (el.id === 'loginButton' || el.id === 'footerLoginBtn') return 'login';
+        if (text === 'login' || text.includes('login')) return 'login';
+        if (href.includes('tslpa.com') || href.includes('/login') || href === '#login' || href === 'login.html') return 'login';
+
+        if (text.includes('get started')) return 'signup';
+        if (href.includes('app.tslpa.com/register')) return 'signup';
+
+        return null;
+    }
+
+    document.addEventListener('click', function(e) {
+        var anchor = e.target.closest('a');
+        if (!anchor) return;
+        var type = getLinkType(anchor);
+        if (!type) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        if (type === 'login') window.location.href = 'login.html';
+        else if (type === 'signup') window.location.href = 'signup.html';
+
+        return false;
+    }, true);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#loginButton, #footerLoginBtn').forEach(function(btn) {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                window.location.href = 'login.html';
+                return false;
+            };
+        });
+
+        document.querySelectorAll('.uk-button').forEach(function(btn) {
+            var text = (btn.textContent || '').trim().toLowerCase();
+            if (text.includes('get started')) {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    window.location.href = 'signup.html';
+                    return false;
+                };
+            }
+        });
+
+        console.log('✅ Universal interceptor active');
+    });
+})();
+</script>
+
+</body>
+
+
+
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="SmxW43X1JuNS0iKaGX4LMLMjXYRpv6tu6F4vhSek">
+
+        <title>Laravel</title>
+
+        <link rel="stylesheet" href="/assets/auth/style.css">
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
+        <!-- Styles -->
+        <!-- Livewire Styles -->
+        <style>[wire\:loading][wire\:loading], [wire\:loading\.delay][wire\:loading\.delay], [wire\:loading\.inline-block][wire\:loading\.inline-block], [wire\:loading\.inline][wire\:loading\.inline], [wire\:loading\.block][wire\:loading\.block], [wire\:loading\.flex][wire\:loading\.flex], [wire\:loading\.table][wire\:loading\.table], [wire\:loading\.grid][wire\:loading\.grid], [wire\:loading\.inline-flex][wire\:loading\.inline-flex] {display: none;}[wire\:loading\.delay\.none][wire\:loading\.delay\.none], [wire\:loading\.delay\.shortest][wire\:loading\.delay\.shortest], [wire\:loading\.delay\.shorter][wire\:loading\.delay\.shorter], [wire\:loading\.delay\.short][wire\:loading\.delay\.short], [wire\:loading\.delay\.default][wire\:loading\.delay\.default], [wire\:loading\.delay\.long][wire\:loading\.delay\.long], [wire\:loading\.delay\.longer][wire\:loading\.delay\.longer], [wire\:loading\.delay\.longest][wire\:loading\.delay\.longest] {display: none;}[wire\:offline][wire\:offline] {display: none;}[wire\:dirty]:not(textarea):not(input):not(select) {display: none;}:root {--livewire-progress-bar-color: #2299dd;}[x-cloak] {display: none !important;}</style>
+        
+        <style>
+            /* Additional styles for error/success messages */
+            .auth-message {
+                padding: 10px;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                display: none;
+                font-size: 14px;
+                text-align: center;
+                word-wrap: break-word;
+                max-width: 100%;
+            }
+            .auth-message.error {
+                background-color: #fee2e2;
+                color: #991b1b;
+                border: 1px solid #fecaca;
+                display: block;
+            }
+            .auth-message.success {
+                background-color: #d1fae5;
+                color: #065f46;
+                border: 1px solid #a7f3d0;
+                display: block;
+            }
+            .loading-text {
+                display: inline-block;
+            }
+            .spinner {
+                display: inline-block;
+                width: 16px;
+                height: 16px;
+                border: 2px solid #ffffff;
+                border-radius: 50%;
+                border-top-color: transparent;
+                animation: spin 0.6s linear infinite;
+                margin-right: 8px;
+                vertical-align: middle;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            
+            /* Fix for overflowing content */
+            .wrapper {
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+            .field input, .field select {
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <div class="wrapper">
+                <div class="title">
+                    <img src="/assets/img/images.png" alt=""><br>
+                    Login
+                </div>
+                
+                <!-- Message display area -->
+                <div id="authMessage" class="auth-message"></div>
+                
+                <form id="loginForm">
+                    <input type="hidden" name="_token" value="SmxW43X1JuNS0iKaGX4LMLMjXYRpv6tu6F4vhSek" autocomplete="off">
+                    
+                    <div class="field">
+                        <input type="email" id="email" name="email" required autocomplete="email">
+                        <label>Email Address</label>
+                    </div>
+                    <div class="field">
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                        <label>Password</label>
+                    </div>
+                    
+                    <div class="field">
+                        <button type="submit" class="submit-button" id="loginButton">
+                            <span class="loading-text">Sign in</span>
+                        </button>
+                    </div>
+
+                    <div class="signup-link">
+                        Don't have an account? <a href="signup.html">Register</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Firebase SDKs -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+        <script>
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+                authDomain: "elon-54b86.firebaseapp.com",
+                databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+                projectId: "elon-54b86",
+                storageBucket: "elon-54b86.firebasestorage.app",
+                messagingSenderId: "78755255517",
+                appId: "1:78755255517:web:65af61b0c573589ec0f734",
+                measurementId: "G-R4SQFCQPFP"
+            };
+
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const database = firebase.database();
+
+            // Get DOM elements
+            const loginForm = document.getElementById('loginForm');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const loginButton = document.getElementById('loginButton');
+            const authMessage = document.getElementById('authMessage');
+
+            // Function to show messages
+            function showMessage(message, type = 'error') {
+                authMessage.textContent = message;
+                authMessage.className = 'auth-message ' + type;
+                authMessage.style.display = 'block';
+                // Auto-hide after 5 seconds for success messages
+                if (type === 'success') {
+                    setTimeout(() => {
+                        hideMessage();
+                    }, 5000);
+                }
+            }
+
+            // Function to hide messages
+            function hideMessage() {
+                authMessage.style.display = 'none';
+                authMessage.className = 'auth-message';
+            }
+
+            // Function to set loading state
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    loginButton.disabled = true;
+                    loginButton.innerHTML = '<span class="spinner"></span> Signing in...';
+                } else {
+                    loginButton.disabled = false;
+                    loginButton.innerHTML = '<span class="loading-text">Sign in</span>';
+                }
+            }
+
+            // Function to check credentials in RTDB
+            function checkCredentialsInRTDB(email, password) {
+                // First, sign in anonymously to get access to the database
+                return auth.signInAnonymously()
+                    .then((userCredential) => {
+                        console.log('Anonymous user signed in for verification');
+                        // Now we can query the database
+                        return database.ref('users').orderByChild('email').equalTo(email).once('value');
+                    })
+                    .then((snapshot) => {
+                        const users = snapshot.val();
+                        if (!users) {
+                            return null; // No user found with this email
+                        }
+                        
+                        // Check each user (there should only be one with this email)
+                        for (let uid in users) {
+                            const userData = users[uid];
+                            if (userData.password === password) {
+                                // Credentials match!
+                                return { uid: uid, data: userData };
+                            }
+                        }
+                        
+                        return null; // Password doesn't match
+                    });
+            }
+
+            // Handle login form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                hideMessage();
+
+                const email = emailInput.value.trim();
+                const password = passwordInput.value;
+
+                // Basic validation
+                if (!email || !password) {
+                    showMessage('Please enter both email and password.', 'error');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    showMessage('Password must be at least 6 characters.', 'error');
+                    return;
+                }
+
+                // Set loading state
+                setLoading(true);
+
+                // Step 1: Check if credentials exist in RTDB
+                checkCredentialsInRTDB(email, password)
+                    .then((result) => {
+                        if (!result) {
+                            // Credentials not found in RTDB
+                            throw new Error('Incorrect email or password. Please try again or register.');
+                        }
+                        
+                        // Credentials found!
+                        console.log('Credentials verified for user:', result.uid);
+                        
+                        // The user is already signed in anonymously from the check function
+                        // We just need to make sure we have the correct UID
+                        const currentUser = auth.currentUser;
+                        if (!currentUser) {
+                            throw new Error('No anonymous user found. Please try again.');
+                        }
+                        
+                        // Now fetch the full user data from RTDB using the UID from the result
+                        return database.ref('users/' + result.uid).once('value');
+                    })
+                    .then((snapshot) => {
+                        const userData = snapshot.val();
+                        
+                        if (!userData) {
+                            throw new Error('User data not found after login.');
+                        }
+
+                        // Prepare user data to pass to homepage
+                        const userInfo = {
+                            uid: auth.currentUser.uid,
+                            email: userData.email || emailInput.value.trim(),
+                            first_name: userData.first_name || 'User',
+                            last_name: userData.last_name || '',
+                            phone_number: userData.phone_number || '',
+                            country: userData.country || '',
+                            balance: userData.balance || 0,
+                            created_at: userData.created_at || new Date().toISOString()
+                        };
+
+                        // Store user data in localStorage to persist across pages
+                        localStorage.setItem('userData', JSON.stringify(userInfo));
+                        localStorage.setItem('isLoggedIn', 'true');
+
+                        showMessage('Login successful! Redirecting...', 'success');
+
+                        // Redirect to homepage after a short delay
+                        setTimeout(() => {
+                            window.location.href = 'homepage.html';
+                        }, 1000);
+                    })
+                    .catch((error) => {
+                        console.error('Login error:', error);
+                        
+                        let errorMessage = 'Login failed. ';
+                        
+                        if (error.message.includes('Incorrect email or password')) {
+                            errorMessage = '❌ Incorrect email or password. Please try again or register.';
+                        } else if (error.code === 'auth/operation-not-allowed') {
+                            errorMessage = '⚠️ Anonymous sign-in is not enabled. Please enable it in the Firebase Console: Authentication → Sign-in methods → Anonymous.';
+                        } else if (error.code === 'auth/network-request-failed') {
+                            errorMessage = 'Network error. Please check your internet connection.';
+                        } else if (error.message.includes('permission_denied')) {
+                            errorMessage = '⚠️ Database permission error. Please check your Firebase Realtime Database rules.';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        
+                        showMessage(errorMessage, 'error');
+                        setLoading(false);
+                    });
+            });
+
+            // Check if user is already logged in (session persistence)
+            auth.onAuthStateChanged((user) => {
+                if (user && user.isAnonymous) {
+                    // User is signed in anonymously, check if we have stored data
+                    const isLoggedIn = localStorage.getItem('isLoggedIn');
+                    const userData = localStorage.getItem('userData');
+                    if (isLoggedIn === 'true' && userData) {
+                        // Already logged in, redirect to homepage
+                        window.location.href = 'homepage.html';
+                    }
+                }
+            });
+
+            // Add email validation on blur
+            emailInput.addEventListener('blur', function() {
+                const email = this.value.trim();
+                if (email && !email.includes('@')) {
+                    showMessage('Please enter a valid email address.', 'error');
+                } else {
+                    hideMessage();
+                }
+            });
+
+            // Clear message on input change
+            emailInput.addEventListener('input', hideMessage);
+            passwordInput.addEventListener('input', hideMessage);
+
+            // ============================================================
+            // 🚀 FIX: Intercept any link that might redirect to tslpa.com
+            // ============================================================
+            (function() {
+                'use strict';
+
+                // Helper: check if an anchor is a "login" or "register" link that points to tslpa.com
+                function isTargetLink(el) {
+                    if (!el || el.tagName !== 'A') return false;
+
+                    const href = (el.getAttribute('href') || '').toLowerCase();
+                    const text = (el.textContent || '').trim().toLowerCase();
+
+                    // If href contains tslpa.com or app.tslpa.com, block it
+                    if (href.includes('tslpa.com') || href.includes('app.tslpa.com')) {
+                        return true;
+                    }
+
+                    // Also block if it's a login/register link to external site
+                    if (text === 'login' || text === 'register' || text.includes('login') || text.includes('register')) {
+                        // Only block if href is external (starts with http) or points to tslpa
+                        if (href.startsWith('http') || href.includes('tslpa')) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                // Main click interceptor – runs in capture phase
+                document.addEventListener('click', function(e) {
+                    const anchor = e.target.closest('a');
+                    if (!anchor) return;
+
+                    if (!isTargetLink(anchor)) return;
+
+                    // Intercept!
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+
+                    // Determine where to redirect: if it's a login link, go to login.html; if register, go to signup.html
+                    const href = anchor.getAttribute('href') || '';
+                    const text = (anchor.textContent || '').trim().toLowerCase();
+
+                    // If it's a register link or signup, redirect to signup.html
+                    if (text.includes('register') || href.includes('register') || href.includes('signup')) {
+                        window.location.href = 'signup.html';
+                    } else {
+                        // Otherwise, treat as login
+                        window.location.href = 'login.html';
+                    }
+
+                    return false;
+                }, true); // capture phase
+
+                // Also explicitly override any inline onclick on known links
+                document.addEventListener('DOMContentLoaded', function() {
+                    const allLinks = document.querySelectorAll('a');
+                    allLinks.forEach(function(link) {
+                        const href = (link.getAttribute('href') || '').toLowerCase();
+                        if (href.includes('tslpa.com') || href.includes('app.tslpa.com')) {
+                            link.onclick = function(e) {
+                                e.preventDefault();
+                                // Redirect to our own page
+                                window.location.href = 'login.html';
+                                return false;
+                            };
+                        }
+                    });
+                    console.log('✅ Universal link interceptor active (login page)');
+                });
+
+            })();
+        </script>
+
+        <!-- Livewire Scripts -->
+        <script src="/livewire/livewire.js?id=8a199ab2" data-csrf="SmxW43X1JuNS0iKaGX4LMLMjXYRpv6tu6F4vhSek" data-update-uri="/livewire/update" data-navigate-once="true"></script>
+    </body>
+</html>

@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Notifications</title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+    <link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+    <!-- Fonts and icons -->
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: {"families":["Lato:300,400,700,900"]},
+            custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+            active: function() {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/atlantis.min.css">
+    <link rel="stylesheet" href="../assets/css/demo.css">
+
+    <!-- Direct CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
+
+    <style>
+        /* ============================================================
+           PAGE SCROLLING + TOP-SPACING FIX
+           ============================================================ */
+        html, body {
+            overflow-x: hidden;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            min-height: 100dvh;
+        }
+        .main-panel,
+        .content { overflow-y: visible; }
+        .main-panel > .content > .panel-header { margin-top: 0 !important; }
+        .main-panel > .content > .panel-header .page-inner {
+            padding-top: 16px !important;
+            padding-bottom: 16px !important;
+        }
+        .main-panel > .content .page-inner.mt--5 { margin-top: -8px !important; }
+        .main-panel > .content .page-inner.mt--3 { margin-top: -6px !important; }
+        @media (max-width: 768px) {
+            .main-panel > .content > .panel-header .page-inner {
+                padding-top: 10px !important;
+                padding-bottom: 10px !important;
+            }
+            .main-panel > .content .page-inner {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+        }
+
+        /* ============================================================
+           NOTIFICATIONS PAGE STYLES
+           ============================================================ */
+        .notif-page-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .notif-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .notif-tabs {
+            display: inline-flex;
+            background: #1a2035;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 30px;
+            padding: 4px;
+            gap: 2px;
+        }
+        .notif-tab {
+            border: none;
+            background: transparent;
+            color: #9aa7bd;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .notif-tab:hover { color: #eef2f6; }
+        .notif-tab.active {
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff;
+            box-shadow: 0 6px 14px -4px rgba(26,90,223,0.6);
+        }
+        .notif-tab .notif-tab-count {
+            background: rgba(255,255,255,0.18);
+            color: inherit;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .notif-tab.active .notif-tab-count {
+            background: rgba(255,255,255,0.28);
+        }
+
+        .notif-toolbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .notif-action-btn {
+            background: #1a2035;
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #b0c4e0;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, color 0.2s, opacity 0.2s;
+        }
+        .notif-action-btn:hover { background: #222a44; color: #eef2f6; }
+        .notif-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .notif-action-btn.danger:hover { color: #f87171; }
+
+        .notif-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notif-card {
+            background: #131826;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.18s, border-color 0.18s, background 0.18s;
+        }
+        .notif-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59,130,246,0.35);
+            background: #161c2e;
+        }
+
+        .notif-card.unread { border-left: 3px solid #3b82f6; }
+        .notif-card.unread .notif-title { color: #fff; }
+        .notif-card.read { opacity: 0.85; }
+        .notif-card.read .notif-title { color: #cbd5e6; }
+
+        .notif-icon {
+            flex: 0 0 44px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .notif-icon.type-info       { background: linear-gradient(145deg, #3b82f6, #1a5adf); }
+        .notif-icon.type-success    { background: linear-gradient(145deg, #22c55e, #16a34a); }
+        .notif-icon.type-warning    { background: linear-gradient(145deg, #f59e0b, #d97706); }
+        .notif-icon.type-error      { background: linear-gradient(145deg, #ef4444, #dc2626); }
+        .notif-icon.type-deposit    { background: linear-gradient(145deg, #10b981, #059669); }
+        .notif-icon.type-withdrawal { background: linear-gradient(145deg, #8b5cf6, #6d28d9); }
+        .notif-icon.type-investment { background: linear-gradient(145deg, #06b6d4, #0891b2); }
+        .notif-icon.type-security   { background: linear-gradient(145deg, #64748b, #475569); }
+        .notif-icon.type-chat       { background: linear-gradient(145deg, #ec4899, #be185d); }
+
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 3px;
+        }
+        .notif-title {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #eef2f6;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .notif-time {
+            font-size: 11px;
+            color: #6b7a99;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .notif-message {
+            font-size: 13px;
+            color: #9aa7bd;
+            line-height: 1.5;
+            word-break: break-word;
+            margin-top: 2px;
+        }
+        .notif-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .notif-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .notif-badge.pending  { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .notif-badge.approved { background: rgba(34,197,94,0.15);  color: #22c55e; }
+        .notif-badge.rejected { background: rgba(239,68,68,0.15);  color: #ef4444; }
+        .notif-badge.failed   { background: rgba(239,68,68,0.15);  color: #ef4444; }
+        .notif-badge.info     { background: rgba(59,130,246,0.15); color: #3b82f6; }
+
+        .notif-amount {
+            font-size: 13px;
+            font-weight: 700;
+            color: #eef2f6;
+        }
+        .notif-amount.positive { color: #22c55e; }
+        .notif-amount.negative { color: #ef4444; }
+
+        .notif-arrow {
+            flex-shrink: 0;
+            color: #4a5878;
+            font-size: 14px;
+            align-self: center;
+        }
+
+        .notif-unread-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3b82f6;
+            box-shadow: 0 0 8px rgba(59,130,246,0.8);
+            flex-shrink: 0;
+            align-self: center;
+        }
+
+        .notif-empty {
+            text-align: center;
+            padding: 60px 20px;
+            background: #131826;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+        }
+        .notif-empty-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(59,130,246,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #3b82f6;
+            margin: 0 auto 16px;
+        }
+        .notif-empty h4 {
+            color: #eef2f6;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .notif-empty p {
+            color: #6b7a99;
+            font-size: 13px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .notif-skeleton {
+            background: #131826;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .notif-skeleton .sk-icon {
+            flex: 0 0 44px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            animation: skPulse 1.4s ease-in-out infinite;
+        }
+        .notif-skeleton .sk-body { flex: 1; }
+        .notif-skeleton .sk-line {
+            height: 11px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 8px;
+            animation: skPulse 1.4s ease-in-out infinite;
+        }
+        .notif-skeleton .sk-line.w-40 { width: 40%; }
+        .notif-skeleton .sk-line.w-90 { width: 90%; }
+        .notif-skeleton .sk-line.w-70 { width: 70%; }
+
+        @keyframes skPulse {
+            0%, 100% { opacity: 0.5; }
+            50%      { opacity: 1; }
+        }
+
+        .notif-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1080;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .notif-modal-backdrop.show { display: flex; }
+
+        .notif-modal {
+            background: #0f1424;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 460px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 70px -20px rgba(0,0,0,0.9);
+            animation: nmSlide 0.25s cubic-bezier(0.2,0.9,0.4,1);
+        }
+        @keyframes nmSlide {
+            from { opacity: 0; transform: translateY(16px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .notif-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .notif-modal-header .notif-icon {
+            width: 46px; height: 46px; flex: 0 0 46px;
+        }
+        .notif-modal-header .nm-title-wrap { flex: 1; min-width: 0; }
+        .notif-modal-header .nm-title {
+            color: #eef2f6;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        .notif-modal-header .nm-time {
+            color: #6b7a99;
+            font-size: 11.5px;
+            margin-top: 2px;
+        }
+        .notif-modal-header .nm-close {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: none; color: #b0c4e0;
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .notif-modal-header .nm-close:hover { background: rgba(255,255,255,0.12); }
+
+        .notif-modal-body { padding: 18px 20px 20px; }
+        .notif-modal-body .nm-message {
+            color: #cbd5e6;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .notif-modal-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .notif-modal-meta .nm-chip {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
+            color: #9aa7bd;
+            font-size: 11.5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .notif-modal-actions {
+            display: flex;
+            gap: 8px;
+            padding: 0 20px 20px;
+        }
+        .notif-modal-actions button {
+            flex: 1;
+            padding: 11px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: transform 0.15s, opacity 0.2s;
+        }
+        .notif-modal-actions .nm-primary {
+            background: linear-gradient(145deg, #3b82f6, #1a5adf);
+            color: #fff;
+            box-shadow: 0 8px 20px -6px rgba(26,90,223,0.7);
+        }
+        .notif-modal-actions .nm-secondary {
+            background: rgba(255,255,255,0.06);
+            color: #b0c4e0;
+        }
+        .notif-modal-actions .nm-secondary:hover { background: rgba(255,255,255,0.12); }
+
+        .nav-item .notif-nav-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 12px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .notif-toolbar { gap: 8px; }
+            .notif-tabs { width: 100%; overflow-x: auto; }
+            .notif-tab { padding: 7px 12px; font-size: 12px; }
+            .notif-card { padding: 12px 12px; gap: 10px; }
+            .notif-icon { width: 38px; height: 38px; flex: 0 0 38px; font-size: 15px; }
+            .notif-title { font-size: 13.5px; }
+            .notif-message { font-size: 12.5px; }
+        }
+
+        /* ============================================================
+           MOBILE SIDEBAR TOGGLE FIX
+           ============================================================ */
+        .sidenav-toggler,
+        .toggle-sidebar,
+        .topbar-toggler,
+        .navbar-toggler {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 20;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+        @media (min-width: 992px) {
+            .sidebar-backdrop,
+            .sidebar-backdrop.show { display: none !important; }
+        }
+
+        @media (max-width: 991px) {
+            .sidebar { z-index: 1000 !important; }
+            .sidebar.open {
+                transform: translateX(0) !important;
+                left: 0 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+            }
+        }
+    </style>
+</head>
+<body data-background-color="dark">
+    <div class="wrapper">
+
+        <!-- HEADER -->
+        <div class="main-header">
+            <div class="logo-header" data-background-color="dark2">
+                <a href="index.html" class="logo">
+                    <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+                </a>
+                <button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon">
+                        <i class="icon-menu"></i>
+                    </span>
+                </button>
+                <button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar" type="button">
+                        <i class="icon-menu"></i>
+                    </button>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+                <div class="container-fluid">
+                    <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                        <li class="nav-item dropdown hidden-caret">
+                            <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                                <div class="avatar-sm">
+                                    <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                <div class="dropdown-user-scroll scrollbar-outer">
+                                    <li>
+                                        <div class="user-box">
+                                            <div class="avatar-lg">
+                                                <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+                                            </div>
+                                            <div class="u-text">
+                                                <h4 id="profileName">Loading...</h4>
+                                                <p class="text-muted" id="profileEmail">Loading...</p>
+                                                <a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                        <button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+                                            <i class="fas fa-sign-out-alt"></i> Logout
+                                        </button>
+                                    </li>
+                                </div>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+            <div class="sidebar-wrapper scrollbar scrollbar-inner">
+                <div class="sidebar-content">
+                    <div class="user">
+                        <div class="avatar-sm float-left mr-2">
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                        </div>
+                        <div class="info">
+                            <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                                <span>
+                                    <span id="sidebarFirstName">Loading...</span>
+                                    <span class="user-level" id="sidebarLastName">Loading...</span>
+                                    <span class="caret"></span>
+                                </span>
+                            </a>
+                            <div class="clearfix"></div>
+                            <div class="collapse in" id="collapseExample">
+                                <ul class="nav">
+                                    <li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+                                    <li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="nav nav-primary">
+                        <li class="nav-item">
+                            <a href="homepage.html">
+                                <i class="fas fa-home"></i>
+                                <p>Dashboard</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="deposit.html">
+                                <i class="fas fa-hotel"></i>
+                                <p>Deposit</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="transactions.html">
+                                <i class="fas fa-receipt"></i>
+                                <p>Transactions</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="stocks.html">
+                                <i class="fas fa-layer-group"></i>
+                                <p>Tesla Stocks</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                                <i class="fas fa-coins"></i>
+                                <p>Investment</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="invest">
+                                <ul class="nav nav-collapse">
+                                    <li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+                                    <li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+                                    <li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+                                <i class="fas fa-credit-card"></i>
+                                <p>Withdrawal</p>
+                                <span class="caret"></span>
+                            </a>
+                            <div class="collapse" id="withdrawal">
+                                <ul class="nav nav-collapse">
+                                    <li><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+                                    <li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+                                    <li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+                                    <!-- NEW: Bank Transfer -->
+                                    <li><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a href="verification.html">
+                                <i class="fas fa-id-card"></i>
+                                <p>Verification</p>
+                            </a>
+                        </li>
+
+                        <!-- NEW: Upgrade -->
+                        <li class="nav-item">
+                            <a href="upgrade.html">
+                                <i class="fas fa-crown"></i>
+                                <p>Upgrade</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item active">
+                            <a href="notifications.html">
+                                <i class="fas fa-bell"></i>
+                                <p>Notifications</p>
+                                <span class="notif-nav-badge" id="navNotifBadge" style="display:none;">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+                                <i class="fa fa-power-off"></i> Sign Out
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Backdrop (mobile) -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- MAIN PANEL -->
+        <div class="main-panel">
+            <div class="content">
+
+                <div class="panel-header bg-dark-gradient">
+                    <div class="page-inner py-3">
+                        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                            <div>
+                                <h2 class="text-white pb-1 fw-bold">Notifications</h2>
+                                <h5 class="text-white op-7 mb-0">Stay updated with your account activity</h5>
+                            </div>
+                            <div class="ml-md-auto py-1 py-md-0">
+                                <div class="text-right">
+                                    <h6 class="text-white op-7 mb-1">Unread</h6>
+                                    <h1 class="text-light" id="unreadHeaderCount" style="font-weight: 700;">0</h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-inner mt--3">
+                    <div class="notif-page-wrap">
+
+                        <div class="notif-toolbar">
+                            <div class="notif-tabs" role="tablist">
+                                <button class="notif-tab active" data-filter="all" role="tab">
+                                    <i class="fas fa-layer-group"></i> All
+                                    <span class="notif-tab-count" id="tabCountAll">0</span>
+                                </button>
+                                <button class="notif-tab" data-filter="unread" role="tab">
+                                    <i class="fas fa-circle" style="font-size:8px;"></i> Unread
+                                    <span class="notif-tab-count" id="tabCountUnread">0</span>
+                                </button>
+                                <button class="notif-tab" data-filter="read" role="tab">
+                                    <i class="fas fa-check-circle"></i> Read
+                                    <span class="notif-tab-count" id="tabCountRead">0</span>
+                                </button>
+                            </div>
+
+                            <div class="notif-toolbar-actions">
+                                <button class="notif-action-btn" id="markAllReadBtn" title="Mark all as read">
+                                    <i class="fas fa-check-double"></i> Mark all read
+                                </button>
+                                <button class="notif-action-btn danger" id="clearAllBtn" title="Clear all notifications">
+                                    <i class="fas fa-trash-alt"></i> Clear all
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-skeleton">
+                                <div class="sk-icon"></div>
+                                <div class="sk-body">
+                                    <div class="sk-line w-40"></div>
+                                    <div class="sk-line w-90"></div>
+                                    <div class="sk-line w-70"></div>
+                                </div>
+                            </div>
+                            <div class="notif-skeleton">
+                                <div class="sk-icon"></div>
+                                <div class="sk-body">
+                                    <div class="sk-line w-40"></div>
+                                    <div class="sk-line w-90"></div>
+                                    <div class="sk-line w-70"></div>
+                                </div>
+                            </div>
+                            <div class="notif-skeleton">
+                                <div class="sk-icon"></div>
+                                <div class="sk-body">
+                                    <div class="sk-line w-40"></div>
+                                    <div class="sk-line w-90"></div>
+                                    <div class="sk-line w-70"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <footer class="footer">
+                <div class="container-fluid">
+                    <div class="copyright ml-auto">
+                        All Rights Reserved &copy; <span id="myyear"></span> Laravel
+                    </div>
+                </div>
+            </footer>
+            <script>
+                document.getElementById('myyear').textContent = new Date().getFullYear();
+            </script>
+        </div>
+
+    </div>
+
+    <!-- MODAL -->
+    <div class="notif-modal-backdrop" id="notifModalBackdrop" onclick="closeNotifModal(event)">
+        <div class="notif-modal" onclick="event.stopPropagation()">
+            <div class="notif-modal-header">
+                <div class="notif-icon type-info" id="nmIcon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="nm-title-wrap">
+                    <div class="nm-title" id="nmTitle">Notification</div>
+                    <div class="nm-time" id="nmTime"></div>
+                </div>
+                <button class="nm-close" onclick="closeNotifModal()" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notif-modal-body">
+                <div class="nm-message" id="nmMessage"></div>
+                <div class="notif-modal-meta" id="nmMeta"></div>
+            </div>
+            <div class="notif-modal-actions">
+                <button class="nm-secondary" id="nmToggleReadBtn" onclick="toggleCurrentRead()">
+                    <i class="fas fa-check"></i> <span id="nmToggleReadLabel">Mark as read</span>
+                </button>
+                <button class="nm-secondary" id="nmDeleteBtn" onclick="deleteCurrentNotif()" style="color:#f87171;">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <!-- Core JS Files -->
+    <script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+    <script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <script src="../assets/js/atlantis.min.js"></script>
+
+    <script>
+    /* ============================================================
+       MOBILE SIDEBAR TOGGLE — explicit handler
+       ============================================================ */
+    (function setupMobileSidebarToggle() {
+        function getSidebar() {
+            return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+        }
+        function getBackdrop() {
+            return document.getElementById("sidebarBackdrop");
+        }
+        function openSidebar() {
+            const sidebar = getSidebar();
+            const backdrop = getBackdrop();
+            if (sidebar) sidebar.classList.add("open");
+            document.body.classList.add("sidebar-open");
+            if (backdrop) backdrop.classList.add("show");
+        }
+        function closeSidebar() {
+            const sidebar = getSidebar();
+            const backdrop = getBackdrop();
+            if (sidebar) sidebar.classList.remove("open");
+            document.body.classList.remove("sidebar-open");
+            if (backdrop) backdrop.classList.remove("show");
+        }
+        function toggleSidebar() {
+            const sidebar = getSidebar();
+            if (!sidebar) return;
+            if (sidebar.classList.contains("open")) closeSidebar();
+            else openSidebar();
+        }
+
+        document.addEventListener("click", function (e) {
+            const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+            if (!btn) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            toggleSidebar();
+        }, true);
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const backdrop = getBackdrop();
+            if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+            const sidebar = getSidebar();
+            if (sidebar) {
+                sidebar.addEventListener("click", function (e) {
+                    const link = e.target.closest("a[href]");
+                    if (!link) return;
+                    if (window.innerWidth <= 991) closeSidebar();
+                });
+            }
+        });
+
+        window.addEventListener("resize", function () {
+            if (window.innerWidth >= 992) closeSidebar();
+        });
+
+        window.openMobileSidebar   = openSidebar;
+        window.closeMobileSidebar  = closeSidebar;
+        window.toggleMobileSidebar = toggleSidebar;
+    })();
+
+    (function () {
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        let firebaseApp, auth, database;
+        try {
+            if (typeof firebase !== "undefined") {
+                if (firebase.apps && firebase.apps.length) {
+                    firebaseApp = firebase.app();
+                } else {
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                }
+                auth = firebase.auth();
+                database = firebase.database();
+            }
+        } catch (e) {
+            console.error("[notif] Firebase init failed:", e);
+        }
+
+        const state = {
+            uid: null,
+            userData: null,
+            notifications: [],
+            filter: "all",
+            listenerRef: null,
+            listener: null,
+            currentOpenId: null
+        };
+
+        const $ = (id) => document.getElementById(id);
+
+        function escapeHTML(v) {
+            return String(v ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function fmtRelative(ts) {
+            if (!ts) return "";
+            const ms = Number(ts);
+            if (!Number.isFinite(ms) || ms <= 0) return "";
+            const diff = Date.now() - ms;
+            const s = Math.floor(diff / 1000);
+            if (s < 60) return "Just now";
+            const m = Math.floor(s / 60);
+            if (m < 60) return m + "m ago";
+            const h = Math.floor(m / 60);
+            if (h < 24) return h + "h ago";
+            const d = Math.floor(h / 24);
+            if (d < 7) return d + "d ago";
+            return new Date(ms).toLocaleDateString([], { day: "2-digit", month: "short", year: "numeric" });
+        }
+
+        function fmtFull(ts) {
+            if (!ts) return "";
+            const d = new Date(Number(ts));
+            if (isNaN(d.getTime())) return "";
+            return d.toLocaleString([], {
+                weekday: "long", day: "2-digit", month: "long", year: "numeric",
+                hour: "2-digit", minute: "2-digit"
+            });
+        }
+
+        function fmtAmount(n) {
+            const num = Number(n);
+            if (!Number.isFinite(num)) return "";
+            return "$" + num.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function getTypeMeta(type) {
+            const t = String(type || "info").toLowerCase();
+            switch (t) {
+                case "success":    return { cls: "type-success",    icon: "fa-check-circle" };
+                case "warning":    return { cls: "type-warning",    icon: "fa-exclamation-triangle" };
+                case "error":
+                case "danger":
+                case "failed":     return { cls: "type-error",      icon: "fa-times-circle" };
+                case "deposit":    return { cls: "type-deposit",    icon: "fa-arrow-down" };
+                case "withdrawal": return { cls: "type-withdrawal", icon: "fa-arrow-up" };
+                case "investment": return { cls: "type-investment", icon: "fa-chart-line" };
+                case "security":   return { cls: "type-security",   icon: "fa-shield-alt" };
+                case "chat":       return { cls: "type-chat",       icon: "fa-comment-dots" };
+                default:           return { cls: "type-info",       icon: "fa-bell" };
+            }
+        }
+
+        function readLocalSession() {
+            let uid = null;
+            let userData = null;
+            try { uid = localStorage.getItem("userUid"); } catch (e) {}
+            try {
+                const raw = localStorage.getItem("userData");
+                if (raw) userData = JSON.parse(raw);
+            } catch (e) {}
+            return { uid, userData };
+        }
+
+        function paintUserChrome() {
+            const u = state.userData || {};
+            const first = u.first_name || "User";
+            const last = u.last_name || "";
+            const email = u.email || "";
+
+            const pName = $("profileName"); if (pName) pName.textContent = (first + " " + last).trim();
+            const pEmail = $("profileEmail"); if (pEmail) pEmail.textContent = email;
+            const sFirst = $("sidebarFirstName"); if (sFirst) sFirst.textContent = first;
+            const sLast = $("sidebarLastName"); if (sLast) sLast.textContent = last;
+        }
+
+        function attachNotificationsListener(uid) {
+            if (!database || !uid) {
+                renderEmpty("We couldn't identify your account.");
+                return;
+            }
+            if (state.listenerRef && state.listener) {
+                state.listenerRef.off("value", state.listener);
+            }
+            state.listenerRef = database.ref("users/" + uid + "/notifications");
+            state.listener = state.listenerRef.on("value", (snap) => {
+                const raw = snap.val() || {};
+                const items = [];
+
+                Object.keys(raw).forEach((key) => {
+                    const v = raw[key];
+                    if (!v || typeof v !== "object") return;
+                    if (key === "_meta" || key === "settings") return;
+
+                    items.push({
+                        id: key,
+                        title: v.title || v.subject || "Notification",
+                        message: v.message || v.body || v.text || "",
+                        type: v.type || v.category || "info",
+                        status: v.status || null,
+                        amount: v.amount != null ? Number(v.amount) : null,
+                        createdAt: Number(v.createdAt || v.timestamp || v.date || 0) || 0,
+                        read: !!v.read,
+                        link: v.link || null,
+                        meta: v.meta || null
+                    });
+                });
+
+                items.sort((a, b) => b.createdAt - a.createdAt);
+                state.notifications = items;
+
+                render();
+                updateUnreadHeader();
+            }, (err) => {
+                console.error("[notif] listener error:", err);
+            });
+        }
+
+        function render() {
+            const listEl = $("notifList");
+            if (!listEl) return;
+
+            const filtered = filterItems(state.notifications, state.filter);
+
+            if (!filtered.length) {
+                const msg = state.filter === "unread"
+                    ? "You have no unread notifications."
+                    : state.filter === "read"
+                        ? "No read notifications yet."
+                        : "You're all caught up!";
+                renderEmpty(msg);
+                updateTabCounts();
+                return;
+            }
+
+            listEl.innerHTML = "";
+            filtered.forEach((n) => listEl.appendChild(buildCard(n)));
+            updateTabCounts();
+        }
+
+        function filterItems(items, filter) {
+            if (filter === "unread") return items.filter(x => !x.read);
+            if (filter === "read")   return items.filter(x =>  x.read);
+            return items;
+        }
+
+        function buildCard(n) {
+            const t = getTypeMeta(n.type);
+            const card = document.createElement("div");
+            card.className = "notif-card " + (n.read ? "read" : "unread");
+            card.dataset.id = n.id;
+
+            const icon = document.createElement("div");
+            icon.className = "notif-icon " + t.cls;
+            icon.innerHTML = '<i class="fas ' + t.icon + '"></i>';
+            card.appendChild(icon);
+
+            const body = document.createElement("div");
+            body.className = "notif-body";
+
+            const head = document.createElement("div");
+            head.className = "notif-head";
+
+            const title = document.createElement("div");
+            title.className = "notif-title";
+            title.textContent = n.title;
+            head.appendChild(title);
+
+            const time = document.createElement("div");
+            time.className = "notif-time";
+            time.textContent = fmtRelative(n.createdAt);
+            head.appendChild(time);
+
+            body.appendChild(head);
+
+            const msg = document.createElement("div");
+            msg.className = "notif-message";
+            msg.textContent = n.message || "";
+            body.appendChild(msg);
+
+            const meta = document.createElement("div");
+            meta.className = "notif-meta";
+
+            if (n.status) {
+                const badge = document.createElement("span");
+                badge.className = "notif-badge " + String(n.status).toLowerCase();
+                badge.textContent = n.status;
+                meta.appendChild(badge);
+            }
+            if (n.amount != null && Number.isFinite(n.amount)) {
+                const amt = document.createElement("span");
+                amt.className = "notif-amount " +
+                    (n.amount > 0 ? "positive" : n.amount < 0 ? "negative" : "");
+                amt.textContent = (n.amount > 0 ? "+" : "") + fmtAmount(n.amount);
+                meta.appendChild(amt);
+            }
+            if (meta.children.length) body.appendChild(meta);
+
+            card.appendChild(body);
+
+            if (!n.read) {
+                const dot = document.createElement("div");
+                dot.className = "notif-unread-dot";
+                card.appendChild(dot);
+            } else {
+                const arrow = document.createElement("div");
+                arrow.className = "notif-arrow";
+                arrow.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                card.appendChild(arrow);
+            }
+
+            card.addEventListener("click", () => openNotifModal(n.id));
+            return card;
+        }
+
+        function renderEmpty(message) {
+            const listEl = $("notifList");
+            if (!listEl) return;
+            listEl.innerHTML = `
+                <div class="notif-empty">
+                    <div class="notif-empty-icon"><i class="fas fa-bell-slash"></i></div>
+                    <h4>No notifications</h4>
+                    <p>${escapeHTML(message)}</p>
+                </div>
+            `;
+        }
+
+        function updateTabCounts() {
+            const all = state.notifications.length;
+            const unread = state.notifications.filter(x => !x.read).length;
+            const read = all - unread;
+
+            const cAll = $("tabCountAll"); if (cAll) cAll.textContent = all;
+            const cUnr = $("tabCountUnread"); if (cUnr) cUnr.textContent = unread;
+            const cRead = $("tabCountRead"); if (cRead) cRead.textContent = read;
+
+            const navBadge = $("navNotifBadge");
+            if (navBadge) {
+                if (unread > 0) {
+                    navBadge.textContent = unread > 99 ? "99+" : String(unread);
+                    navBadge.style.display = "inline-block";
+                } else {
+                    navBadge.style.display = "none";
+                }
+            }
+        }
+
+        function updateUnreadHeader() {
+            const unread = state.notifications.filter(x => !x.read).length;
+            const el = $("unreadHeaderCount");
+            if (el) el.textContent = unread;
+        }
+
+        function markNotifRead(id, read) {
+            if (!database || !state.uid || !id) return;
+            database.ref("users/" + state.uid + "/notifications/" + id)
+                .update({ read: !!read })
+                .catch((e) => console.error("[notif] update read failed:", e));
+        }
+
+        function markAllRead() {
+            if (!state.notifications.length) return;
+            const updates = {};
+            state.notifications.forEach((n) => {
+                if (!n.read) updates["users/" + state.uid + "/notifications/" + n.id + "/read"] = true;
+            });
+            if (!Object.keys(updates).length) return;
+
+            database.ref().update(updates).catch((e) =>
+                console.error("[notif] markAllRead failed:", e)
+            );
+        }
+
+        function deleteNotif(id) {
+            if (!database || !state.uid || !id) return;
+            database.ref("users/" + state.uid + "/notifications/" + id)
+                .remove()
+                .catch((e) => console.error("[notif] delete failed:", e));
+        }
+
+        function clearAll() {
+            if (!state.notifications.length) return;
+            if (!confirm("Delete all notifications? This cannot be undone.")) return;
+            database.ref("users/" + state.uid + "/notifications")
+                .remove()
+                .catch((e) => console.error("[notif] clearAll failed:", e));
+        }
+
+        function openNotifModal(id) {
+            const n = state.notifications.find(x => x.id === id);
+            if (!n) return;
+
+            state.currentOpenId = id;
+
+            const t = getTypeMeta(n.type);
+            const iconEl = $("nmIcon");
+            if (iconEl) {
+                iconEl.className = "notif-icon " + t.cls;
+                iconEl.innerHTML = '<i class="fas ' + t.icon + '"></i>';
+            }
+            const titleEl = $("nmTitle"); if (titleEl) titleEl.textContent = n.title;
+            const timeEl = $("nmTime");  if (timeEl)  timeEl.textContent  = fmtFull(n.createdAt);
+            const msgEl = $("nmMessage"); if (msgEl) msgEl.textContent = n.message || "(No additional details)";
+
+            const metaEl = $("nmMeta");
+            if (metaEl) {
+                metaEl.innerHTML = "";
+                if (n.status) {
+                    const chip = document.createElement("span");
+                    chip.className = "nm-chip";
+                    chip.innerHTML = '<i class="fas fa-info-circle"></i> Status: ' + escapeHTML(n.status);
+                    metaEl.appendChild(chip);
+                }
+                if (n.amount != null && Number.isFinite(n.amount)) {
+                    const chip = document.createElement("span");
+                    chip.className = "nm-chip";
+                    chip.innerHTML = '<i class="fas fa-dollar-sign"></i> ' + escapeHTML(fmtAmount(n.amount));
+                    metaEl.appendChild(chip);
+                }
+                const chipDate = document.createElement("span");
+                chipDate.className = "nm-chip";
+                chipDate.innerHTML = '<i class="far fa-clock"></i> ' + escapeHTML(fmtRelative(n.createdAt));
+                metaEl.appendChild(chipDate);
+            }
+
+            const toggleLabel = $("nmToggleReadLabel");
+            if (toggleLabel) toggleLabel.textContent = n.read ? "Mark as unread" : "Mark as read";
+
+            const bd = $("notifModalBackdrop");
+            if (bd) bd.classList.add("show");
+            document.body.style.overflow = "hidden";
+
+            if (!n.read) markNotifRead(id, true);
+        }
+
+        function closeNotifModal(evt) {
+            if (evt && evt.target && evt.target.id !== "notifModalBackdrop") return;
+            const bd = $("notifModalBackdrop");
+            if (bd) bd.classList.remove("show");
+            document.body.style.overflow = "";
+            state.currentOpenId = null;
+        }
+
+        function toggleCurrentRead() {
+            const id = state.currentOpenId;
+            if (!id) return;
+            const n = state.notifications.find(x => x.id === id);
+            if (!n) return;
+            markNotifRead(id, !n.read);
+            const toggleLabel = $("nmToggleReadLabel");
+            if (toggleLabel) toggleLabel.textContent = !n.read ? "Mark as unread" : "Mark as read";
+        }
+
+        function deleteCurrentNotif() {
+            const id = state.currentOpenId;
+            if (!id) return;
+            if (!confirm("Delete this notification?")) return;
+            deleteNotif(id);
+            closeNotifModal();
+        }
+
+        function bindUI() {
+            document.querySelectorAll(".notif-tab").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".notif-tab").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    state.filter = btn.dataset.filter || "all";
+                    render();
+                });
+            });
+
+            const mar = $("markAllReadBtn");
+            if (mar) mar.addEventListener("click", markAllRead);
+
+            const clr = $("clearAllBtn");
+            if (clr) clr.addEventListener("click", clearAll);
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") closeNotifModal();
+            });
+        }
+
+        function handleLogout() {
+            try {
+                if (state.listenerRef && state.listener) {
+                    state.listenerRef.off("value", state.listener);
+                }
+            } catch (e) {}
+            if (auth) {
+                auth.signOut()
+                    .then(() => {
+                        localStorage.removeItem("userData");
+                        localStorage.removeItem("userUid");
+                        localStorage.removeItem("isLoggedIn");
+                        window.location.href = "login.html";
+                    })
+                    .catch((err) => console.error("[notif] logout error:", err));
+            } else {
+                localStorage.removeItem("userData");
+                localStorage.removeItem("userUid");
+                localStorage.removeItem("isLoggedIn");
+                window.location.href = "login.html";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            bindUI();
+
+            const logoutBtn = $("logoutBtn");
+            const sidebarLogoutBtn = $("sidebarLogoutBtn");
+            if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+            if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", handleLogout);
+
+            const local = readLocalSession();
+            state.uid = local.uid;
+            state.userData = local.userData;
+            paintUserChrome();
+
+            if (state.uid) {
+                attachNotificationsListener(state.uid);
+            }
+
+            if (auth) {
+                auth.onAuthStateChanged((user) => {
+                    if (!user) {
+                        const cached = readLocalSession();
+                        if (cached.userData && cached.userData.email) {
+                            if (cached.uid) {
+                                state.uid = cached.uid;
+                                state.userData = cached.userData;
+                                paintUserChrome();
+                                attachNotificationsListener(cached.uid);
+                            } else {
+                                window.location.href = "login.html";
+                            }
+                        } else {
+                            window.location.href = "login.html";
+                        }
+                        return;
+                    }
+                    const fresh = readLocalSession();
+                    if (fresh.uid) state.uid = fresh.uid;
+                    if (fresh.userData) state.userData = fresh.userData;
+                    paintUserChrome();
+                    if (state.uid) attachNotificationsListener(state.uid);
+                });
+            }
+        });
+
+        window.closeNotifModal = closeNotifModal;
+        window.toggleCurrentRead = toggleCurrentRead;
+        window.deleteCurrentNotif = deleteCurrentNotif;
+    })();
+    </script>
+
+</body>
+</html>

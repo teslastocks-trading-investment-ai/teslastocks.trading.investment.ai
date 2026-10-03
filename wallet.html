@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>My Wallet</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() { sessionStorage.fonts = true; }
+		});
+	</script>
+
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
+
+	<style>
+		/* ============================================================
+		   PAGE SCROLLING  (same logic as homepage.html)
+		   ============================================================ */
+		html, body {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow-x: hidden !important;
+			overflow-y: auto !important;
+		}
+		.wrapper, .main-panel, .content {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow: visible !important;
+		}
+		.content > .panel-header,
+		.content > .panel-header:first-child { margin-top: 0 !important; }
+
+		html {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior-x: none;
+		}
+		@supports (overflow: clip) {
+			html { overflow-x: clip !important; overflow-y: auto !important; }
+			body { overflow-x: clip !important; overflow-y: visible !important; }
+		}
+		html.cw-lock, body.cw-lock { overflow: hidden !important; }
+
+		.sidebar-wrapper, .dropdown-user-scroll {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+		}
+
+		.bg-dark-gradient { background: linear-gradient(145deg, #1a2540, #0b0f1a) !important; }
+
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE FIX
+		   ============================================================ */
+		.sidenav-toggler,
+		.toggle-sidebar,
+		.topbar-toggler,
+		.navbar-toggler {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+			cursor: pointer;
+			pointer-events: auto !important;
+			position: relative;
+			z-index: 20;
+		}
+
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			-webkit-backdrop-filter: blur(4px);
+			backdrop-filter: blur(4px);
+			z-index: 999;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+		.sidebar-backdrop.show {
+			display: block;
+			opacity: 1;
+		}
+		@media (min-width: 992px) {
+			.sidebar-backdrop,
+			.sidebar-backdrop.show { display: none !important; }
+		}
+
+		@media (max-width: 991px) {
+			.sidebar {
+				z-index: 1000 !important;
+			}
+			.sidebar.open {
+				transform: translateX(0) !important;
+				left: 0 !important;
+				visibility: visible !important;
+				pointer-events: auto !important;
+			}
+		}
+
+		/* ============================================================
+		   WALLET PAGE
+		   ============================================================ */
+		.wallet-wrap { max-width: 1200px; margin: 0 auto; padding: 0 4px; }
+
+		.panel-header .wh-title {
+			color: #f1f5f9; font-weight: 700; margin: 0;
+			font-size: 22px; letter-spacing: 0.2px;
+		}
+		.panel-header .wh-sub {
+			color: #94a3b8; margin: 6px 0 0; font-size: 13.5px;
+		}
+		.wh-header-balance {
+			display: inline-flex; align-items: center; gap: 10px;
+			background: #0b1220; border: 1px solid #223049;
+			border-radius: 8px; padding: 10px 16px;
+			color: #cbd5e1; font-size: 13px; font-weight: 600;
+		}
+		.wh-header-balance i { color: #3b82f6; }
+		.wh-header-balance .amt {
+			color: #f1f5f9; font-weight: 800; font-size: 16px;
+			letter-spacing: 0.3px;
+		}
+
+		.stat-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 14px;
+		}
+		.stat-card {
+			background: #111a2b;
+			border: 1px solid #1f2c44;
+			border-radius: 10px;
+			padding: 18px 18px 16px;
+			position: relative;
+			overflow: hidden;
+		}
+		.stat-card::before {
+			content: ""; position: absolute; top: 0; left: 0; right: 0;
+			height: 3px;
+		}
+		.stat-blue::before   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+		.stat-green::before  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+		.stat-red::before    { background: linear-gradient(90deg, #ef4444, #f87171); }
+		.stat-purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+		.stat-icon {
+			width: 40px; height: 40px; border-radius: 10px;
+			display: flex; align-items: center; justify-content: center;
+			font-size: 17px; margin-bottom: 14px;
+		}
+		.stat-blue  .stat-icon { background: rgba(59,130,246,0.12); color: #60a5fa; }
+		.stat-green .stat-icon { background: rgba(34,197,94,0.12);  color: #4ade80; }
+		.stat-red   .stat-icon { background: rgba(239,68,68,0.12);  color: #f87171; }
+		.stat-purple .stat-icon{ background: rgba(139,92,246,0.12); color: #a78bfa; }
+
+		.stat-label {
+			color: #94a3b8; font-size: 11.5px; font-weight: 700;
+			text-transform: uppercase; letter-spacing: 0.6px;
+			margin: 0 0 6px;
+		}
+		.stat-value {
+			color: #f1f5f9; font-size: 22px; font-weight: 800;
+			margin: 0; letter-spacing: 0.3px; line-height: 1.2;
+		}
+		.stat-meta {
+			color: #64748b; font-size: 11.5px; margin: 6px 0 0;
+			display: flex; align-items: center; gap: 6px;
+		}
+		.stat-meta i { font-size: 10px; }
+
+		.chart-card {
+			background: #111a2b;
+			border: 1px solid #1f2c44;
+			border-radius: 10px;
+			padding: 20px 20px 18px;
+			height: 100%;
+		}
+		.chart-card-head {
+			display: flex; align-items: center; justify-content: space-between;
+			margin-bottom: 16px;
+		}
+		.chart-card-head h5 {
+			color: #f1f5f9; font-size: 15px; font-weight: 700;
+			margin: 0; letter-spacing: 0.2px;
+		}
+		.chart-card-head .hint {
+			color: #64748b; font-size: 11.5px;
+		}
+		.chart-container {
+			position: relative;
+			width: 100%;
+		}
+		.chart-container.line    { height: 260px; }
+		.chart-container.doughnut{ height: 260px; }
+		.chart-container.bar     { height: 260px; }
+		.chart-empty {
+			position: absolute; inset: 0;
+			display: none; align-items: center; justify-content: center;
+			color: #64748b; font-size: 13px; text-align: center;
+			flex-direction: column; gap: 8px;
+		}
+		.chart-empty i { font-size: 26px; opacity: 0.5; }
+		.chart-empty.show { display: flex; }
+
+		.summary-list {
+			list-style: none; padding: 0; margin: 0;
+		}
+		.summary-list li {
+			display: flex; justify-content: space-between; align-items: center;
+			padding: 12px 0; border-bottom: 1px dashed rgba(255,255,255,0.06);
+		}
+		.summary-list li:last-child { border-bottom: none; }
+		.summary-list .k {
+			color: #94a3b8; font-size: 12.5px; font-weight: 600;
+			text-transform: uppercase; letter-spacing: 0.4px;
+		}
+		.summary-list .v {
+			color: #f1f5f9; font-size: 14px; font-weight: 700;
+		}
+		.summary-list .v.green { color: #4ade80; }
+		.summary-list .v.amber { color: #fbbf24; }
+		.summary-list .v.blue  { color: #60a5fa; }
+
+		.activity-list { list-style: none; padding: 0; margin: 0; }
+		.activity-item {
+			display: flex; align-items: center; gap: 14px;
+			padding: 14px 0;
+			border-bottom: 1px dashed rgba(255,255,255,0.06);
+		}
+		.activity-item:last-child { border-bottom: none; }
+		.activity-icon {
+			width: 36px; height: 36px; border-radius: 50%;
+			display: flex; align-items: center; justify-content: center;
+			font-size: 14px; flex-shrink: 0;
+		}
+		.activity-icon.deposit    { background: rgba(34,197,94,0.12); color: #4ade80; }
+		.activity-icon.withdrawal { background: rgba(239,68,68,0.12);  color: #f87171; }
+		.activity-icon.investment { background: rgba(139,92,246,0.12); color: #a78bfa; }
+		.activity-icon.info       { background: rgba(59,130,246,0.12); color: #60a5fa; }
+		.activity-body { flex: 1; min-width: 0; }
+		.activity-title {
+			color: #e2e8f0; font-size: 13.5px; font-weight: 700;
+			margin: 0 0 2px;
+		}
+		.activity-desc {
+			color: #94a3b8; font-size: 12px; margin: 0;
+			overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+		}
+		.activity-time {
+			color: #64748b; font-size: 11.5px; flex-shrink: 0;
+			text-align: right;
+		}
+		.activity-amount {
+			color: #4ade80; font-size: 12.5px; font-weight: 700;
+			margin-top: 2px;
+		}
+		.activity-empty {
+			color: #64748b; font-size: 13px; text-align: center;
+			padding: 26px 0;
+		}
+
+		.shimmer {
+			background: linear-gradient(90deg,
+				rgba(255,255,255,0.04) 25%,
+				rgba(255,255,255,0.08) 50%,
+				rgba(255,255,255,0.04) 75%);
+			background-size: 200% 100%;
+			animation: shimmer 1.4s infinite;
+			border-radius: 4px;
+			color: transparent !important;
+			display: inline-block; min-width: 60px;
+		}
+		@keyframes shimmer {
+			0% { background-position: 200% 0; }
+			100% { background-position: -200% 0; }
+		}
+
+		@media (max-width: 1199px) {
+			.stat-grid { grid-template-columns: repeat(2, 1fr); }
+		}
+		@media (max-width: 767px) {
+			.stat-grid { grid-template-columns: 1fr; gap: 10px; }
+			.stat-value { font-size: 19px; }
+			.chart-card { padding: 16px 14px; }
+			.chart-container.line,
+			.chart-container.doughnut,
+			.chart-container.bar { height: 220px; }
+			.panel-header .wh-title { font-size: 19px; }
+			.wh-header-balance { font-size: 12px; padding: 8px 12px; }
+			.wh-header-balance .amt { font-size: 14px; }
+		}
+
+		.notif-bell-btn {
+			position: relative; width: 42px; height: 42px; border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0; font-size: 17px; display: inline-flex; align-items: center;
+			justify-content: center; cursor: pointer; text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s; margin-right: 10px;
+		}
+		.notif-bell-btn:hover { background: rgba(59, 130, 246, 0.18); color: #fff; transform: translateY(-1px); }
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 6px;
+			border-radius: 20px; background: #ef4444; color: #fff; font-size: 10.5px; font-weight: 800;
+			display: none; align-items: center; justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7); border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+		.nav-item .notif-side-badge {
+			margin-left: auto; background: #ef4444; color: #fff; font-size: 10.5px; font-weight: 800;
+			padding: 2px 8px; border-radius: 12px; min-width: 20px; text-align: center;
+			display: none; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+		@media (max-width: 991px) {
+			.notif-bell-btn { width: 38px; height: 38px; font-size: 15px; margin-right: 6px; }
+			.notif-bell-btn .notif-bell-badge { min-width: 18px; height: 18px; font-size: 10px; }
+		}
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+		<!-- ================= NAVBAR ================= -->
+		<div class="main-header">
+			<div class="logo-header" data-background-color="dark2">
+				<a href="index.html" class="logo">
+					<img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+				</a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
+				</button>
+				<button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+				<div class="nav-toggle">
+					<button class="btn btn-toggle toggle-sidebar" type="button"><i class="icon-menu"></i></button>
+				</div>
+			</div>
+
+			<nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+				<div class="container-fluid">
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						<li class="nav-item mr-2">
+							<a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+								<i class="fas fa-bell"></i>
+								<span class="notif-bell-badge" id="notifBellBadge">0</span>
+							</a>
+						</li>
+						<li class="nav-item dropdown hidden-caret">
+							<a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+								<div class="avatar-sm">
+									<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+								</div>
+							</a>
+							<ul class="dropdown-menu dropdown-user animated fadeIn">
+								<div class="dropdown-user-scroll scrollbar-outer">
+									<li>
+										<div class="user-box">
+											<div class="avatar-lg">
+												<img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+											</div>
+											<div class="u-text">
+												<h4 id="profileName">Loading...</h4>
+												<p class="text-muted" id="profileEmail">Loading...</p>
+												<a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+											</div>
+										</div>
+									</li>
+									<li>
+										<div class="dropdown-divider"></div>
+										<button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+											<i class="fas fa-sign-out-alt"></i> Logout
+										</button>
+									</li>
+								</div>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+
+		<!-- ================= SIDEBAR ================= -->
+		<div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+			<div class="sidebar-wrapper scrollbar scrollbar-inner">
+				<div class="sidebar-content">
+					<div class="user">
+						<div class="avatar-sm float-left mr-2">
+							<img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+						</div>
+						<div class="info">
+							<a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+								<span>
+									<span id="sidebarFirstName">Loading...</span>
+									<span class="user-level" id="sidebarLastName">Loading...</span>
+									<span class="caret"></span>
+								</span>
+							</a>
+							<div class="clearfix"></div>
+							<div class="collapse in" id="collapseExample">
+								<ul class="nav">
+									<li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+									<li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<ul class="nav nav-primary">
+						<li class="nav-item"><a href="homepage.html"><i class="fas fa-home"></i><p>Dashboard</p></a></li>
+						<li class="nav-item"><a href="deposit.html"><i class="fas fa-hotel"></i><p>Deposit</p></a></li>
+						<li class="nav-item"><a href="transactions.html"><i class="fas fa-receipt"></i><p>Transactions</p></a></li>
+						<li class="nav-item"><a href="stocks.html"><i class="fas fa-layer-group"></i><p>Tesla Stocks</p></a></li>
+						<li class="nav-item">
+							<a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+								<i class="fas fa-coins"></i><p>Investment</p><span class="caret"></span>
+							</a>
+							<div class="collapse" id="invest">
+								<ul class="nav nav-collapse">
+									<li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+									<li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+									<li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item active">
+							<a data-toggle="collapse" href="#withdrawal" aria-expanded="true">
+								<i class="fas fa-credit-card"></i><p>Withdrawal</p><span class="caret"></span>
+							</a>
+							<div class="collapse show" id="withdrawal">
+								<ul class="nav nav-collapse">
+									<li class="active"><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+									<li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+									<li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+									<li><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item"><a href="verification.html"><i class="fas fa-id-card"></i><p>Verification</p></a></li>
+						<li class="nav-item"><a href="upgrade.html"><i class="fas fa-crown"></i><p>Upgrade</p></a></li>
+						<li class="nav-item">
+							<a href="notifications.html">
+								<i class="fas fa-bell"></i><p>Notifications</p>
+								<span class="notif-side-badge" id="notifSideBadge">0</span>
+							</a>
+						</li>
+						<li class="nav-item">
+							<button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+								<i class="fa fa-power-off"></i> Sign Out
+							</button>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- ================= END SIDEBAR ================= -->
+
+		<!-- ================= SIDEBAR BACKDROP (mobile) ================= -->
+		<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+		<div class="main-panel">
+			<div class="content">
+
+				<!-- ================= HEADER ================= -->
+				<div class="panel-header bg-dark-gradient">
+					<div class="page-inner py-4">
+						<div class="d-flex align-items-center flex-column flex-md-row">
+							<div>
+								<h2 class="wh-title" id="walletWelcome">My Wallet</h2>
+								<p class="wh-sub">A complete overview of your deposits, investments, withdrawals, and balance.</p>
+							</div>
+							<div class="ml-md-auto mt-3 mt-md-0">
+								<span class="wh-header-balance">
+									<i class="fas fa-wallet"></i>
+									Available&nbsp;
+									<span class="amt" id="headerBalance">—</span>
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- ================= CONTENT ================= -->
+				<div class="page-inner mt--4">
+					<div class="wallet-wrap">
+
+						<!-- STAT CARDS -->
+						<div class="stat-grid">
+
+							<div class="stat-card stat-blue">
+								<div class="stat-icon"><i class="fas fa-wallet"></i></div>
+								<p class="stat-label">Available Balance</p>
+								<h3 class="stat-value" id="statBalance"><span class="shimmer">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></h3>
+								<p class="stat-meta"><i class="fas fa-circle" style="color:#3b82f6;font-size:6px"></i> Ready to withdraw</p>
+							</div>
+
+							<div class="stat-card stat-green">
+								<div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
+								<p class="stat-label">Total Deposit</p>
+								<h3 class="stat-value" id="statDeposit"><span class="shimmer">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></h3>
+								<p class="stat-meta"><i class="fas fa-circle" style="color:#22c55e;font-size:6px"></i> Approved funds</p>
+							</div>
+
+							<div class="stat-card stat-red">
+								<div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+								<p class="stat-label">Total Withdrawn</p>
+								<h3 class="stat-value" id="statWithdrawn"><span class="shimmer">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></h3>
+								<p class="stat-meta"><i class="fas fa-circle" style="color:#ef4444;font-size:6px"></i> Approved payouts</p>
+							</div>
+
+							<div class="stat-card stat-purple">
+								<div class="stat-icon"><i class="fas fa-coins"></i></div>
+								<p class="stat-label">Active Investments</p>
+								<h3 class="stat-value" id="statInvestments"><span class="shimmer">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></h3>
+								<p class="stat-meta"><i class="fas fa-circle" style="color:#8b5cf6;font-size:6px"></i> Approved packages</p>
+							</div>
+
+						</div>
+
+						<!-- CHARTS ROW 1 -->
+						<div class="row mt-3">
+							<div class="col-lg-7 mb-3 mb-lg-0">
+								<div class="chart-card">
+									<div class="chart-card-head">
+										<h5>Deposit History</h5>
+										<span class="hint">Last 6 months · Approved only</span>
+									</div>
+									<div class="chart-container line">
+										<canvas id="depositChart"></canvas>
+										<div class="chart-empty" id="depositEmpty">
+											<i class="fas fa-chart-line"></i>
+											<span>No deposit activity yet</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-5">
+								<div class="chart-card">
+									<div class="chart-card-head">
+										<h5>Fund Distribution</h5>
+										<span class="hint">Where your money sits</span>
+									</div>
+									<div class="chart-container doughnut">
+										<canvas id="distChart"></canvas>
+										<div class="chart-empty" id="distEmpty">
+											<i class="fas fa-chart-pie"></i>
+											<span>Nothing to display yet</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- CHARTS ROW 2 -->
+						<div class="row mt-3">
+							<div class="col-lg-8 mb-3 mb-lg-0">
+								<div class="chart-card">
+									<div class="chart-card-head">
+										<h5>Activity Breakdown</h5>
+										<span class="hint">Approved vs Pending</span>
+									</div>
+									<div class="chart-container bar">
+										<canvas id="activityChart"></canvas>
+										<div class="chart-empty" id="activityEmpty">
+											<i class="fas fa-chart-bar"></i>
+											<span>No activity recorded yet</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-lg-4">
+								<div class="chart-card">
+									<div class="chart-card-head">
+										<h5>Account Summary</h5>
+										<span class="hint">Live figures</span>
+									</div>
+									<ul class="summary-list">
+										<li>
+											<span class="k">Wallet Balance</span>
+											<span class="v blue" id="sumBalance">—</span>
+										</li>
+										<li>
+											<span class="k">Total Deposited</span>
+											<span class="v green" id="sumDeposit">—</span>
+										</li>
+										<li>
+											<span class="k">Total Invested</span>
+											<span class="v" id="sumInvested">—</span>
+										</li>
+										<li>
+											<span class="k">Total Withdrawn</span>
+											<span class="v" id="sumWithdrawn">—</span>
+										</li>
+										<li>
+											<span class="k">Pending Requests</span>
+											<span class="v amber" id="sumPending">—</span>
+										</li>
+										<li>
+											<span class="k">Account Holder</span>
+											<span class="v" id="sumHolder">—</span>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+
+						<!-- RECENT ACTIVITY -->
+						<div class="row mt-3">
+							<div class="col-md-12">
+								<div class="chart-card">
+									<div class="chart-card-head">
+										<h5>Recent Activity</h5>
+										<span class="hint">Latest 5 events</span>
+									</div>
+									<ul class="activity-list" id="activityList">
+										<li class="activity-empty">
+											<i class="fas fa-circle-notch fa-spin"></i>&nbsp; Loading activity…
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<div class="copyright ml-auto">
+						All Rights Reserved &copy; <span id="myyear"></span> Laravel
+					</div>
+				</div>
+			</footer>
+			<script>document.getElementById('myyear').textContent = new Date().getFullYear();</script>
+		</div>
+	</div>
+
+	<!-- Firebase SDKs -->
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+	<!-- Core JS -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Chart.js -->
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<script src="../assets/js/atlantis.min.js"></script>
+
+	<script>
+	/* ============================================================
+	   MOBILE SIDEBAR TOGGLE — explicit handler
+	   ============================================================ */
+	(function setupMobileSidebarToggle() {
+		function getSidebar() {
+			return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+		}
+		function getBackdrop() {
+			return document.getElementById("sidebarBackdrop");
+		}
+		function openSidebar() {
+			const sidebar = getSidebar();
+			const backdrop = getBackdrop();
+			if (sidebar) sidebar.classList.add("open");
+			document.body.classList.add("sidebar-open");
+			if (backdrop) backdrop.classList.add("show");
+		}
+		function closeSidebar() {
+			const sidebar = getSidebar();
+			const backdrop = getBackdrop();
+			if (sidebar) sidebar.classList.remove("open");
+			document.body.classList.remove("sidebar-open");
+			if (backdrop) backdrop.classList.remove("show");
+		}
+		function toggleSidebar() {
+			const sidebar = getSidebar();
+			if (!sidebar) return;
+			if (sidebar.classList.contains("open")) closeSidebar();
+			else openSidebar();
+		}
+
+		document.addEventListener("click", function (e) {
+			const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+			if (!btn) return;
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			toggleSidebar();
+		}, true);
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const backdrop = getBackdrop();
+			if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+			const sidebar = getSidebar();
+			if (sidebar) {
+				sidebar.addEventListener("click", function (e) {
+					const link = e.target.closest("a[href]");
+					if (!link) return;
+					if (window.innerWidth <= 991) closeSidebar();
+				});
+			}
+		});
+
+		window.addEventListener("resize", function () {
+			if (window.innerWidth >= 992) closeSidebar();
+		});
+
+		window.openMobileSidebar   = openSidebar;
+		window.closeMobileSidebar  = closeSidebar;
+		window.toggleMobileSidebar = toggleSidebar;
+	})();
+
+	/* ============================================================
+	   FIREBASE INIT
+	   ============================================================ */
+	const firebaseConfig = {
+		apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+		authDomain: "elon-54b86.firebaseapp.com",
+		databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+		projectId: "elon-54b86",
+		storageBucket: "elon-54b86.firebasestorage.app",
+		messagingSenderId: "78755255517",
+		appId: "1:78755255517:web:65af61b0c573589ec0f734",
+		measurementId: "G-R4SQFCQPFP"
+	};
+	firebase.initializeApp(firebaseConfig);
+	const auth = firebase.auth();
+	const database = firebase.database();
+
+	/* ============================================================
+	   HELPERS
+	   ============================================================ */
+	const $ = (id) => document.getElementById(id);
+
+	function fmtUSD(n) {
+		const x = Number(n || 0);
+		return "USD " + x.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	}
+	function fmtUSDShort(n) {
+		const x = Number(n || 0);
+		if (x >= 1_000_000) return "$" + (x / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+		if (x >= 1_000)     return "$" + (x / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
+		return "$" + x.toLocaleString(undefined, { maximumFractionDigits: 0 });
+	}
+	function fmtTime(ts) {
+		if (!ts) return "";
+		const d = new Date(Number(ts));
+		if (isNaN(d.getTime())) return "";
+		const diff = Date.now() - d.getTime();
+		const mins = Math.floor(diff / 60000);
+		if (mins < 1) return "Just now";
+		if (mins < 60) return mins + "m ago";
+		const hrs = Math.floor(mins / 60);
+		if (hrs < 24) return hrs + "h ago";
+		const days = Math.floor(hrs / 24);
+		if (days < 7) return days + "d ago";
+		return d.toLocaleDateString([], { month: "short", day: "numeric" });
+	}
+
+	function setText(id, txt) { const el = $(id); if (el) el.textContent = txt; }
+	function setHTML(id, html) { const el = $(id); if (el) el.innerHTML = html; }
+
+	/* ============================================================
+	   CHART THEME
+	   ============================================================ */
+	if (window.Chart) {
+		Chart.defaults.global.defaultFontFamily = "'Lato', sans-serif";
+		Chart.defaults.global.defaultFontColor  = "#94a3b8";
+		Chart.defaults.global.defaultFontSize   = 11;
+	}
+
+	const COLORS = {
+		blue:   "#3b82f6",
+		blue2:  "#60a5fa",
+		green:  "#22c55e",
+		green2: "#4ade80",
+		red:    "#ef4444",
+		red2:   "#f87171",
+		amber:  "#f59e0b",
+		amber2: "#fbbf24",
+		purple: "#8b5cf6",
+		purple2:"#a78bfa",
+		gray:   "#475569"
+	};
+
+	let chartDeposit  = null;
+	let chartDist     = null;
+	let chartActivity = null;
+
+	const state = {
+		uid: null,
+		userData: null,
+		deposits: {},
+		withdrawals: {},
+		investments: {},
+		notifications: {}
+	};
+
+	/* ============================================================
+	   AGGREGATION
+	   ------------------------------------------------------------
+	   UPDATED: reads BOTH package_adjustment (count) and
+	   package_amount_adjustment (amount), so admin panel
+	   adjustments reflect in the "Total Invested" figure and
+	   the doughnut chart.
+	   ============================================================ */
+	function aggregate(userData, deposits, withdrawals, investments, notifications) {
+		// Deposits
+		let depApproved = 0, depPending = 0, depCountAppr = 0, depCountPend = 0;
+		const monthlyDeposits = {};
+		Object.values(deposits).forEach((d) => {
+			if (!d || typeof d !== "object") return;
+			const amt = Number(d.amount || 0);
+			const status = String(d.status || "").toLowerCase();
+			if (status === "approved") {
+				depApproved += amt;
+				depCountAppr++;
+				const ts = Number(d.created_at || 0) || (d.date ? new Date(d.date).getTime() : 0);
+				if (ts) {
+					const dt = new Date(ts);
+					const key = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0");
+					monthlyDeposits[key] = (monthlyDeposits[key] || 0) + amt;
+				}
+			} else if (status === "pending") {
+				depPending += amt;
+				depCountPend++;
+			}
+		});
+		const depAdjust = Number(userData.deposit_adjustment || 0);
+		const totalDeposit = Math.max(0, depApproved + depAdjust);
+
+		// Withdrawals
+		let wdApproved = 0, wdPending = 0, wdCountAppr = 0, wdCountPend = 0;
+		Object.values(withdrawals).forEach((w) => {
+			if (!w || typeof w !== "object") return;
+			const amt = Number(w.amount || 0);
+			const status = String(w.status || "").toLowerCase();
+			if (status === "approved") { wdApproved += amt; wdCountAppr++; }
+			else if (status === "pending") { wdPending += amt; wdCountPend++; }
+		});
+
+		// Investments — split approved amounts / counts
+		let invApprovedAmount = 0, invPendingAmount = 0;
+		let invCountAppr = 0, invCountPend = 0;
+		Object.values(investments).forEach((i) => {
+			if (!i || typeof i !== "object") return;
+			const amt = Number(i.amount || 0);
+			const status = String(i.status || "").toLowerCase();
+			if (status === "approved") { invApprovedAmount += amt; invCountAppr++; }
+			else if (status === "pending") { invPendingAmount += amt; invCountPend++; }
+		});
+
+		// Admin-side adjustments
+		const pkgAdjust       = Number(userData.package_adjustment        || 0);  // adds to package COUNT
+		const pkgAmountAdjust = Number(userData.package_amount_adjustment || 0);  // adds to INVESTED amount
+
+		const packageCount  = Math.max(0, invCountAppr + pkgAdjust);
+		const investedTotal = Math.max(0, invApprovedAmount + pkgAmountAdjust);
+
+		const balance = Number(userData.balance || 0);
+
+		return {
+			totalDeposit, depApproved, depPending, depCountAppr, depCountPend, monthlyDeposits,
+			wdApproved, wdPending, wdCountAppr, wdCountPend,
+			invApproved: investedTotal,   // used everywhere as INVESTED TOTAL
+			invPending:  invPendingAmount,
+			invCountAppr, invCountPend,
+			packageCount,
+			balance
+		};
+	}
+
+	/* ============================================================
+	   RENDER — STAT CARDS + SUMMARY
+	   ============================================================ */
+	function renderStats(agg) {
+		setText("statBalance",     fmtUSD(agg.balance));
+		setText("statDeposit",     fmtUSD(agg.totalDeposit));
+		setText("statWithdrawn",   fmtUSD(agg.wdApproved));
+		setText("statInvestments", agg.packageCount + " Package" + (agg.packageCount === 1 ? "" : "s"));
+
+		setText("headerBalance", fmtUSD(agg.balance));
+
+		setText("sumBalance",   fmtUSD(agg.balance));
+		setText("sumDeposit",   fmtUSD(agg.totalDeposit));
+		setText("sumInvested",  fmtUSD(agg.invApproved));
+		setText("sumWithdrawn", fmtUSD(agg.wdApproved));
+		const pendingCount = agg.depCountPend + agg.wdCountPend + agg.invCountPend;
+		setText("sumPending", pendingCount + " request" + (pendingCount === 1 ? "" : "s"));
+
+		const u = state.userData || {};
+		const fullName = ((u.first_name || "") + " " + (u.last_name || "")).trim() || (u.email || "—");
+		setText("sumHolder", fullName);
+	}
+
+	/* ============================================================
+	   RENDER — DEPOSIT HISTORY (LINE)
+	   ============================================================ */
+	function renderDepositChart(agg) {
+		const canvas = $("depositChart");
+		const emptyEl = $("depositEmpty");
+		if (!canvas) return;
+
+		const labels = [];
+		const values = [];
+		const now = new Date();
+		for (let i = 5; i >= 0; i--) {
+			const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+			const key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+			labels.push(d.toLocaleDateString("en-US", { month: "short" }));
+			values.push(Number(agg.monthlyDeposits[key] || 0));
+		}
+
+		const hasData = values.some(v => v > 0);
+		if (!hasData) {
+			if (emptyEl) emptyEl.classList.add("show");
+			if (chartDeposit) { chartDeposit.destroy(); chartDeposit = null; }
+			return;
+		}
+		if (emptyEl) emptyEl.classList.remove("show");
+
+		const ctx = canvas.getContext("2d");
+		const grad = ctx.createLinearGradient(0, 0, 0, 260);
+		grad.addColorStop(0, "rgba(59,130,246,0.35)");
+		grad.addColorStop(1, "rgba(59,130,246,0)");
+
+		if (chartDeposit) chartDeposit.destroy();
+		chartDeposit = new Chart(ctx, {
+			type: "line",
+			data: {
+				labels: labels,
+				datasets: [{
+					label: "Deposits",
+					data: values,
+					borderColor: COLORS.blue2,
+					backgroundColor: grad,
+					borderWidth: 2.5,
+					fill: true,
+					tension: 0.35,
+					pointRadius: 4,
+					pointBackgroundColor: COLORS.blue2,
+					pointBorderColor: "#0b1220",
+					pointBorderWidth: 2,
+					pointHoverRadius: 6
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: { display: false },
+				tooltips: {
+					backgroundColor: "#111a2b",
+					borderColor: "#223049",
+					borderWidth: 1,
+					titleFontColor: "#f1f5f9",
+					bodyFontColor: "#cbd5e1",
+					displayColors: false,
+					callbacks: { label: (item) => fmtUSD(item.yLabel) }
+				},
+				scales: {
+					xAxes: [{
+						gridLines: { color: "rgba(148,163,184,0.08)", drawBorder: false, zeroLineColor: "rgba(148,163,184,0.15)" },
+						ticks: { fontColor: "#94a3b8" }
+					}],
+					yAxes: [{
+						gridLines: { color: "rgba(148,163,184,0.08)", drawBorder: false, zeroLineColor: "rgba(148,163,184,0.15)" },
+						ticks: {
+							fontColor: "#94a3b8",
+							callback: (v) => fmtUSDShort(v),
+							beginAtZero: true
+						}
+					}]
+				}
+			}
+		});
+	}
+
+	/* ============================================================
+	   RENDER — FUND DISTRIBUTION (DOUGHNUT)
+	   ============================================================ */
+	function renderDistChart(agg) {
+		const canvas = $("distChart");
+		const emptyEl = $("distEmpty");
+		if (!canvas) return;
+
+		const data = [
+			agg.balance,
+			agg.invApproved,
+			agg.wdApproved,
+			agg.depApproved
+		];
+		const total = data.reduce((s, v) => s + v, 0);
+
+		if (total <= 0) {
+			if (emptyEl) emptyEl.classList.add("show");
+			if (chartDist) { chartDist.destroy(); chartDist = null; }
+			return;
+		}
+		if (emptyEl) emptyEl.classList.remove("show");
+
+		if (chartDist) chartDist.destroy();
+		chartDist = new Chart(canvas.getContext("2d"), {
+			type: "doughnut",
+			data: {
+				labels: ["Available", "Invested", "Withdrawn", "Deposited"],
+				datasets: [{
+					data: data,
+					backgroundColor: [COLORS.blue2, COLORS.purple2, COLORS.red2, COLORS.green2],
+					borderColor: "#111a2b",
+					borderWidth: 3,
+					hoverOffset: 6
+				}]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				cutoutPercentage: 68,
+				legend: {
+					position: "bottom",
+					labels: {
+						fontColor: "#cbd5e1",
+						padding: 14,
+						boxWidth: 10,
+						usePointStyle: true
+					}
+				},
+				tooltips: {
+					backgroundColor: "#111a2b",
+					borderColor: "#223049",
+					borderWidth: 1,
+					titleFontColor: "#f1f5f9",
+					bodyFontColor: "#cbd5e1",
+					callbacks: {
+						label: (item, d) => {
+							const v = d.datasets[0].data[item.index];
+							const pct = total > 0 ? ((v / total) * 100).toFixed(1) : 0;
+							return d.labels[item.index] + ": " + fmtUSD(v) + " (" + pct + "%)";
+						}
+					}
+				}
+			}
+		});
+	}
+
+	/* ============================================================
+	   RENDER — ACTIVITY BREAKDOWN (BAR)
+	   ============================================================ */
+	function renderActivityChart(agg) {
+		const canvas = $("activityChart");
+		const emptyEl = $("activityEmpty");
+		if (!canvas) return;
+
+		const approvedData = [agg.depApproved, agg.wdApproved, agg.invApproved];
+		const pendingData  = [agg.depPending,  agg.wdPending,  agg.invPending];
+		const total = approvedData.reduce((s, v) => s + v, 0) + pendingData.reduce((s, v) => s + v, 0);
+
+		if (total <= 0) {
+			if (emptyEl) emptyEl.classList.add("show");
+			if (chartActivity) { chartActivity.destroy(); chartActivity = null; }
+			return;
+		}
+		if (emptyEl) emptyEl.classList.remove("show");
+
+		if (chartActivity) chartActivity.destroy();
+		chartActivity = new Chart(canvas.getContext("2d"), {
+			type: "bar",
+			data: {
+				labels: ["Deposits", "Withdrawals", "Investments"],
+				datasets: [
+					{
+						label: "Approved",
+						data: approvedData,
+						backgroundColor: COLORS.green2,
+						borderRadius: 4,
+						maxBarThickness: 36
+					},
+					{
+						label: "Pending",
+						data: pendingData,
+						backgroundColor: COLORS.amber2,
+						borderRadius: 4,
+						maxBarThickness: 36
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					position: "top",
+					align: "end",
+					labels: {
+						fontColor: "#cbd5e1",
+						padding: 14,
+						boxWidth: 10,
+						usePointStyle: true
+					}
+				},
+				tooltips: {
+					backgroundColor: "#111a2b",
+					borderColor: "#223049",
+					borderWidth: 1,
+					titleFontColor: "#f1f5f9",
+					bodyFontColor: "#cbd5e1",
+					callbacks: { label: (item) => item.dataset.label + ": " + fmtUSD(item.yLabel) }
+				},
+				scales: {
+					xAxes: [{
+						gridLines: { display: false, drawBorder: false },
+						ticks: { fontColor: "#94a3b8" }
+					}],
+					yAxes: [{
+						gridLines: { color: "rgba(148,163,184,0.08)", drawBorder: false, zeroLineColor: "rgba(148,163,184,0.15)" },
+						ticks: {
+							fontColor: "#94a3b8",
+							beginAtZero: true,
+							callback: (v) => fmtUSDShort(v)
+						}
+					}]
+				}
+			}
+		});
+	}
+
+	/* ============================================================
+	   RENDER — RECENT ACTIVITY
+	   ============================================================ */
+	function renderActivity(notifications) {
+		const list = $("activityList");
+		if (!list) return;
+
+		const items = Object.values(notifications || {})
+			.filter((n) => n && typeof n === "object" && n.title)
+			.sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0))
+			.slice(0, 5);
+
+		if (!items.length) {
+			list.innerHTML = '<li class="activity-empty"><i class="fas fa-inbox"></i>&nbsp; No recent activity yet</li>';
+			return;
+		}
+
+		list.innerHTML = items.map((n) => {
+			const type = String(n.type || "info").toLowerCase();
+			const iconClass =
+				type === "deposit"    ? "deposit"    :
+				type === "withdrawal" ? "withdrawal" :
+				type === "investment" ? "investment" : "info";
+			const icon =
+				type === "deposit"    ? "fa-arrow-down" :
+				type === "withdrawal" ? "fa-arrow-up"   :
+				type === "investment" ? "fa-coins"      : "fa-bell";
+
+			const amountHtml = (n.amount != null && Number.isFinite(Number(n.amount)))
+				? '<div class="activity-amount">' + fmtUSD(n.amount) + '</div>'
+				: '';
+
+			const title = String(n.title || "").slice(0, 80);
+			const message = String(n.message || "").slice(0, 140);
+			const when = fmtTime(n.createdAt);
+
+			return (
+				'<li class="activity-item">' +
+					'<div class="activity-icon ' + iconClass + '"><i class="fas ' + icon + '"></i></div>' +
+					'<div class="activity-body">' +
+						'<p class="activity-title">' + escapeHTML(title) + '</p>' +
+						'<p class="activity-desc">' + escapeHTML(message) + '</p>' +
+						amountHtml +
+					'</div>' +
+					'<div class="activity-time">' + escapeHTML(when) + '</div>' +
+				'</li>'
+			);
+		}).join("");
+	}
+
+	function escapeHTML(v) {
+		return String(v ?? "")
+			.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+	}
+
+	/* ============================================================
+	   NOTIFICATIONS BADGE (bell + sidebar)
+	   ============================================================ */
+	function updateNotifBadges(count) {
+		const n = Number(count) || 0;
+		const text = n > 99 ? "99+" : String(n);
+		const bellBadge = $("notifBellBadge");
+		if (bellBadge) {
+			if (n > 0) { bellBadge.textContent = text; bellBadge.classList.add("show"); }
+			else { bellBadge.classList.remove("show"); }
+		}
+		const sideBadge = $("notifSideBadge");
+		if (sideBadge) {
+			if (n > 0) { sideBadge.textContent = text; sideBadge.classList.add("show"); }
+			else { sideBadge.classList.remove("show"); }
+		}
+	}
+
+	/* ============================================================
+	   MAIN — LOAD USER & BIND
+	   ============================================================ */
+	function applyUserData(userData) {
+		state.userData = userData;
+
+		const firstName = userData.first_name || "User";
+		const lastName  = userData.last_name || "";
+		const email     = userData.email || "";
+
+		setText("profileName", firstName + " " + lastName);
+		setText("profileEmail", email);
+		setText("sidebarFirstName", firstName);
+		setText("sidebarLastName", lastName);
+		setText("walletWelcome", "Hi " + firstName + " — My Wallet");
+
+		const agg = aggregate(userData, state.deposits, state.withdrawals, state.investments, state.notifications);
+		renderStats(agg);
+		renderDepositChart(agg);
+		renderDistChart(agg);
+		renderActivityChart(agg);
+	}
+
+	function attachListeners(uid) {
+		database.ref("users/" + uid).on("value", (snap) => {
+			const u = snap.val() || {};
+			state.deposits      = u.deposits      || {};
+			state.withdrawals   = u.withdrawals   || {};
+			state.investments   = u.investments   || {};
+			state.notifications = u.notifications || {};
+
+			applyUserData(u);
+			renderActivity(state.notifications);
+
+			let unread = 0;
+			Object.keys(state.notifications).forEach((k) => {
+				if (k === "_meta" || k === "settings") return;
+				const v = state.notifications[k];
+				if (v && typeof v === "object" && !v.read) unread++;
+			});
+			updateNotifBadges(unread);
+		}, (err) => {
+			console.error("User listener error:", err);
+		});
+	}
+
+	function boot() {
+		auth.onAuthStateChanged((user) => {
+			let uid = null;
+			try { uid = localStorage.getItem("userUid"); } catch (e) {}
+			if (!uid && user) uid = user.uid;
+
+			if (!uid) {
+				try {
+					const stored = JSON.parse(localStorage.getItem("userData") || "{}");
+					if (stored && stored.uid && stored.uid !== "anonymous") uid = stored.uid;
+				} catch (e) {}
+			}
+
+			if (!uid) {
+				window.location.href = "login.html";
+				return;
+			}
+
+			state.uid = uid;
+			attachListeners(uid);
+		});
+	}
+
+	/* ============================================================
+	   LOGOUT
+	   ============================================================ */
+	function handleLogout() {
+		auth.signOut().then(() => {
+			localStorage.removeItem("userData");
+			localStorage.removeItem("userUid");
+			localStorage.removeItem("isLoggedIn");
+			window.location.href = "login.html";
+		}).catch((e) => console.error("Logout error:", e));
+	}
+
+	document.addEventListener("DOMContentLoaded", () => {
+		const lb = $("logoutBtn"); if (lb) lb.addEventListener("click", handleLogout);
+		const sb = $("sidebarLogoutBtn"); if (sb) sb.addEventListener("click", handleLogout);
+		boot();
+	});
+	</script>
+</body>
+</html>

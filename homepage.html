@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Dashboard</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() { sessionStorage.fonts = true; }
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+
+	<!-- DIRECT CDN LINKS FOR ICONS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css">
+
+	<!-- Supabase JS SDK (for chat image uploads) -->
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+	<style>
+		/* Fix for dashboard icons - using Font Awesome instead of Flaticon */
+		.flaticon-chart-pie:before { content: "\f200" !important; font-family: 'Font Awesome 5 Solid' !important; font-weight: 900 !important; }
+		.flaticon-coins:before     { content: "\f51e" !important; font-family: 'Font Awesome 5 Solid' !important; font-weight: 900 !important; }
+
+		/* ============================================================
+		   FORCE-FIX: ELIMINATE THE BLANK SPACE ABOVE THE DASHBOARD
+		   ============================================================ */
+		html, body {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow-x: hidden !important;
+			overflow-y: auto !important;
+		}
+
+		.wrapper {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow: visible !important;
+		}
+
+		.main-panel {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow: visible !important;
+		}
+
+		.content {
+			height: auto !important;
+			min-height: 0 !important;
+			max-height: none !important;
+			overflow: visible !important;
+		}
+
+		.content > .panel-header,
+		.content > .panel-header:first-child {
+			margin-top: 0 !important;
+		}
+
+		/* ============================================================
+		   LOADING STATE (dotted pulse for dynamic figures)
+		   ============================================================ */
+		.loading-figure { display: inline-flex; align-items: baseline; gap: 2px; opacity: 0.75; }
+		.loading-figure .loading-dot {
+			display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+			background: currentColor; animation: loadingDotPulse 1.2s infinite ease-in-out;
+		}
+		.loading-figure .loading-dot:nth-child(2) { animation-delay: 0.15s; }
+		.loading-figure .loading-dot:nth-child(3) { animation-delay: 0.30s; }
+		@keyframes loadingDotPulse {
+			0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+			40% { opacity: 1; transform: translateY(-2px); }
+		}
+
+		/* ============================================================
+		   ACCOUNT TIER BADGE (top-right, above wallet balance)
+		   ============================================================ */
+		.account-tier-wrap {
+			display: flex;
+			justify-content: flex-end;
+			margin-bottom: 6px;
+		}
+		.account-tier-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 800;
+			letter-spacing: 0.7px;
+			text-transform: uppercase;
+			border: 1px solid transparent;
+			transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+			white-space: nowrap;
+			line-height: 1;
+			user-select: none;
+		}
+		.account-tier-badge .tier-dot {
+			display: inline-block;
+			width: 6px; height: 6px; border-radius: 50%;
+			background: currentColor;
+			box-shadow: 0 0 8px currentColor;
+		}
+
+		/* Loading state — neutral gray with a soft pulse */
+		.account-tier-badge.loading {
+			background: rgba(255, 255, 255, 0.06);
+			color: #7a8dad;
+			border-color: rgba(255, 255, 255, 0.08);
+			animation: tierPulse 1.4s infinite ease-in-out;
+			min-width: 74px;
+			justify-content: center;
+		}
+		@keyframes tierPulse {
+			0%, 100% { opacity: 0.55; }
+			50%      { opacity: 1; }
+		}
+
+		/* Default — RED "Upgrade your account" */
+		.account-tier-badge.tier-default {
+			background: linear-gradient(145deg, rgba(239, 68, 68, 0.22), rgba(220, 38, 38, 0.14));
+			color: #ff8080;
+			border-color: rgba(239, 68, 68, 0.55);
+			box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+		}
+
+		/* Silver */
+		.account-tier-badge.tier-silver {
+			background: linear-gradient(145deg, rgba(220, 228, 240, 0.22), rgba(160, 172, 190, 0.14));
+			color: #e4eaf4;
+			border-color: rgba(200, 212, 228, 0.5);
+			box-shadow: 0 0 16px rgba(200, 212, 228, 0.3);
+		}
+
+		/* Gold */
+		.account-tier-badge.tier-gold {
+			background: linear-gradient(145deg, rgba(251, 191, 36, 0.24), rgba(217, 119, 6, 0.14));
+			color: #fbbf24;
+			border-color: rgba(251, 191, 36, 0.55);
+			box-shadow: 0 0 18px rgba(251, 191, 36, 0.4);
+		}
+
+		/* Diamond */
+		.account-tier-badge.tier-diamond {
+			background: linear-gradient(145deg, rgba(96, 165, 250, 0.24), rgba(59, 130, 246, 0.14));
+			color: #7cc0ff;
+			border-color: rgba(96, 165, 250, 0.55);
+			box-shadow: 0 0 18px rgba(96, 165, 250, 0.4);
+		}
+
+		/* Ruby */
+		.account-tier-badge.tier-ruby {
+			background: linear-gradient(145deg, rgba(248, 113, 113, 0.24), rgba(190, 18, 60, 0.16));
+			color: #ff8080;
+			border-color: rgba(248, 113, 113, 0.6);
+			box-shadow: 0 0 18px rgba(248, 113, 113, 0.45);
+		}
+
+		@media (max-width: 767px) {
+			.account-tier-wrap { justify-content: center; margin-bottom: 8px; }
+			.account-tier-badge { font-size: 10px; padding: 5px 12px; }
+		}
+
+		/* ============================================================
+		   NOTIFICATION BELL (top navbar)
+		   ============================================================ */
+		.notif-bell-btn {
+			position: relative; width: 42px; height: 42px; border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0; font-size: 17px; display: inline-flex; align-items: center;
+			justify-content: center; cursor: pointer; text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s; margin-right: 10px;
+		}
+		.notif-bell-btn:hover { background: rgba(59, 130, 246, 0.18); color: #fff; transform: translateY(-1px); }
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 6px;
+			border-radius: 20px; background: #ef4444; color: #fff; font-size: 10.5px; font-weight: 800;
+			display: none; align-items: center; justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7); border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+		@keyframes bellPulse {
+			0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+			70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		}
+		.notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+		/* ============================================================
+		   SIDEBAR NOTIFICATION BADGE
+		   ============================================================ */
+		.nav-item .notif-side-badge {
+			margin-left: auto; background: #ef4444; color: #fff; font-size: 10.5px; font-weight: 800;
+			padding: 2px 8px; border-radius: 12px; min-width: 20px; text-align: center;
+			display: none; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+
+		@media (max-width: 991px) {
+			.notif-bell-btn { width: 38px; height: 38px; font-size: 15px; margin-right: 6px; }
+			.notif-bell-btn .notif-bell-badge { min-width: 18px; height: 18px; font-size: 10px; }
+		}
+
+		/* ============================================================
+		   USER CHAT WIDGET
+		   ============================================================ */
+		.chat-fab {
+			position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 50%;
+			background: linear-gradient(145deg, #3b82f6, #1a5adf); color: #fff; border: none;
+			cursor: pointer; display: flex; align-items: center; justify-content: center;
+			font-size: 22px; box-shadow: 0 12px 28px -6px rgba(26, 90, 223, 0.7); z-index: 1050;
+			transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1);
+		}
+		.chat-fab:hover { transform: scale(1.06); }
+		.chat-fab:active { transform: scale(0.94); }
+		.chat-fab .chat-fab-badge {
+			position: absolute; top: -2px; right: -2px; min-width: 22px; height: 22px; padding: 0 6px;
+			border-radius: 20px; background: #22c55e; color: #fff; font-size: 11px; font-weight: 800;
+			display: none; align-items: center; justify-content: center;
+			box-shadow: 0 0 12px rgba(34, 197, 94, 0.65);
+		}
+		.chat-fab .chat-fab-badge.show { display: flex; }
+
+		.chat-widget-backdrop {
+			position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
+			backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+			z-index: 1051; display: none;
+		}
+		.chat-widget-backdrop.show { display: block; }
+
+		.chat-widget {
+			position: fixed; bottom: 96px; right: 24px; width: 380px;
+			max-width: calc(100vw - 32px); height: 560px; max-height: calc(100vh - 140px);
+			background: #0b0f1a; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 20px;
+			box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.85); display: flex; flex-direction: column;
+			overflow: hidden; z-index: 1052; opacity: 0; transform: translateY(20px) scale(0.98);
+			pointer-events: none;
+			transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.4, 1), transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+		}
+		.chat-widget.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+
+		.chat-widget-header {
+			flex: 0 0 auto; padding: 14px 16px;
+			background: linear-gradient(145deg, #1a2540, #0f1828);
+			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex; align-items: center; gap: 12px;
+		}
+		.chat-widget-header .cw-avatar {
+			width: 40px; height: 40px; border-radius: 50%;
+			background: linear-gradient(145deg, #3b82f6, #1a5adf);
+			display: flex; align-items: center; justify-content: center;
+			font-size: 16px; color: #fff; font-weight: 700; flex-shrink: 0; overflow: hidden;
+		}
+		.chat-widget-header .cw-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+		.chat-widget-header .cw-info { flex: 1; min-width: 0; }
+		.chat-widget-header .cw-info strong { display: block; color: #eef2f6; font-size: 14px; font-weight: 700; }
+		.chat-widget-header .cw-info span { display: block; color: #7a8dad; font-size: 11px; }
+		.chat-widget-header .cw-close {
+			width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 255, 255, 0.06);
+			border: none; color: #b0c4e0; font-size: 18px; cursor: pointer;
+			display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+		}
+		.chat-widget-header .cw-close:hover { background: rgba(255, 255, 255, 0.12); }
+
+		.chat-widget-messages {
+			flex: 1; min-height: 0; overflow-y: auto; padding: 14px 12px;
+			display: flex; flex-direction: column; gap: 8px;
+			-webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: #0b0f1a;
+		}
+		.cw-msg-row { display: flex; width: 100%; }
+		.cw-msg-row.customer { justify-content: flex-end; }
+		.cw-msg-row.care { justify-content: flex-start; }
+		.cw-bubble {
+			max-width: 82%; padding: 9px 13px; border-radius: 16px;
+			font-size: 13.5px; line-height: 1.45; word-break: break-word;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+		}
+		.cw-msg-row.customer .cw-bubble {
+			background: linear-gradient(145deg, #3b82f6, #1a5adf); color: #fff; border-bottom-right-radius: 4px;
+		}
+		.cw-msg-row.care .cw-bubble {
+			background: rgba(255, 255, 255, 0.07); color: #eef2f6;
+			border: 1px solid rgba(255, 255, 255, 0.05); border-bottom-left-radius: 4px;
+		}
+		.cw-msg-time { display: block; margin-top: 3px; font-size: 10px; opacity: 0.7; text-align: right; }
+		.cw-date-sep {
+			align-self: center; margin: 6px 0; padding: 4px 12px; border-radius: 20px;
+			background: rgba(255, 255, 255, 0.04); color: #7a8dad; font-size: 10px;
+			font-weight: 600; letter-spacing: 0.4px;
+		}
+		.cw-empty { margin: auto; text-align: center; color: #5a6c8a; font-size: 13px; padding: 20px; }
+		.cw-empty .cw-empty-icon { font-size: 32px; margin-bottom: 8px; opacity: 0.5; }
+
+		.cw-bubble.cw-bubble-image {
+			padding: 4px; background: rgba(255, 255, 255, 0.06) !important;
+			border: 1px solid rgba(255, 255, 255, 0.06); max-width: 78%;
+		}
+		.cw-bubble.cw-bubble-image img {
+			display: block; max-width: 100%; max-height: 260px; width: auto; height: auto;
+			border-radius: 12px; cursor: zoom-in; background: #000;
+		}
+		.cw-bubble.cw-bubble-image .cw-image-caption {
+			display: block; margin-top: 4px; padding: 0 6px 4px; font-size: 10px;
+			color: #9aa7bd; text-align: right; opacity: 0.85; word-break: break-word;
+		}
+
+		.cw-attach {
+			display: flex; width: 44px; height: 44px; flex: 0 0 44px; border: none; border-radius: 50%;
+			background: rgba(255, 255, 255, 0.08); color: #d0dcf0; cursor: pointer;
+			font-size: 16px; align-items: center; justify-content: center;
+			transition: background 0.2s, transform 0.2s;
+		}
+		.cw-attach:hover { background: rgba(255, 255, 255, 0.16); }
+		.cw-attach:active { transform: scale(0.92); }
+		.cw-attach:disabled { opacity: 0.5; cursor: not-allowed; }
+		.cw-attach.is-uploading i { animation: cwSpin 0.9s linear infinite; }
+		@keyframes cwSpin { to { transform: rotate(360deg); } }
+
+		#cwFileInput { display: none; }
+
+		.chat-widget-composer {
+			flex: 0 0 auto; padding: 8px; background: rgba(8, 14, 26, 0.98);
+			border-top: 1px solid rgba(255, 255, 255, 0.05);
+			display: flex; align-items: flex-end; gap: 8px;
+		}
+		.chat-widget-composer textarea {
+			flex: 1; min-width: 0; min-height: 42px; max-height: 110px; resize: none;
+			border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px;
+			padding: 11px 14px; outline: none; font-size: 14px; line-height: 1.4;
+			background: rgba(255, 255, 255, 0.04); color: #fff; font-family: inherit;
+			-webkit-appearance: none;
+		}
+		.chat-widget-composer textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12); }
+		.chat-widget-composer textarea::placeholder { color: #5a6c8a; }
+		.chat-widget-composer .cw-send {
+			width: 44px; height: 44px; flex: 0 0 44px; border: none; border-radius: 50%;
+			background: linear-gradient(145deg, #3b82f6, #1a5adf); color: #fff; cursor: pointer;
+			font-size: 16px; box-shadow: 0 6px 14px -4px rgba(26, 90, 223, 0.65);
+			display: flex; align-items: center; justify-content: center;
+		}
+		.chat-widget-composer .cw-send:active { transform: scale(0.92); }
+		.chat-widget-composer .cw-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+		@media (max-width: 600px) {
+			.chat-widget {
+				bottom: 0; right: 0; left: 0; top: 0; width: 100%; max-width: 100%;
+				height: 100%; max-height: 100%; border-radius: 0;
+			}
+			.chat-widget.open ~ .chat-fab { display: none; }
+			.chat-widget-composer textarea { font-size: 16px; }
+		}
+
+		/* ============================================================
+		   MOBILE SCROLL PERFORMANCE FIXES
+		   ============================================================ */
+		html {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior-x: none;
+		}
+		@supports (overflow: clip) {
+			html {
+				overflow-x: clip !important;
+				overflow-y: auto !important;
+			}
+			body {
+				overflow-x: clip !important;
+				overflow-y: visible !important;
+			}
+		}
+		html.cw-lock,
+		body.cw-lock {
+			overflow: hidden !important;
+		}
+
+		.chat-fab {
+			will-change: transform;
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+		}
+
+		.chat-widget {
+			visibility: hidden;
+			transform: translate3d(0, 20px, 0) scale(0.98);
+			transition:
+				opacity 0.25s cubic-bezier(0.2, 0.9, 0.4, 1),
+				transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1),
+				visibility 0s linear 0.25s;
+		}
+		.chat-widget.open {
+			visibility: visible;
+			transform: translate3d(0, 0, 0) scale(1);
+			transition:
+				opacity 0.25s cubic-bezier(0.2, 0.9, 0.4, 1),
+				transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1),
+				visibility 0s linear 0s;
+		}
+
+		.notif-bell-btn.has-new { animation: none; }
+		.notif-bell-btn::after {
+			content: "";
+			position: absolute;
+			inset: -3px;
+			border-radius: 50%;
+			border: 2px solid rgba(239, 68, 68, 0.75);
+			opacity: 0;
+			pointer-events: none;
+			transform: scale(0.85);
+		}
+		.notif-bell-btn.has-new::after {
+			animation: bellRing 1.6s cubic-bezier(0.2, 0.9, 0.4, 1) infinite;
+			will-change: transform, opacity;
+		}
+		@keyframes bellRing {
+			0%   { transform: scale(0.85); opacity: 0.9; }
+			70%  { transform: scale(1.45); opacity: 0; }
+			100% { transform: scale(1.45); opacity: 0; }
+		}
+
+		.tradingview-widget-container {
+			transform: translateZ(0);
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+		}
+
+		.sidebar-wrapper,
+		.chat-widget-messages,
+		.dropdown-user-scroll {
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+		}
+
+		.notif-bell-btn,
+		.chat-fab,
+		.cw-send,
+		.cw-attach,
+		.cw-close {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+		}
+
+		@media (max-width: 991px) {
+			.chat-widget-backdrop {
+				background: rgba(0, 0, 0, 0.72);
+				-webkit-backdrop-filter: none;
+				backdrop-filter: none;
+			}
+			.chat-widget {
+				box-shadow: 0 18px 44px -18px rgba(0, 0, 0, 0.85);
+			}
+			.chat-fab {
+				box-shadow: 0 8px 18px -6px rgba(26, 90, 223, 0.65);
+			}
+		}
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+	    <div class="main-header">
+    <div class="logo-header" data-background-color="dark2">
+        <a href="index.html" class="logo">
+            <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
+        </button>
+        <button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar"><i class="icon-menu"></i></button>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+        <div class="container-fluid">
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                <li class="nav-item mr-2">
+                    <a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-bell-badge" id="notifBellBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown hidden-caret">
+                    <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <div class="avatar-sm">
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user animated fadeIn">
+                        <div class="dropdown-user-scroll scrollbar-outer">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                        <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+                                    </div>
+                                    <div class="u-text">
+                                        <h4 id="profileName">Loading...</h4>
+                                        <p class="text-muted" id="profileEmail">Loading...</p>
+                                        <a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                <button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+
+		<!-- Sidebar -->
+	    <div class="sidebar sidebar-style-2" data-background-color="dark2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <div class="user">
+                <div class="avatar-sm float-left mr-2">
+                    <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                </div>
+                <div class="info">
+                    <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                        <span>
+                            <span id="sidebarFirstName">Loading...</span>
+                            <span class="user-level" id="sidebarLastName">Loading...</span>
+                            <span class="caret"></span>
+                        </span>
+                    </a>
+                    <div class="clearfix"></div>
+                    <div class="collapse in" id="collapseExample">
+                        <ul class="nav">
+                            <li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+                            <li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav nav-primary">
+                <li class="nav-item active">
+                    <a href="homepage.html"><i class="fas fa-home"></i><p>Dashboard</p></a>
+                </li>
+                <li class="nav-item">
+                    <a href="deposit.html"><i class="fas fa-hotel"></i><p>Deposit</p></a>
+                </li>
+                <li class="nav-item">
+                    <a href="transactions.html"><i class="fas fa-receipt"></i><p>Transactions</p></a>
+                </li>
+                <li class="nav-item">
+                    <a href="stocks.html"><i class="fas fa-layer-group"></i><p>Tesla Stocks</p></a>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-coins"></i><p>Investment</p><span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="invest">
+                        <ul class="nav nav-collapse">
+                            <li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+                            <li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+                            <li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-credit-card"></i><p>Withdrawal</p><span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="withdrawal">
+                        <ul class="nav nav-collapse">
+                            <li><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+                            <li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+                            <li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+                            <li><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="verification.html"><i class="fas fa-id-card"></i><p>Verification</p></a>
+                </li>
+                <li class="nav-item">
+                    <a href="upgrade.html"><i class="fas fa-crown"></i><p>Upgrade</p></a>
+                </li>
+                <li class="nav-item">
+                    <a href="notifications.html">
+                        <i class="fas fa-bell"></i>
+                        <p>Notifications</p>
+                        <span class="notif-side-badge" id="notifSideBadge">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+                        <i class="fa fa-power-off"></i> Sign Out
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<div class="content">
+                <div class="panel-header bg-dark-gradient">
+                    <div class="page-inner py-3">
+                        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                            <div>
+                                <h2 class="text-white pb-1 fw-bold" id="welcomeName">Welcome Loading...</h2>
+                                <h5 class="text-white op-7 mb-0">... Investment is the future</h5>
+                            </div>
+                            <div class="ml-md-auto  py-1 py-md-0">
+                                <div class="text-right">
+                                    <!-- ============================================
+                                         ACCOUNT TIER BADGE (top-right)
+                                         Starts with "..." loading state to avoid
+                                         flashing incorrect information.
+                                         ============================================ -->
+                                    <div class="account-tier-wrap">
+                                        <div id="accountTierBadge" class="account-tier-badge loading" title="Account Tier">
+                                            <span class="tier-dot"></span>...
+                                        </div>
+                                    </div>
+
+                                    <h6>Wallet Balance</h6>
+                                    <h1 class="text-light" id="walletBalance">
+                                        <span class="loading-figure">
+                                            USD&nbsp;<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+                                        </span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-inner mt--3">
+                    <div class="row row-card-no-pd mt--2">
+    <div class="col-sm-6 col-md-6">
+        <div class="card card-stats card-round">
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="icon-big text-center">
+                            <i class="fas fa-chart-pie text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="col-7 col-stats">
+                        <div class="numbers">
+                            <p class="card-category">Total Deposit</p>
+                            <h4 class="card-title" id="totalDeposit">
+                                <span class="loading-figure">
+                                    USD&nbsp;<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+                                </span>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-6">
+        <div class="card card-stats card-round">
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="icon-big text-center">
+                            <i class="fas fa-coins text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-7 col-stats">
+                        <div class="numbers">
+                            <p class="card-category">Investment Packages</p>
+                            <h4 class="card-title" id="investmentPackages">
+                                <span class="loading-figure">
+                                    <span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>
+                                </span>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+					<div class="row my-2">
+						<div class="col-md-12">
+							<div class="tradingview-widget-container">
+							<div class="tradingview-widget-container__widget"></div>
+							<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+							{
+							"symbols": [
+								{"proName": "NASDAQ:TSLA","title": ""},
+								{"proName": "NASDAQ:PYPL","title": ""},
+								{"proName": "NASDAQ:NVDA","title": ""},
+								{"proName": "SWB:6RJ0","title": ""},
+								{"proName": "NASDAQ:AMSC","title": ""},
+								{"proName": "NASDAQ:ENVX","title": ""},
+								{"proName": "NASDAQ:RIVN","title": ""}
+							],
+							"colorTheme": "dark",
+							"locale": "en",
+							"largeChartUrl": "",
+							"isTransparent": false,
+							"showSymbolLogo": true,
+							"displayMode": "adaptive"
+							}
+							</script>
+							</div>
+						</div>
+					</div>
+
+					<div class="row mt-2">
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 tv-mini-card-body">
+									<div class="tradingview-widget-container" style="height:100%;width:100%">
+									<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{"symbol": "NASDAQ:TSLA","chartOnly": false,"dateRange": "12M","noTimeScale": false,"colorTheme": "dark","isTransparent": false,"locale": "en","width": "100%","autosize": true,"height": "100%"}
+									</script>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 tv-mini-card-body">
+									<div class="tradingview-widget-container" style="height:100%;width:100%">
+									<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{"symbol": "NASDAQ:PYPL","chartOnly": false,"dateRange": "12M","noTimeScale": false,"colorTheme": "dark","isTransparent": false,"locale": "en","width": "100%","autosize": true,"height": "100%"}
+									</script>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 tv-mini-card-body">
+									<div class="tradingview-widget-container" style="height:100%;width:100%">
+									<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{"symbol": "SWB:6RJ0","chartOnly": false,"dateRange": "12M","noTimeScale": false,"colorTheme": "dark","isTransparent": false,"locale": "en","width": "100%","autosize": true,"height": "100%"}
+									</script>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card" style="height: 500px;">
+								<div class="card-body p-0 m-0 h-100">
+									<div class="tradingview-widget-container" style="height:100%;width:100%">
+									<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+									{"allow_symbol_change": true,"calendar": false,"details": false,"hide_side_toolbar": true,"hide_top_toolbar": false,"hide_legend": false,"hide_volume": false,"hotlist": false,"interval": "D","locale": "en","save_image": true,"style": "1","symbol": "NASDAQ:TSLA","theme": "dark","timezone": "Etc/UTC","backgroundColor": "#0F0F0F","gridColor": "rgba(242, 242, 242, 0.06)","watchlist": [],"withdateranges": false,"compareSymbols": [],"studies": [],"autosize": true}
+									</script>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+            </div>
+
+	        <footer class="footer">
+    <div class="container-fluid">
+        <div class="copyright ml-auto">
+            All Rights Reserved &copy; <span id="myyear"></span> Laravel </a>
+        </div>
+    </div>
+</footer>
+
+<script>
+document.getElementById('myyear').textContent = new Date().getFullYear();
+</script>
+		</div>
+	</div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        async function writeNotification(payload) {
+            try {
+                const uid = localStorage.getItem("userUid");
+                if (!uid) { console.warn("[writeNotification] no userUid in localStorage"); return; }
+                const ref = database.ref("users/" + uid + "/notifications").push();
+                await ref.set({
+                    title: String(payload.title || "Notification").slice(0, 120),
+                    message: String(payload.message || "").slice(0, 500),
+                    type: payload.type || "info",
+                    status: payload.status || null,
+                    amount: (payload.amount != null && Number.isFinite(Number(payload.amount))) ? Number(payload.amount) : null,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    read: false
+                });
+            } catch (e) { console.warn("[writeNotification] failed:", e); }
+        }
+        window.writeNotification = writeNotification;
+
+        const LOADING_HTML = {
+            balance:  `<span class="loading-figure">USD&nbsp;<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span>`,
+            deposit:  `<span class="loading-figure">USD&nbsp;<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span>`,
+            packages: `<span class="loading-figure"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span>`
+        };
+
+        function setWalletBalanceLoading() { const el = document.getElementById("walletBalance"); if (el) el.innerHTML = LOADING_HTML.balance; }
+        function setWalletBalanceAmount(amount) {
+            const el = document.getElementById("walletBalance"); if (!el) return;
+            const n = Number(amount || 0);
+            el.textContent = "USD " + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function setTotalDeposit(value) {
+            const el = document.getElementById("totalDeposit"); if (!el) return;
+            if (value === "loading") { el.innerHTML = LOADING_HTML.deposit; return; }
+            const n = Number(value || 0);
+            el.textContent = "USD " + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function setInvestmentPackages(count, totalInvested) {
+            const el = document.getElementById("investmentPackages"); if (!el) return;
+            if (count === "loading") { el.innerHTML = LOADING_HTML.packages; return; }
+            const n = Number(count || 0);
+            const total = Number(totalInvested || 0);
+            if (n === 0) { el.textContent = "0 Packages"; }
+            else { el.textContent = n + " Package" + (n === 1 ? "" : "s") + (total > 0 ? " · $" + total.toLocaleString() : ""); }
+        }
+
+        /* ============================================================
+           ACCOUNT TIER
+           Reads users/{uid}/account_tier from Firebase and renders
+           a rounded badge in the top-right. Shows "..." while
+           loading so wrong info never flashes on slow networks.
+           ============================================================ */
+        const TIER_LABELS = {
+            default: "Upgrade Your Account",
+            silver:  "Silver Account",
+            gold:    "Gold Account",
+            diamond: "Diamond Account",
+            ruby:    "Ruby Account"
+        };
+
+        function setTierLoading() {
+            const el = document.getElementById("accountTierBadge");
+            if (!el) return;
+            el.className = "account-tier-badge loading";
+            el.innerHTML = '<span class="tier-dot"></span>...';
+            el.setAttribute("title", "Account Tier");
+        }
+
+        function setTierBadge(tier) {
+            const el = document.getElementById("accountTierBadge");
+            if (!el) return;
+            const raw = String(tier == null ? "" : tier).toLowerCase().trim();
+            const key = Object.prototype.hasOwnProperty.call(TIER_LABELS, raw) ? raw : "default";
+            el.className = "account-tier-badge tier-" + key;
+            el.innerHTML = '<span class="tier-dot"></span>' + TIER_LABELS[key];
+            el.setAttribute("title", "Account Tier: " + TIER_LABELS[key]);
+        }
+
+        let tierListenerRef = null, tierListener = null;
+        function attachTierListener(uid) {
+            // Tear down any previous listener
+            if (tierListenerRef && tierListener) {
+                tierListenerRef.off("value", tierListener);
+                tierListenerRef = null; tierListener = null;
+            }
+            // Show loading state while we resolve
+            setTierLoading();
+            if (!uid) return;
+
+            tierListenerRef = database.ref("users/" + uid + "/account_tier");
+            tierListener = tierListenerRef.on("value", (snap) => {
+                const val = snap.val();
+                setTierBadge(val);
+            }, (err) => {
+                console.error("Tier listener error:", err);
+                // On error, fall back to a safe default so the badge
+                // never stays stuck on "..." forever.
+                setTierBadge("default");
+            });
+        }
+
+        function loadUserData(user) {
+            if (!user) { console.log('No user logged in'); window.location.href = 'login.html'; return; }
+            console.log('Loading data for user with email:', user.email);
+            let userEmail = user.email;
+            try {
+                const storedData = localStorage.getItem('userData');
+                if (storedData) { const parsed = JSON.parse(storedData); if (parsed && parsed.email) { userEmail = parsed.email; console.log('Found stored email:', userEmail); } }
+            } catch (e) { console.error('Error parsing stored data:', e); }
+            if (!userEmail) { console.error('No email available'); window.location.href = 'login.html'; return; }
+
+            database.ref('users').orderByChild('email').equalTo(userEmail).once('value')
+                .then((snapshot) => {
+                    const users = snapshot.val();
+                    if (!users) {
+                        const storedData = localStorage.getItem('userData');
+                        if (storedData) { try { const parsed = JSON.parse(storedData); if (parsed && parsed.first_name) { displayUserData(parsed, parsed); return; } } catch (e) {} }
+                        return;
+                    }
+                    let userData = null; let userUid = null;
+                    for (let uid in users) { userData = users[uid]; userUid = uid; break; }
+                    if (!userData) { console.error('User data is empty'); return; }
+                    localStorage.setItem('userUid', userUid);
+                    displayUserData(userData, user);
+                })
+                .catch((error) => {
+                    console.error('Error loading user data:', error);
+                    const storedData = localStorage.getItem('userData');
+                    if (storedData) { try { const parsed = JSON.parse(storedData); if (parsed && parsed.first_name) { displayUserData(parsed, parsed); return; } } catch (e) {} }
+                });
+        }
+
+        function displayUserData(userData, user) {
+            const firstName = userData.first_name || 'User';
+            const lastName = userData.last_name || '';
+            const email = userData.email || (user ? user.email : '');
+            const phone = userData.phone_number || 'N/A';
+            const country = userData.country || 'N/A';
+            const balance = userData.balance || 0;
+
+            document.getElementById('welcomeName').textContent = 'Welcome ' + firstName;
+            setWalletBalanceAmount(balance);
+            document.getElementById('profileName').textContent = firstName + ' ' + lastName;
+            document.getElementById('profileEmail').textContent = email;
+            document.getElementById('sidebarFirstName').textContent = firstName;
+            document.getElementById('sidebarLastName').textContent = lastName;
+
+            setTotalDeposit("loading");
+            setInvestmentPackages("loading");
+
+            const userInfo = { uid: user.uid || 'anonymous', email: email, first_name: firstName, last_name: lastName, phone_number: phone, country: country, balance: balance };
+            localStorage.setItem('userData', JSON.stringify(userInfo));
+            localStorage.setItem('isLoggedIn', 'true');
+
+            const chatKeyUid = localStorage.getItem('userUid') || user.uid;
+            if (chatKeyUid) {
+                attachDepositListener(chatKeyUid);
+                attachInvestmentListener(chatKeyUid);
+                attachNotificationListener(chatKeyUid);
+                attachTierListener(chatKeyUid);
+            } else {
+                // No UID available → show default tier safely (never leave "..." forever)
+                setTierBadge("default");
+            }
+
+            window.dispatchEvent(new CustomEvent('userDataReady', { detail: userInfo }));
+        }
+
+        let depositsListenerRef = null, depositsListener = null;
+        function attachDepositListener(uid) {
+            if (depositsListenerRef && depositsListener) { depositsListenerRef.off("value", depositsListener); depositsListenerRef = null; depositsListener = null; }
+            if (!uid) { setTotalDeposit("loading"); return; }
+            depositsListenerRef = database.ref("users/" + uid);
+            depositsListener = depositsListenerRef.on("value", (snap) => {
+                const u = snap.val() || {};
+                const deposits = u.deposits || {};
+                let approvedTotal = 0, approvedCount = 0;
+                Object.values(deposits).forEach((d) => {
+                    if (!d || typeof d !== "object") return;
+                    if (String(d.status || "").toLowerCase() === "approved") {
+                        const amt = Number(d.amount || 0);
+                        if (Number.isFinite(amt) && amt > 0) { approvedTotal += amt; approvedCount++; }
+                    }
+                });
+                const adjustment = Number(u.deposit_adjustment || 0);
+                setTotalDeposit(Math.max(0, approvedTotal + adjustment));
+            }, (err) => { console.error("Deposit listener error:", err); });
+        }
+
+        let investmentsListenerRef = null, investmentsListener = null;
+        function attachInvestmentListener(uid) {
+            if (investmentsListenerRef && investmentsListener) { investmentsListenerRef.off("value", investmentsListener); investmentsListenerRef = null; investmentsListener = null; }
+            if (!uid) { setInvestmentPackages("loading"); return; }
+            investmentsListenerRef = database.ref("users/" + uid);
+            investmentsListener = investmentsListenerRef.on("value", (snap) => {
+                const u = snap.val() || {};
+                const investments = u.investments || {};
+                let approvedCount = 0, totalInvested = 0;
+                Object.values(investments).forEach((inv) => {
+                    if (!inv || typeof inv !== "object") return;
+                    if (String(inv.status || "").toLowerCase() === "approved") {
+                        approvedCount++;
+                        const amt = Number(inv.amount || 0);
+                        if (Number.isFinite(amt) && amt > 0) totalInvested += amt;
+                    }
+                });
+                // ---- read BOTH count-adjustment and amount-adjustment ----
+                const countAdjustment  = Number(u.package_adjustment        || 0);
+                const amountAdjustment = Number(u.package_amount_adjustment || 0);
+                setInvestmentPackages(
+                    Math.max(0, approvedCount + countAdjustment),
+                    Math.max(0, totalInvested + amountAdjustment)
+                );
+            }, (err) => { console.error("Investment listener error:", err); });
+        }
+
+        let notifListenerRef = null, notifListener = null, lastUnreadCount = 0;
+        function attachNotificationListener(uid) {
+            if (notifListenerRef && notifListener) { notifListenerRef.off("value", notifListener); notifListenerRef = null; notifListener = null; }
+            if (!uid) { updateNotifBadges(0); return; }
+            notifListenerRef = database.ref("users/" + uid + "/notifications");
+            notifListener = notifListenerRef.on("value", (snap) => {
+                const data = snap.val() || {};
+                let unread = 0;
+                Object.keys(data).forEach((key) => {
+                    if (key === "_meta" || key === "settings") return;
+                    const v = data[key];
+                    if (!v || typeof v !== "object") return;
+                    if (!v.read) unread++;
+                });
+                updateNotifBadges(unread);
+                if (unread > lastUnreadCount) pulseBell();
+                lastUnreadCount = unread;
+            }, (err) => { console.error("Notification listener error:", err); });
+        }
+
+        function updateNotifBadges(count) {
+            const n = Number(count) || 0;
+            const text = n > 99 ? "99+" : String(n);
+            const bellBadge = document.getElementById("notifBellBadge");
+            if (bellBadge) { if (n > 0) { bellBadge.textContent = text; bellBadge.classList.add("show"); } else { bellBadge.classList.remove("show"); } }
+            const sideBadge = document.getElementById("notifSideBadge");
+            if (sideBadge) { if (n > 0) { sideBadge.textContent = text; sideBadge.classList.add("show"); } else { sideBadge.classList.remove("show"); } }
+        }
+
+        function pulseBell() {
+            const btn = document.getElementById("notifBellBtn"); if (!btn) return;
+            btn.classList.add("has-new");
+            setTimeout(() => btn.classList.remove("has-new"), 5000);
+        }
+
+        function handleLogout() {
+            if (depositsListenerRef && depositsListener) { depositsListenerRef.off("value", depositsListener); depositsListenerRef = null; depositsListener = null; }
+            if (investmentsListenerRef && investmentsListener) { investmentsListenerRef.off("value", investmentsListener); investmentsListenerRef = null; investmentsListener = null; }
+            if (notifListenerRef && notifListener) { notifListenerRef.off("value", notifListener); notifListenerRef = null; notifListener = null; }
+            if (tierListenerRef && tierListener) { tierListenerRef.off("value", tierListener); tierListenerRef = null; tierListener = null; }
+            try { const uid = localStorage.getItem("userUid") || "anon"; localStorage.removeItem("cwAutoReplyCount_" + uid); } catch (e) {}
+            auth.signOut().then(() => {
+                localStorage.removeItem('userData'); localStorage.removeItem('userUid'); localStorage.removeItem('isLoggedIn');
+                window.location.href = 'login.html';
+            }).catch((error) => { console.error('Logout error:', error); });
+        }
+
+        auth.onAuthStateChanged((user) => {
+            if (user) { loadUserData(user); }
+            else {
+                const storedData = localStorage.getItem('userData');
+                if (storedData) {
+                    try {
+                        const userData = JSON.parse(storedData);
+                        if (userData && userData.email) {
+                            auth.signInAnonymously().then((cred) => { loadUserData(cred.user); }).catch(() => { window.location.href = 'login.html'; });
+                            return;
+                        }
+                    } catch (e) { console.error('Error parsing stored data:', e); }
+                }
+                window.location.href = 'login.html';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+            if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener('click', handleLogout);
+
+            const storedData = localStorage.getItem('userData');
+            if (storedData) {
+                try {
+                    const userData = JSON.parse(storedData);
+                    if (userData && userData.first_name) {
+                        const balance = userData.balance || 0;
+                        document.getElementById('welcomeName').textContent = 'Welcome ' + userData.first_name;
+                        setWalletBalanceAmount(balance);
+                        document.getElementById('profileName').textContent = userData.first_name + ' ' + (userData.last_name || '');
+                        document.getElementById('profileEmail').textContent = userData.email || '';
+                        document.getElementById('sidebarFirstName').textContent = userData.first_name;
+                        document.getElementById('sidebarLastName').textContent = userData.last_name || '';
+
+                        setTotalDeposit("loading");
+                        setInvestmentPackages("loading");
+                        setTierLoading();
+
+                        const storedUid = localStorage.getItem('userUid');
+                        if (storedUid) {
+                            attachDepositListener(storedUid);
+                            attachInvestmentListener(storedUid);
+                            attachNotificationListener(storedUid);
+                            attachTierListener(storedUid);
+                        } else {
+                            // No UID yet → show default tier so it never stays on "..."
+                            setTierBadge("default");
+                        }
+                    }
+                } catch (e) { console.error('Error parsing stored data:', e); }
+            }
+        });
+
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) { const user = auth.currentUser; if (user) loadUserData(user); }
+        });
+    </script>
+
+	<!-- ============================================================
+	     USER CHAT WIDGET MARKUP
+	     ============================================================ -->
+	<div id="chatWidgetBackdrop" class="chat-widget-backdrop" onclick="closeUserChat()"></div>
+
+	<div id="chatWidget" class="chat-widget" role="dialog" aria-label="TSLPA Customer Care">
+		<div class="chat-widget-header">
+			<div class="cw-avatar"><img src="../assets/img/customer-care.jpeg" alt="Customer Care" /></div>
+			<div class="cw-info">
+				<strong>TSLPA Customer Care</strong>
+				<span id="cwStatus">Online</span>
+			</div>
+			<button class="cw-close" onclick="closeUserChat()" aria-label="Close chat"><i class="fas fa-times"></i></button>
+		</div>
+		<div class="chat-widget-messages" id="cwMessages">
+			<div class="cw-empty">
+				<div class="cw-empty-icon">💬</div>
+				Send us a message — we'll reply as soon as possible.
+			</div>
+		</div>
+
+		<input type="file" id="cwFileInput" accept="image/*" />
+
+		<div class="chat-widget-composer">
+			<button class="cw-attach" id="cwAttachBtn" type="button" aria-label="Attach image" title="Attach image"><i class="fas fa-paperclip"></i></button>
+			<textarea id="cwInput" rows="1" placeholder="Type your message..." maxlength="2000" enterkeyhint="send"></textarea>
+			<button class="cw-send" id="cwSendBtn" onclick="sendUserChat()" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+		</div>
+	</div>
+
+	<button id="chatFab" class="chat-fab" onclick="toggleUserChat()" aria-label="Open support chat">
+		<i class="fas fa-comment-dots"></i>
+		<span class="chat-fab-badge" id="chatFabBadge">0</span>
+	</button>
+
+	<!-- ============================================================
+	     USER CHAT WIDGET LOGIC
+	     ============================================================ -->
+	<script>
+	(function () {
+		const SUPABASE_URL = "https://mesdakdrdvumkdongjdj.supabase.co";
+		const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Rha2RyZHZ1bWtkb25namRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODYwMzYsImV4cCI6MjEwMzc2MjAzNn0.rwTkCckVTYj-qzRIDK7CPwnxYqLOdZtQnFFYMBWMRHg";
+		const BUCKET_NAME = "proof";
+		const CHAT_FOLDER = "chat";
+
+		let supabaseClient = null;
+		function getSupabase() {
+			if (supabaseClient) return supabaseClient;
+			if (typeof supabase === "undefined" || !supabase.createClient) { console.error("[cw] Supabase SDK not loaded."); return null; }
+			supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+			return supabaseClient;
+		}
+
+		const chatState = { uid: null, email: null, name: null, ref: null, listener: null, unread: 0 };
+		const $ = (id) => document.getElementById(id);
+
+		function escapeHTML(v) {
+			return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+		}
+		function fmtTime(ts) {
+			if (!ts) return "";
+			const d = new Date(Number(ts));
+			if (isNaN(d.getTime())) return "";
+			return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+		}
+		function fmtDateSep(ts) {
+			const d = new Date(Number(ts));
+			if (isNaN(d.getTime())) return "";
+			const now = new Date();
+			if (d.toDateString() === now.toDateString()) return "Today";
+			const y = new Date(now); y.setDate(now.getDate() - 1);
+			if (d.toDateString() === y.toDateString()) return "Yesterday";
+			return d.toLocaleDateString([], { weekday: "long", day: "2-digit", month: "long" });
+		}
+		function resolveUser() {
+			let uid = null, email = null, name = null;
+			try { uid = localStorage.getItem("userUid"); } catch (e) {}
+			try {
+				const raw = localStorage.getItem("userData");
+				if (raw) {
+					const parsed = JSON.parse(raw);
+					email = parsed.email || null;
+					name = `${parsed.first_name || ""} ${parsed.last_name || ""}`.trim() || null;
+					if (!uid && parsed.uid && parsed.uid !== "anonymous") uid = parsed.uid;
+				}
+			} catch (e) {}
+			try {
+				if (typeof firebase !== "undefined" && firebase.auth) {
+					const u = firebase.auth().currentUser;
+					if (u) { if (!uid && u.uid) uid = u.uid; if (!email && u.email) email = u.email; }
+				}
+			} catch (e) {}
+			if (!uid && email) uid = email.replace(/[.#$/\[\]]/g, "_");
+			return { uid, email, name };
+		}
+
+		function initChat() {
+			const { uid, email, name } = resolveUser();
+			if (!uid) { setTimeout(initChat, 800); return; }
+			if (chatState.uid === uid && chatState.listener) return;
+			if (chatState.listener && chatState.ref) chatState.ref.off("value", chatState.listener);
+			chatState.uid = uid; chatState.email = email; chatState.name = name;
+			chatState.ref = database.ref("chat/" + uid);
+			chatState.listener = chatState.ref.on("value", (snap) => {
+				const data = snap.val() || {};
+				renderMessages(data);
+				updateUnread(data);
+			}, (err) => { console.error("Chat listener error:", err); });
+		}
+
+		function collectMessages(data) {
+			const out = [];
+			if (!data || typeof data !== "object") return out;
+			Object.keys(data).forEach((k) => {
+				if (k === "_meta" || k === "email" || k === "userKey") return;
+				const v = data[k];
+				if (v && typeof v === "object" && (v.message !== undefined || v.text !== undefined || v.content !== undefined || v.image_url !== undefined)) out.push({ id: k, ...v });
+			});
+			if (data.messages && typeof data.messages === "object") {
+				Object.keys(data.messages).forEach((k) => { const v = data.messages[k]; if (v && typeof v === "object") out.push({ id: k, ...v }); });
+			}
+			out.sort((a, b) => Number(a.timestamp || a.createdAt || 0) - Number(b.timestamp || b.createdAt || 0));
+			return out;
+		}
+
+		function renderMessages(data) {
+			const box = $("cwMessages"); if (!box) return;
+			const items = collectMessages(data);
+			if (!items.length) {
+				box.innerHTML = `<div class="cw-empty"><div class="cw-empty-icon">💬</div>Send us a message — we'll reply as soon as possible.</div>`;
+				return;
+			}
+			const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+			box.innerHTML = "";
+			let lastDateKey = "";
+			items.forEach((m) => {
+				const ts = Number(m.timestamp || m.createdAt || 0);
+				const dateKey = ts ? new Date(ts).toDateString() : "";
+				if (dateKey && dateKey !== lastDateKey) {
+					const sep = document.createElement("div"); sep.className = "cw-date-sep"; sep.textContent = fmtDateSep(ts);
+					box.appendChild(sep); lastDateKey = dateKey;
+				}
+				const sender = String(m.sender || m.role || "").toLowerCase();
+				const isCustomer = sender === "customer" || sender === "user" || sender === "client" || (!sender && m.email);
+				const row = document.createElement("div"); row.className = "cw-msg-row " + (isCustomer ? "customer" : "care");
+				const bubble = document.createElement("div"); bubble.className = "cw-bubble";
+				const isImage = (m.type === "image" && m.image_url) || (typeof m.image_url === "string" && m.image_url.length > 0);
+				if (isImage) {
+					bubble.classList.add("cw-bubble-image");
+					const img = document.createElement("img"); img.src = m.image_url; img.alt = m.filename || "chat image"; img.loading = "lazy";
+					img.addEventListener("click", () => { window.open(m.image_url, "_blank", "noopener,noreferrer"); });
+					if (m.message && String(m.message).trim() !== "" && m.message !== "[image]") {
+						const cap = document.createElement("span"); cap.className = "cw-image-caption"; cap.textContent = String(m.message);
+						bubble.appendChild(img); bubble.appendChild(cap);
+					} else bubble.appendChild(img);
+				} else {
+					const text = document.createElement("div");
+					text.innerHTML = escapeHTML(m.message ?? m.text ?? m.content ?? "").replace(/\n/g, "<br>");
+					bubble.appendChild(text);
+				}
+				const t = document.createElement("span"); t.className = "cw-msg-time"; t.textContent = fmtTime(ts);
+				bubble.appendChild(t); row.appendChild(bubble); box.appendChild(row);
+			});
+			if (nearBottom) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+		}
+
+		function updateUnread(data) {
+			const items = collectMessages(data);
+			const lastRead = Number((data && data._meta && data._meta.userLastRead) || 0);
+			let unread = 0;
+			items.forEach((m) => {
+				const sender = String(m.sender || "").toLowerCase();
+				const ts = Number(m.timestamp || m.createdAt || 0);
+				if (sender === "customer" || sender === "user" || sender === "client") return;
+				if (ts > lastRead) unread++;
+			});
+			chatState.unread = unread;
+			const badge = $("chatFabBadge");
+			if (badge) { if (unread > 0) { badge.textContent = unread > 99 ? "99+" : String(unread); badge.classList.add("show"); } else { badge.classList.remove("show"); } }
+		}
+
+		function toggleUserChat() { const w = $("chatWidget"); if (!w) return; if (w.classList.contains("open")) closeUserChat(); else openUserChat(); }
+
+		function lockPageScroll() {
+			document.documentElement.classList.add("cw-lock");
+			document.body.classList.add("cw-lock");
+			document.body.style.overflow = "hidden";
+		}
+		function unlockPageScroll() {
+			document.documentElement.classList.remove("cw-lock");
+			document.body.classList.remove("cw-lock");
+			document.body.style.overflow = "";
+		}
+
+		function openUserChat() {
+			const w = $("chatWidget"), b = $("chatWidgetBackdrop"); if (!w) return;
+			w.classList.add("open"); if (b) b.classList.add("show"); lockPageScroll();
+			if (chatState.ref) chatState.ref.child("_meta/userLastRead").set(firebase.database.ServerValue.TIMESTAMP).catch(() => {});
+			chatState.unread = 0;
+			const badge = $("chatFabBadge"); if (badge) badge.classList.remove("show");
+			setTimeout(() => {
+				const box = $("cwMessages"); if (box) box.scrollTop = box.scrollHeight;
+				const input = $("cwInput"); if (input && window.innerWidth > 600) input.focus();
+			}, 200);
+		}
+
+		function closeUserChat() {
+			const w = $("chatWidget"), b = $("chatWidgetBackdrop"); if (!w) return;
+			w.classList.remove("open"); if (b) b.classList.remove("show"); unlockPageScroll();
+		}
+
+		const AUTO_REPLIES = [
+			"Thank you for contacting our Customer Support Team.",
+			"To ensure your inquiry is handled promptly and efficiently, please provide your email address. One of our authorized support representatives will review your request and contact you directly via email.",
+			"If you have any additional questions or relevant information, please include them in your response.",
+			"We appreciate your patience and thank you for choosing our services."
+		];
+
+		function getAutoReplyCount() { try { const key = "cwAutoReplyCount_" + (chatState.uid || "anon"); const raw = localStorage.getItem(key); const n = parseInt(raw, 10); return Number.isFinite(n) && n > 0 ? n : 0; } catch (e) { return 0; } }
+		function setAutoReplyCount(n) { try { const key = "cwAutoReplyCount_" + (chatState.uid || "anon"); localStorage.setItem(key, String(n)); } catch (e) {} }
+
+		function maybeSendAutoReply(userKey) {
+			const count = getAutoReplyCount(); if (count >= AUTO_REPLIES.length) return;
+			const message = AUTO_REPLIES[count];
+			setTimeout(async () => {
+				try {
+					const ref = database.ref("chat/" + userKey).push();
+					await ref.set({ email: chatState.email || "", message: message, sender: "care", timestamp: firebase.database.ServerValue.TIMESTAMP, auto: true });
+					await database.ref("chat/" + userKey).update({ email: chatState.email || "", userKey: userKey, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+					setAutoReplyCount(count + 1);
+					const box = document.getElementById("cwMessages");
+					if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+				} catch (e) { console.error("maybeSendAutoReply error:", e); }
+			}, 5000);
+		}
+
+		function sanitizeName(name) { return String(name || "").toLowerCase().replace(/[^a-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 80) || "image"; }
+
+		async function uploadImageToSupabase(file) {
+			const client = getSupabase(); if (!client) throw new Error("Storage client unavailable.");
+			if (!file || !file.type || !file.type.startsWith("image/")) throw new Error("Only image files are allowed.");
+			const MAX_BYTES = 8 * 1024 * 1024;
+			if (file.size > MAX_BYTES) throw new Error("Image is too large (max 8 MB).");
+			const ext = (file.name.split(".").pop() || "jpg").toLowerCase().slice(0, 6);
+			const stamp = Date.now(); const rand = Math.random().toString(36).slice(2, 8);
+			const safeUser = sanitizeName(chatState.email || chatState.uid || "user");
+			const fileName = `chat_${stamp}_${rand}.${ext}`;
+			const path = `${CHAT_FOLDER}/${safeUser}_${fileName}`;
+			const { error: upErr } = await client.storage.from(BUCKET_NAME).upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+			if (upErr) throw upErr;
+			const { data: pub } = client.storage.from(BUCKET_NAME).getPublicUrl(path);
+			return { path, publicUrl: pub && pub.publicUrl ? pub.publicUrl : "", filename: file.name, size: file.size, mime: file.type };
+		}
+
+		async function sendUserImage(file) {
+			if (!chatState.uid) return; if (!file) return;
+			const attachBtn = $("cwAttachBtn"), sendBtn = $("cwSendBtn"), input = $("cwInput");
+			if (attachBtn) { attachBtn.disabled = true; attachBtn.classList.add("is-uploading"); }
+			if (sendBtn) sendBtn.disabled = true;
+			try {
+				const uploaded = await uploadImageToSupabase(file);
+				const pushRef = database.ref("chat/" + chatState.uid).push();
+				await pushRef.set({ email: chatState.email || "", message: "[image]", type: "image", image_url: uploaded.publicUrl, image_path: uploaded.path, filename: uploaded.filename, file_size: uploaded.size, file_type: uploaded.mime, sender: "customer", timestamp: firebase.database.ServerValue.TIMESTAMP });
+				await database.ref("chat/" + chatState.uid).update({ email: chatState.email || "", userKey: chatState.uid, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+				maybeSendAutoReply(chatState.uid);
+				const box = $("cwMessages"); if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+			} catch (e) { console.error("sendUserImage error:", e); alert("Failed to upload image: " + (e.message || "unknown error")); }
+			finally {
+				if (attachBtn) { attachBtn.disabled = false; attachBtn.classList.remove("is-uploading"); }
+				if (sendBtn) sendBtn.disabled = false;
+				if (input && window.innerWidth > 600) input.focus();
+			}
+		}
+
+		async function sendUserChat() {
+			if (!chatState.uid) return;
+			const input = $("cwInput"), btn = $("cwSendBtn"); if (!input || !btn) return;
+			const text = String(input.value || "").trim();
+			if (!text) { input.focus(); return; }
+			if (text.length > 2000) return;
+			btn.disabled = true;
+			try {
+				const pushRef = database.ref("chat/" + chatState.uid).push();
+				await pushRef.set({ email: chatState.email || "", message: text, sender: "customer", timestamp: firebase.database.ServerValue.TIMESTAMP });
+				await database.ref("chat/" + chatState.uid).update({ email: chatState.email || "", userKey: chatState.uid, updatedAt: firebase.database.ServerValue.TIMESTAMP });
+				input.value = ""; input.style.height = "42px";
+				const box = $("cwMessages"); if (box) requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+				maybeSendAutoReply(chatState.uid);
+			} catch (e) { console.error("sendUserChat error:", e); alert("Failed to send message. Please try again."); }
+			finally { btn.disabled = false; if (window.innerWidth > 600) input.focus(); }
+		}
+
+		function bindComposer() {
+			const input = $("cwInput"); if (!input || input.dataset.bound === "1") return; input.dataset.bound = "1";
+			input.addEventListener("input", function () { this.style.height = "42px"; this.style.height = Math.min(this.scrollHeight, 110) + "px"; });
+			input.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 600) { e.preventDefault(); sendUserChat(); } });
+		}
+
+		function bindAttachButton() {
+			const attachBtn = $("cwAttachBtn"), fileInput = $("cwFileInput");
+			if (!attachBtn || !fileInput) return; if (attachBtn.dataset.bound === "1") return; attachBtn.dataset.bound = "1";
+			attachBtn.addEventListener("click", (e) => { e.preventDefault(); fileInput.value = ""; fileInput.click(); });
+			fileInput.addEventListener("change", () => { const f = fileInput.files && fileInput.files[0]; if (!f) return; sendUserImage(f); });
+		}
+
+		document.addEventListener("DOMContentLoaded", () => { bindComposer(); bindAttachButton(); initChat(); });
+		window.addEventListener("userDataReady", () => { setTimeout(initChat, 100); });
+		try { if (typeof firebase !== "undefined" && firebase.auth) { firebase.auth().onAuthStateChanged(() => { setTimeout(initChat, 400); }); } } catch (e) {}
+
+		window.toggleUserChat = toggleUserChat;
+		window.openUserChat   = openUserChat;
+		window.closeUserChat  = closeUserChat;
+		window.sendUserChat   = sendUserChat;
+		window.sendUserImage  = sendUserImage;
+	})();
+	</script>
+
+    <!-- Core JS Files -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<script src="../assets/js/atlantis.min.js"></script>
+
+	<script>
+		var SweetAlert2Demo = function() {
+			var initDemos = function() {
+				$('#alert_demo_1').click(function(e) { swal('Good job!', { buttons: { confirm: { className : 'btn btn-success' } } }); });
+				$('#alert_demo_2').click(function(e) { swal("Here's the title!", "...and here's the text!", { buttons: { confirm: { className : 'btn btn-success' } } }); });
+				$('#alert_demo_3_1').click(function(e) { swal("Good job!", "You clicked the button!", { icon : "warning", buttons: { confirm : { className : 'btn btn-warning' } } }); });
+				$('#alert_demo_3_2').click(function(e) { swal("Good job!", "You clicked the button!", { icon : "error", buttons : { confirm : { className : 'btn btn-danger' } } }); });
+				$('#alert_demo_3_3').click(function(e) { swal("Good job!", "You clicked the button!", { icon : "success", buttons : { confirm : { className : 'btn btn-success' } } }); });
+				$('#alert_demo_3_4').click(function(e) { swal("Good job!", "You clicked the button!", { icon : "info", buttons : { confirm : { className : 'btn btn-info' } } }); });
+				$('#alert_demo_4').click(function(e) { swal({ title: "Good job!", text: "You clicked the button!", icon: "success", buttons: { confirm: { text: "Confirm Me", value: true, visible: true, className: "btn btn-success", closeModal: true } } }); });
+				$('#alert_demo_5').click(function(e){ swal({ title: 'Input Something', html: '<br><input class="form-control" placeholder="Input Something" id="input-field">', content: { element: "input", attributes: { placeholder: "Input Something", type: "text", id: "input-field", className: "form-control" } }, buttons: { cancel: { visible: true, className: 'btn btn-danger' }, confirm: { className : 'btn btn-success' } } }).then(function() { swal("", "You entered : " + $('#input-field').val(), "success"); }); });
+				$('#alert_demo_6').click(function(e) { swal("This modal will disappear soon!", { buttons: false, timer: 3000 }); });
+				$('#alert_demo_7').click(function(e) { swal({ title: 'Are you sure?', text: "You won't be able to revert this!", type: 'warning', buttons:{ confirm: { text : 'Yes, delete it!', className : 'btn btn-success' }, cancel: { visible: true, className : 'btn btn-danger' } } }).then((Delete) => { if (Delete) { swal({ title: 'Deleted!', text: 'Your file has been deleted.', type: 'success', buttons : { confirm: { className : 'btn btn-success' } } }); } else { swal.close(); } }); });
+				$('#alert_demo_8').click(function(e) { swal({ title: 'Are you sure?', text: "You won't be able to revert this!", type: 'warning', buttons:{ cancel: { visible: true, text : 'No, cancel!', className : 'btn btn-danger' }, confirm: { text : 'Yes, delete it!', className : 'btn btn-success' } } }).then((willDelete) => { if (willDelete) { swal("Poof! Your imaginary file has been deleted!", { icon: "success", buttons : { confirm : { className: 'btn btn-success' } } }); } else { swal("Your imaginary file is safe!", { buttons : { confirm : { className: 'btn btn-success' } } }); } }); });
+			};
+			return { init: function() { initDemos(); } };
+		}();
+
+		jQuery(document).ready(function() { SweetAlert2Demo.init(); });
+	</script>
+
+</body>
+</html>

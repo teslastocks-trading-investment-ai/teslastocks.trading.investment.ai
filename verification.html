@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Verification</title>
+    <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+
+    <link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+    <!-- Fonts and icons -->
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { families: ["Lato:300,400,700,900"] },
+            custom: {
+                families: ["Flaticon","Font Awesome 5 Solid","Font Awesome 5 Regular","Font Awesome 5 Brands","simple-line-icons"],
+                urls: ["../assets/css/fonts.min.css"]
+            },
+            active: function() { sessionStorage.fonts = true; }
+        });
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/atlantis.min.css">
+    <link rel="stylesheet" href="../assets/css/demo.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        .verification-card { border-radius: 8px; overflow: hidden; }
+
+        .verification-box {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+        }
+
+        .verification-icon i { font-size: 40px; }
+
+        .verification-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .verification-text {
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .user-loading { opacity: 0.7; }
+
+        .btn-verify {
+            background: #4ade80;
+            color: #0f1720;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all .25s;
+        }
+        .btn-verify:hover { background: #22c55e; color: #0f1720; }
+
+        /* ===== Modal ===== */
+        .vf-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .vf-modal-backdrop.open { display: flex; }
+
+        .vf-modal {
+            background: #1a1d21;
+            color: #fff;
+            width: 100%;
+            max-width: 520px;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+        .vf-modal h4 {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+        .vf-modal p.sub {
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .vf-modal label {
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .vf-modal .form-control {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .vf-modal .form-control:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: #4ade80;
+            color: #fff;
+            outline: none;
+            box-shadow: none;
+        }
+        .vf-modal .form-control option { background: #1a1d21; color: #fff; }
+
+        .vf-wallet-hint {
+            background: rgba(74,222,128,0.07);
+            border: 1px solid rgba(74,222,128,0.18);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12.5px;
+            color: #4ade80;
+            margin-top: -8px;
+            margin-bottom: 16px;
+            word-break: break-all;
+            display: none;
+        }
+        .vf-wallet-hint.show { display: block; }
+
+        .vf-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .vf-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all .25s;
+        }
+        .vf-btn-submit {
+            background: #4ade80;
+            color: #0f1720;
+        }
+        .vf-btn-submit:hover:not(:disabled) { background: #22c55e; }
+        .vf-btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+        .vf-btn-cancel {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .vf-btn-cancel:hover { background: rgba(255,255,255,0.12); }
+
+        .vf-alert {
+            display: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+        .vf-alert.show { display: block; }
+        .vf-alert.success { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+        .vf-alert.danger  { background: rgba(239,68,68,0.12);  color: #ef4444; border: 1px solid rgba(239,68,68,0.25); }
+
+        .vf-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(15,23,32,0.3);
+            border-top-color: #0f1720;
+            border-radius: 50%;
+            animation: vfspin .7s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        @keyframes vfspin { to { transform: rotate(360deg); } }
+
+        /* ============================================================
+           NOTIFICATION BELL (top navbar)
+           ============================================================ */
+        .notif-bell-btn {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #d0dcf0;
+            font-size: 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            margin-right: 10px;
+        }
+        .notif-bell-btn:hover {
+            background: rgba(59, 130, 246, 0.18);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+        .notif-bell-btn:active { transform: scale(0.94); }
+        .notif-bell-btn .notif-bell-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 20px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10.5px;
+            font-weight: 800;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+            border: 2px solid #0b0f1a;
+        }
+        .notif-bell-btn .notif-bell-badge.show { display: flex; }
+
+        @keyframes bellPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+            70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+        /* ============================================================
+           SIDEBAR NOTIFICATION BADGE
+           ============================================================ */
+        .nav-item .notif-side-badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: #fff;
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+        }
+        .nav-item .notif-side-badge.show { display: inline-block; }
+
+        @media (max-width: 991px) {
+            .notif-bell-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 15px;
+                margin-right: 6px;
+            }
+            .notif-bell-btn .notif-bell-badge {
+                min-width: 18px;
+                height: 18px;
+                font-size: 10px;
+            }
+        }
+
+        /* ============================================================
+           MOBILE SIDEBAR TOGGLE FIX
+           ============================================================ */
+        .sidenav-toggler,
+        .toggle-sidebar,
+        .topbar-toggler,
+        .navbar-toggler {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            pointer-events: auto !important;
+            position: relative;
+            z-index: 20;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .sidebar-backdrop.show {
+            display: block;
+            opacity: 1;
+        }
+        @media (min-width: 992px) {
+            .sidebar-backdrop,
+            .sidebar-backdrop.show { display: none !important; }
+        }
+
+        @media (max-width: 991px) {
+            .sidebar { z-index: 1000 !important; }
+            .sidebar.open {
+                transform: translateX(0) !important;
+                left: 0 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+            }
+        }
+    </style>
+</head>
+
+<body data-background-color="dark">
+
+<div class="wrapper">
+
+    <!-- ========================= MAIN HEADER ========================= -->
+    <div class="main-header">
+        <div class="logo-header" data-background-color="dark2">
+            <a href="index.html" class="logo">
+                <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+            </a>
+            <button class="navbar-toggler sidenav-toggler ml-auto" type="button"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"><i class="icon-menu"></i></span>
+            </button>
+            <button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+            <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar" type="button"><i class="icon-menu"></i></button>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+            <div class="container-fluid">
+                <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+                    <!-- NOTIFICATION BELL -->
+                    <li class="nav-item mr-2">
+                        <a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notif-bell-badge" id="notifBellBadge">0</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown hidden-caret">
+                        <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                            <div class="avatar-sm">
+                                <img src="../assets/img/profile.png" alt="profile" class="avatar-img rounded-circle">
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user animated fadeIn">
+                            <div class="dropdown-user-scroll scrollbar-outer">
+                                <li>
+                                    <div class="user-box">
+                                        <div class="avatar-lg">
+                                            <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+                                        </div>
+                                        <div class="u-text">
+                                            <h4 id="profileName" class="user-loading">Loading...</h4>
+                                            <p class="text-muted" id="profileEmail">Loading...</p>
+                                            <a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="dropdown-divider"></div>
+                                    <button type="button" class="dropdown-item" onclick="logoutUser()">Logout</button>
+                                </li>
+                            </div>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+
+    <!-- ========================= SIDEBAR ========================= -->
+    <div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+            <div class="sidebar-content">
+                <div class="user">
+                    <div class="avatar-sm float-left mr-2">
+                        <img src="../assets/img/profile.png" alt="profile" class="avatar-img rounded-circle">
+                    </div>
+                    <div class="info">
+                        <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                            <span>
+                                <span id="sidebarFirstName">Loading...</span>
+                                <span class="user-level" id="sidebarLastName"></span>
+                                <span class="caret"></span>
+                            </span>
+                        </a>
+                        <div class="clearfix"></div>
+                        <div class="collapse in" id="collapseExample">
+                            <ul class="nav">
+                                <li><a href="profile.html"><span class="link-collapse">My Profile</span></a></li>
+                                <li><a href="password.html"><span class="link-collapse">Password</span></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-primary">
+                    <li class="nav-item"><a href="homepage.html"><i class="fas fa-home"></i><p>Dashboard</p></a></li>
+                    <li class="nav-item"><a href="deposit.html"><i class="fas fa-hotel"></i><p>Deposit</p></a></li>
+                    <li class="nav-item"><a href="transactions.html"><i class="fas fa-receipt"></i><p>Transactions</p></a></li>
+                    <li class="nav-item"><a href="stocks.html"><i class="fas fa-layer-group"></i><p>Tesla Stocks</p></a></li>
+                    <li class="nav-item">
+                        <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                            <i class="fas fa-coins"></i><p>Investment</p><span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="invest">
+                            <ul class="nav nav-collapse">
+                                <li><a href="investment-plan.html"><span class="sub-item">Investment Plan</span></a></li>
+                                <li><a href="invest.html"><span class="sub-item">Invest</span></a></li>
+                                <li><a href="my-investment.html"><span class="sub-item">My Investment</span></a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+                            <i class="fas fa-credit-card"></i><p>Withdrawal</p><span class="caret"></span>
+                        </a>
+                        <div class="collapse" id="withdrawal">
+                            <ul class="nav nav-collapse">
+                                <li><a href="wallet.html"><span class="sub-item">Wallet</span></a></li>
+                                <li><a href="wallet-pin.html"><span class="sub-item">Wallet Pin</span></a></li>
+                                <li><a href="withdrawal-request.html"><span class="sub-item">Withdrawal Request</span></a></li>
+                                <!-- NEW: Bank Transfer -->
+                                <li><a href="bank-transfer.html"><span class="sub-item">Bank Transfer</span></a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="verification.html"><i class="fas fa-id-card"></i><p>Verification</p></a>
+                    </li>
+
+                    <!-- NEW: Upgrade -->
+                    <li class="nav-item">
+                        <a href="upgrade.html"><i class="fas fa-crown"></i><p>Upgrade</p></a>
+                    </li>
+
+                    <!-- SIDEBAR NOTIFICATIONS LINK -->
+                    <li class="nav-item">
+                        <a href="notifications.html">
+                            <i class="fas fa-bell"></i>
+                            <p>Notifications</p>
+                            <span class="notif-side-badge" id="notifSideBadge">0</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button" class="btn-light btn-lg" onclick="logoutUser()">
+                            <i class="fa fa-power-off"></i> Sign Out
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- End Sidebar -->
+
+    <!-- Sidebar Backdrop (mobile) -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+
+    <!-- ========================= MAIN PANEL ========================= -->
+    <div class="main-panel">
+        <div class="content">
+            <div class="page-inner">
+
+                <div class="page-header">
+                    <h4 class="page-title">Verification</h4>
+                    <ul class="breadcrumbs">
+                        <li class="nav-home"><a href="#"><i class="fas fa-check-circle"></i></a></li>
+                    </ul>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card verification-card">
+                            <div class="card-body">
+                                <div class="verification-box bg-light text-dark" id="verificationBox">
+                                    <div class="verification-icon">
+                                        <i id="verificationIcon" class="fas fa-spinner fa-spin text-primary"></i>
+                                    </div>
+                                    <h2 id="verificationTitle" class="verification-title">
+                                        Loading verification status...
+                                    </h2>
+                                    <p id="verificationText" class="verification-text">
+                                        Please wait while we load your account.
+                                    </p>
+                                    <button type="button" id="verifyNowBtn" class="btn-verify" style="display:none;">
+                                        <i class="fas fa-shield-alt"></i> Verify Account
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="copyright ml-auto">
+                    All Rights Reserved &copy; <span id="myyear"></span> Laravel
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+
+<!-- ========================= VERIFICATION PAYMENT MODAL ========================= -->
+<div class="vf-modal-backdrop" id="vfModal">
+    <div class="vf-modal">
+        <h4>Account Verification</h4>
+        <p class="sub">Send payment to one of the wallets below, then upload proof to complete verification.</p>
+
+        <div id="vfAlert" class="vf-alert"></div>
+
+        <form id="vfForm">
+            <label for="vf_method">Payment Method</label>
+            <select class="form-control" id="vf_method" required>
+                <option value="">Select Payment Method</option>
+                <option value="Bitcoin"  data-address="bc1qfpqy9plk45ajqvwrrpgvkj5eh65gz7a3jny5h7">Bitcoin</option>
+                <option value="Ethereum" data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">Ethereum</option>
+                <option value="USDT"     data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">USDT (Tether)</option>
+                <option value="BNB"      data-address="0x1d26fd1ff0f295d9fbcdc08755473b986cdbf442">BNB (Binance Coin)</option>
+                <option value="Amazon Gift Card">Amazon Gift Card</option>
+                <option value="Google Play Gift Card">Google Play Gift Card</option>
+                <option value="Apple Gift Card">Apple Gift Card</option>
+                <option value="Steam Gift Card">Steam Gift Card</option>
+            </select>
+
+            <div class="vf-wallet-hint" id="vfWalletHint"></div>
+
+            <label for="vf_amount">Amount (USD)</label>
+            <input type="number" class="form-control" id="vf_amount" min="1" step="1" placeholder="Enter amount" required>
+
+            <label for="vf_proof">Proof of Payment</label>
+            <input type="file" class="form-control" id="vf_proof" name="vf_proof"
+                   accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/jif,.heic,.heif,.jif" required>
+
+            <div class="vf-actions">
+                <button type="button" class="vf-btn-cancel" id="vfCancelBtn">Cancel</button>
+                <button type="submit" class="vf-btn-submit" id="vfSubmitBtn">
+                    <span id="vfSubmitText">Submit Payment</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- ========================= FIREBASE + SUPABASE ========================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* =====================================================
+   MOBILE SIDEBAR TOGGLE — explicit handler
+===================================================== */
+(function setupMobileSidebarToggle() {
+    function getSidebar() {
+        return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+    }
+    function getBackdrop() {
+        return document.getElementById("sidebarBackdrop");
+    }
+    function openSidebar() {
+        const sidebar = getSidebar();
+        const backdrop = getBackdrop();
+        if (sidebar) sidebar.classList.add("open");
+        document.body.classList.add("sidebar-open");
+        if (backdrop) backdrop.classList.add("show");
+    }
+    function closeSidebar() {
+        const sidebar = getSidebar();
+        const backdrop = getBackdrop();
+        if (sidebar) sidebar.classList.remove("open");
+        document.body.classList.remove("sidebar-open");
+        if (backdrop) backdrop.classList.remove("show");
+    }
+    function toggleSidebar() {
+        const sidebar = getSidebar();
+        if (!sidebar) return;
+        if (sidebar.classList.contains("open")) closeSidebar();
+        else openSidebar();
+    }
+
+    document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+        if (!btn) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        toggleSidebar();
+    }, true);
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const backdrop = getBackdrop();
+        if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+        const sidebar = getSidebar();
+        if (sidebar) {
+            sidebar.addEventListener("click", function (e) {
+                const link = e.target.closest("a[href]");
+                if (!link) return;
+                if (window.innerWidth <= 991) closeSidebar();
+            });
+        }
+    });
+
+    window.addEventListener("resize", function () {
+        if (window.innerWidth >= 992) closeSidebar();
+    });
+
+    window.openMobileSidebar   = openSidebar;
+    window.closeMobileSidebar  = closeSidebar;
+    window.toggleMobileSidebar = toggleSidebar;
+})();
+
+/* =====================================================
+   CONFIG
+===================================================== */
+const firebaseConfig = {
+    apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+    authDomain: "elon-54b86.firebaseapp.com",
+    databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+    projectId: "elon-54b86",
+    storageBucket: "elon-54b86.firebasestorage.app",
+    messagingSenderId: "78755255517",
+    appId: "1:78755255517:web:65af61b0c573589ec0f734",
+    measurementId: "G-R4SQFCQPFP"
+};
+
+const SUPABASE_URL       = "https://mesdakdrdvumkdongjdj.supabase.co";
+const SUPABASE_ANON_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lc2Rha2RyZHZ1bWtkb25namRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxODYwMzYsImV4cCI6MjEwMzc2MjAzNn0.rwTkCckVTYj-qzRIDK7CPwnxYqLOdZtQnFFYMBWMRHg";
+const BUCKET_NAME        = "proof";
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth     = firebase.auth();
+const database = firebase.database();
+
+let supabaseClient   = null;
+let currentUserData  = null;
+let currentUserUid   = null;
+let notifListenerRef = null;
+let notifListener    = null;
+let lastUnreadCount  = 0;
+
+/* =====================================================
+   NOTIFICATION WRITER
+===================================================== */
+async function writeNotification(payload) {
+    try {
+        const uid = localStorage.getItem("userUid");
+        if (!uid) {
+            console.warn("[writeNotification] no userUid in localStorage");
+            return;
+        }
+        const ref = database.ref("users/" + uid + "/notifications").push();
+        await ref.set({
+            title: String(payload.title || "Notification").slice(0, 120),
+            message: String(payload.message || "").slice(0, 500),
+            type: payload.type || "info",
+            status: payload.status || null,
+            amount: (payload.amount != null && Number.isFinite(Number(payload.amount)))
+                        ? Number(payload.amount)
+                        : null,
+            createdAt: firebase.database.ServerValue.TIMESTAMP,
+            read: false
+        });
+    } catch (e) {
+        console.warn("[writeNotification] failed:", e);
+    }
+}
+window.writeNotification = writeNotification;
+
+/* =====================================================
+   NOTIFICATION LISTENER (updates bell + sidebar badge)
+===================================================== */
+function attachNotificationListener(uid) {
+    if (notifListenerRef && notifListener) {
+        notifListenerRef.off("value", notifListener);
+        notifListenerRef = null;
+        notifListener = null;
+    }
+    if (!uid) {
+        updateNotifBadges(0);
+        return;
+    }
+    notifListenerRef = database.ref("users/" + uid + "/notifications");
+    notifListener = notifListenerRef.on("value", (snap) => {
+        const data = snap.val() || {};
+        let unread = 0;
+        Object.keys(data).forEach((key) => {
+            if (key === "_meta" || key === "settings") return;
+            const v = data[key];
+            if (!v || typeof v !== "object") return;
+            if (!v.read) unread++;
+        });
+        updateNotifBadges(unread);
+        if (unread > lastUnreadCount) pulseBell();
+        lastUnreadCount = unread;
+    }, (err) => {
+        console.error("Notification listener error:", err);
+    });
+}
+
+function updateNotifBadges(count) {
+    const n = Number(count) || 0;
+    const text = n > 99 ? "99+" : String(n);
+
+    const bellBadge = document.getElementById("notifBellBadge");
+    if (bellBadge) {
+        if (n > 0) {
+            bellBadge.textContent = text;
+            bellBadge.classList.add("show");
+        } else {
+            bellBadge.classList.remove("show");
+        }
+    }
+
+    const sideBadge = document.getElementById("notifSideBadge");
+    if (sideBadge) {
+        if (n > 0) {
+            sideBadge.textContent = text;
+            sideBadge.classList.add("show");
+        } else {
+            sideBadge.classList.remove("show");
+        }
+    }
+}
+
+function pulseBell() {
+    const btn = document.getElementById("notifBellBtn");
+    if (!btn) return;
+    btn.classList.add("has-new");
+    setTimeout(() => btn.classList.remove("has-new"), 5000);
+}
+
+/* =====================================================
+   HELPERS
+===================================================== */
+function getSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    if (!window.supabase || typeof window.supabase.createClient !== "function") {
+        throw new Error("Supabase library not loaded. Check internet connection.");
+    }
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return supabaseClient;
+}
+
+function makeSafeFolderName(firstName, lastName) {
+    const fullName = `${firstName || ""} ${lastName || ""}`.trim();
+    return (fullName || "User")
+        .normalize("NFKD")
+        .replace(/[^\w\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .substring(0, 80) || "User";
+}
+
+function getFileExtension(file) {
+    const fromName = file.name.includes(".")
+        ? file.name.split(".").pop().toLowerCase()
+        : "";
+    if (fromName && /^[a-z0-9]+$/.test(fromName)) return fromName;
+
+    const mimeMap = {
+        "image/jpeg": "jpg",
+        "image/jpg":  "jpg",
+        "image/png":  "png",
+        "image/webp": "webp",
+        "image/heic": "heic",
+        "image/heif": "heif",
+        "image/gif":  "gif"
+    };
+    return mimeMap[file.type] || "jpg";
+}
+
+function showVfAlert(msg, type = "danger") {
+    const el = document.getElementById("vfAlert");
+    el.className = `vf-alert ${type} show`;
+    el.textContent = msg;
+    setTimeout(() => { el.className = "vf-alert"; }, 6000);
+}
+
+/* =====================================================
+   LOAD USER + RENDER VERIFICATION
+===================================================== */
+function loadVerificationUser() {
+    auth.onAuthStateChanged(function (user) {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        let userUid = localStorage.getItem("userUid") || user.uid;
+
+        database.ref("users/" + userUid).once("value")
+            .then(function (snapshot) {
+                const userData = snapshot.val();
+
+                if (!userData) {
+                    document.getElementById("profileName").textContent  = "User not found";
+                    document.getElementById("profileEmail").textContent = "";
+                    document.getElementById("sidebarFirstName").textContent = "User";
+                    document.getElementById("sidebarLastName").textContent  = "";
+
+                    document.getElementById("verificationIcon").className = "fas fa-exclamation-circle text-danger";
+                    document.getElementById("verificationTitle").textContent = "User profile not found";
+                    document.getElementById("verificationText").textContent  = "We could not find your profile information.";
+                    return;
+                }
+
+                currentUserData = userData;
+                currentUserUid  = userUid;
+
+                localStorage.setItem("userUid", userUid);
+                localStorage.setItem("userData", JSON.stringify(userData));
+
+                const firstName = userData.first_name || "";
+                const lastName  = userData.last_name  || "";
+                const fullName  = (firstName + " " + lastName).trim();
+                const email     = userData.email || user.email || "";
+
+                document.getElementById("profileName").textContent       = fullName || "User";
+                document.getElementById("profileEmail").textContent      = email;
+                document.getElementById("sidebarFirstName").textContent  = firstName || "User";
+                document.getElementById("sidebarLastName").textContent   = lastName;
+                document.getElementById("profileName").classList.remove("user-loading");
+
+                renderVerificationState(userData);
+
+                attachNotificationListener(userUid);
+            })
+            .catch(function (error) {
+                console.error("[VERIFICATION] Firebase error:", error);
+                document.getElementById("verificationIcon").className = "fas fa-exclamation-triangle text-danger";
+                document.getElementById("verificationTitle").textContent = "Error loading verification";
+                document.getElementById("verificationText").textContent  = error.message;
+            });
+    });
+}
+
+function renderVerificationState(userData) {
+    let status = userData.verification_status || userData.verificationStatus;
+    if (!status && userData.verified === true) status = "approved";
+    if (!status) status = "pending";
+    status = String(status).toLowerCase().trim();
+
+    const icon  = document.getElementById("verificationIcon");
+    const title = document.getElementById("verificationTitle");
+    const text  = document.getElementById("verificationText");
+    const btn   = document.getElementById("verifyNowBtn");
+
+    if (["approved","verified","complete","completed"].includes(status)) {
+        icon.className = "fas fa-check-circle text-success";
+        title.textContent = "User is verified.";
+        text.textContent  = "Your account verification has been approved.";
+        btn.style.display = "none";
+        return;
+    }
+
+    if (["rejected","declined","failed"].includes(status)) {
+        icon.className = "fas fa-times-circle text-danger";
+        title.textContent = "Verification rejected";
+        text.textContent  = "Your previous verification request was not approved. You may try again.";
+        btn.style.display = "inline-block";
+        return;
+    }
+
+    if (["review","under_review","processing"].includes(status)) {
+        icon.className = "fas fa-search text-warning";
+        title.textContent = "Verification under review";
+        text.textContent  = "Your verification information is currently being reviewed.";
+        btn.style.display = "none";
+        return;
+    }
+
+    icon.className = "fas fa-exclamation-circle text-warning";
+    title.textContent = "Account Not Verified";
+    text.textContent  = "Your account is not verified yet. Please verify your account to unlock all features.";
+    btn.style.display = "inline-block";
+}
+
+/* =====================================================
+   MODAL CONTROL
+===================================================== */
+const modal      = document.getElementById("vfModal");
+const methodSel  = document.getElementById("vf_method");
+const walletHint = document.getElementById("vfWalletHint");
+
+document.getElementById("verifyNowBtn").addEventListener("click", function () {
+    document.getElementById("vfForm").reset();
+    document.getElementById("vfAlert").className = "vf-alert";
+    walletHint.className = "vf-wallet-hint";
+    walletHint.textContent = "";
+    setVfSubmitting(false, "Submit Payment");
+    modal.classList.add("open");
+});
+
+document.getElementById("vfCancelBtn").addEventListener("click", function () {
+    modal.classList.remove("open");
+});
+
+modal.addEventListener("click", function (e) {
+    if (e.target === modal) modal.classList.remove("open");
+});
+
+methodSel.addEventListener("change", function () {
+    const opt     = methodSel.options[methodSel.selectedIndex];
+    const address = opt ? opt.getAttribute("data-address") : null;
+
+    if (address) {
+        walletHint.innerHTML =
+            `<strong>${opt.value} Address:</strong><br>${address}`;
+        walletHint.classList.add("show");
+    } else {
+        walletHint.className = "vf-wallet-hint";
+        walletHint.textContent = "";
+    }
+});
+
+/* =====================================================
+   SUBMIT VERIFICATION PAYMENT
+===================================================== */
+function setVfSubmitting(loading, label) {
+    const btn  = document.getElementById("vfSubmitBtn");
+    const txt  = document.getElementById("vfSubmitText");
+    btn.disabled = loading;
+    txt.innerHTML = loading
+        ? `<span class="vf-spinner"></span>${label}`
+        : label;
+}
+
+document.getElementById("vfForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    if (!currentUserUid || !currentUserData) {
+        showVfAlert("Your account is still loading. Please try again in a moment.");
+        return;
+    }
+
+    const method = methodSel.value;
+    const amount = Number(document.getElementById("vf_amount").value);
+    const file   = document.getElementById("vf_proof").files[0];
+
+    if (!method)                  return showVfAlert("Please select a payment method.");
+    if (!Number.isFinite(amount) || amount <= 0)
+                                  return showVfAlert("Please enter a valid amount.");
+    if (!file)                    return showVfAlert("Please upload proof of payment.");
+
+    const allowedExt = ["jpg","jpeg","png","heic","heif","jif"];
+    const ext        = getFileExtension(file);
+    if (!allowedExt.includes(ext)) {
+        return showVfAlert("Proof must be a jpg, jpeg, png, heic, or jif image.");
+    }
+    if (file.size > 10 * 1024 * 1024) {
+        return showVfAlert("Proof image must be 10 MB or smaller.");
+    }
+
+    const firstName  = currentUserData.first_name || "User";
+    const lastName   = currentUserData.last_name  || "";
+    const userName   = `${firstName} ${lastName}`.trim() || "User";
+    const folderName = makeSafeFolderName(firstName, lastName);
+    const timestamp  = Date.now();
+    const fileName   = `verification_${timestamp}.${ext}`;
+    const filePath   = `${folderName}/${fileName}`;
+
+    setVfSubmitting(true, "Uploading...");
+
+    try {
+        const supabase = getSupabaseClient();
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, file, {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type || "image/jpeg"
+            });
+
+        if (uploadError) {
+            console.error("Supabase upload error:", uploadError);
+            if (uploadError.message && (
+                uploadError.message.toLowerCase().includes("permission") ||
+                uploadError.message.includes("403"))) {
+                throw new Error("Supabase rejected the upload. Check Storage policy for the 'proof' bucket.");
+            }
+            throw new Error("Proof upload failed: " + uploadError.message);
+        }
+
+        const storedPath = (uploadData && uploadData.path) ? uploadData.path : filePath;
+
+        const { data: publicUrlData } = supabase.storage
+            .from(BUCKET_NAME)
+            .getPublicUrl(storedPath);
+
+        const proofUrl = (publicUrlData && publicUrlData.publicUrl) ? publicUrlData.publicUrl : "";
+
+        setVfSubmitting(true, "Saving...");
+
+        const vpRef = database.ref(`users/${currentUserUid}/verification_payment`);
+
+        const paymentData = {
+            amount: amount,
+            method: method,
+            method_label: method,
+            status: "pending",
+            user_uid:   currentUserUid,
+            user_name:  userName,
+            user_email: currentUserData.email || "",
+            proof_url:  proofUrl,
+            proof_path: storedPath,
+            filename:   file.name,
+            file_size:  file.size,
+            file_type:  file.type,
+            created_at: firebase.database.ServerValue.TIMESTAMP,
+            date:       new Date().toISOString()
+        };
+
+        await vpRef.set(paymentData);
+
+        await database.ref(`users/${currentUserUid}`).update({
+            verification_status: "pending",
+            verification_requested_at: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        writeNotification({
+            title: "Verification Submitted",
+            message: "Dear User, your verification request has been received and is currently under pending review.",
+            type: "info",
+            status: "pending"
+        });
+
+        showVfAlert("Verification payment submitted. Your account is now pending review.", "success");
+        setVfSubmitting(false, "✓ Submitted");
+
+        document.getElementById("verificationIcon").className  = "fas fa-clock text-warning";
+        document.getElementById("verificationTitle").textContent = "Verification pending review";
+        document.getElementById("verificationText").textContent  = "Your verification payment has been submitted. We will review it shortly.";
+        document.getElementById("verifyNowBtn").style.display   = "none";
+
+        setTimeout(() => { modal.classList.remove("open"); }, 2200);
+
+    } catch (err) {
+        console.error("[VERIFICATION] Submission error:", err);
+        showVfAlert(err.message || "Verification submission failed.");
+        setVfSubmitting(false, "Submit Payment");
+    }
+});
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+function logoutUser() {
+    try {
+        if (notifListenerRef && notifListener) {
+            notifListenerRef.off("value", notifListener);
+            notifListenerRef = null;
+            notifListener = null;
+        }
+    } catch (e) {}
+
+    auth.signOut()
+        .then(function () {
+            localStorage.removeItem("userData");
+            localStorage.removeItem("userUid");
+            window.location.href = "login.html";
+        })
+        .catch(function (err) {
+            console.error("[VERIFICATION] Logout error:", err);
+            window.location.href = "login.html";
+        });
+}
+
+/* =====================================================
+   FOOTER YEAR + START
+===================================================== */
+document.getElementById("myyear").textContent = new Date().getFullYear();
+loadVerificationUser();
+</script>
+
+<!-- =====================================================
+     CORE JS FILES
+===================================================== -->
+<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+<script src="../assets/js/core/popper.min.js"></script>
+<script src="../assets/js/core/bootstrap.min.js"></script>
+<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+<script src="../assets/js/atlantis.min.js"></script>
+
+</body>
+</html>

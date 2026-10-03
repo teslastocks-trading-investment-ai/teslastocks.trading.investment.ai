@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Tesla Stocks</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+	<!-- ============================================================
+	     MOBILE RESPONSIVE + TWO-AXIS SCROLLING + SIDEBAR TOGGLE FIX
+	     ============================================================ -->
+	<style>
+		/* ---------- Global safety ---------- */
+		html, body {
+			max-width: 100%;
+			overflow-x: hidden;
+			-webkit-text-size-adjust: 100%;
+			-webkit-tap-highlight-color: transparent;
+		}
+		img { max-width: 100%; height: auto; }
+
+		/* ---------- Page header shrink on phones ---------- */
+		@media (max-width: 991px) {
+			.page-header { padding: 12px 14px !important; }
+			.page-header .page-title { font-size: 18px !important; }
+			.breadcrumbs { margin-top: 6px; }
+		}
+		@media (max-width: 480px) {
+			.page-header { padding: 10px 12px !important; }
+			.page-header .page-title { font-size: 16px !important; }
+		}
+
+		/* ---------- The scroll wrapper ---------- */
+		.stocks-scroll {
+			width: 100%;
+			overflow-x: auto;
+			overflow-y: visible;
+			-webkit-overflow-scrolling: touch;
+			overscroll-behavior: contain;
+			touch-action: pan-x pan-y;
+			border-radius: 10px;
+		}
+
+		@media (max-width: 991px) {
+			.stocks-scroll {
+				max-height: calc(100dvh - 190px);
+				overflow-y: auto;
+			}
+
+			.stocks-scroll table.table {
+				min-width: 720px;
+				margin-bottom: 0;
+			}
+
+			.stocks-scroll table.table thead th {
+				position: sticky;
+				top: 0;
+				z-index: 3;
+				background-color: #1d2531;
+				background-clip: padding-box;
+				box-shadow: 0 2px 0 rgba(255, 255, 255, 0.06);
+				white-space: nowrap;
+			}
+
+			.stocks-scroll table.table > thead > tr > th,
+			.stocks-scroll table.table > tbody > tr > td {
+				padding: 10px 10px !important;
+				font-size: 13px;
+				white-space: nowrap;
+				vertical-align: middle;
+			}
+
+			.stocks-scroll table.table td .btn {
+				padding: 6px 12px;
+				font-size: 12px;
+				white-space: nowrap;
+			}
+		}
+
+		@media (max-width: 400px) {
+			.stocks-scroll table.table {
+				min-width: 680px;
+			}
+			.stocks-scroll table.table > thead > tr > th,
+			.stocks-scroll table.table > tbody > tr > td {
+				font-size: 12.5px;
+				padding: 9px 9px !important;
+			}
+		}
+
+		@media (max-width: 991px) {
+			.main-panel .content .page-inner { padding-left: 10px; padding-right: 10px; }
+			.main-panel .content .card { border-radius: 14px; }
+			.main-panel .content .card .card-body { padding: 10px; }
+		}
+		@media (max-width: 480px) {
+			.main-panel .content .page-inner { padding-left: 8px; padding-right: 8px; }
+			.main-panel .content .card .card-body { padding: 8px; }
+		}
+
+		.scroll-hint {
+			display: none;
+			margin: 0 0 8px 0;
+			padding: 8px 12px;
+			font-size: 12px;
+			color: #9aa7bd;
+			background: rgba(255, 255, 255, 0.04);
+			border: 1px solid rgba(255, 255, 255, 0.06);
+			border-radius: 8px;
+			text-align: center;
+		}
+		.scroll-hint i { margin-right: 6px; opacity: 0.8; }
+		@media (max-width: 991px) {
+			.scroll-hint { display: block; }
+		}
+
+		.stocks-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+		.stocks-scroll::-webkit-scrollbar-thumb {
+			background: rgba(255, 255, 255, 0.14);
+			border-radius: 8px;
+		}
+		.stocks-scroll::-webkit-scrollbar-track { background: transparent; }
+
+		.wrapper { overflow-x: hidden; }
+		.main-panel { overflow-x: hidden; }
+
+		@media (max-width: 991px) {
+			.footer { padding: 14px 10px; text-align: center; }
+		}
+
+		/* ============================================================
+		   NOTIFICATION BELL (top navbar)
+		   ============================================================ */
+		.notif-bell-btn {
+			position: relative;
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0;
+			font-size: 17px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s;
+			margin-right: 10px;
+		}
+		.notif-bell-btn:hover {
+			background: rgba(59, 130, 246, 0.18);
+			color: #fff;
+			transform: translateY(-1px);
+		}
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 20px;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+			border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+
+		@keyframes bellPulse {
+			0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+			70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		}
+		.notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+		/* ============================================================
+		   SIDEBAR NOTIFICATION BADGE
+		   ============================================================ */
+		.nav-item .notif-side-badge {
+			margin-left: auto;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			padding: 2px 8px;
+			border-radius: 12px;
+			min-width: 20px;
+			text-align: center;
+			display: none;
+			box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+
+		@media (max-width: 991px) {
+			.notif-bell-btn {
+				width: 38px;
+				height: 38px;
+				font-size: 15px;
+				margin-right: 6px;
+			}
+			.notif-bell-btn .notif-bell-badge {
+				min-width: 18px;
+				height: 18px;
+				font-size: 10px;
+			}
+		}
+
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE FIX
+		   ============================================================ */
+		.sidenav-toggler,
+		.toggle-sidebar,
+		.topbar-toggler,
+		.navbar-toggler {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+			cursor: pointer;
+			pointer-events: auto !important;
+			position: relative;
+			z-index: 20;
+		}
+
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			-webkit-backdrop-filter: blur(4px);
+			backdrop-filter: blur(4px);
+			z-index: 999;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+		.sidebar-backdrop.show {
+			display: block;
+			opacity: 1;
+		}
+		@media (min-width: 992px) {
+			.sidebar-backdrop,
+			.sidebar-backdrop.show { display: none !important; }
+		}
+
+		@media (max-width: 991px) {
+			.sidebar {
+				z-index: 1000 !important;
+			}
+			.sidebar.open {
+				transform: translateX(0) !important;
+				left: 0 !important;
+				visibility: visible !important;
+				pointer-events: auto !important;
+			}
+		}
+	</style>
+</head>
+
+<body data-background-color="dark">
+
+	<div class="wrapper">
+
+	    <div class="main-header">
+
+			<!-- Logo Header -->
+    <div class="logo-header" data-background-color="dark2">
+
+        <a href="index.html" class="logo">
+            <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+        </a>
+
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <i class="icon-menu"></i>
+            </span>
+        </button>
+
+        <button class="topbar-toggler more" type="button">
+            <i class="icon-options-vertical"></i>
+        </button>
+
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar" type="button">
+                <i class="icon-menu"></i>
+            </button>
+        </div>
+
+    </div>
+    <!-- End Logo Header -->
+
+
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+
+        <div class="container-fluid">
+
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+                <!-- NOTIFICATION BELL -->
+                <li class="nav-item mr-2">
+                    <a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-bell-badge" id="notifBellBadge">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown hidden-caret">
+
+                    <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+
+                        <div class="avatar-sm">
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                        </div>
+
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-user animated fadeIn">
+
+                        <div class="dropdown-user-scroll scrollbar-outer">
+
+                            <li>
+
+                                <div class="user-box">
+
+                                    <div class="avatar-lg">
+                                        <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+                                    </div>
+
+                                    <div class="u-text">
+
+                                        <h4 id="navbarUserName">Loading...</h4>
+
+                                        <p class="text-muted" id="navbarUserEmail">
+                                            Loading...
+                                        </p>
+
+                                        <a href="https://app.tslpa.com/profile" class="btn btn-xs btn-dark btn-sm">
+                                            View Profile
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            </li>
+
+                            <li>
+
+                                <div class="dropdown-divider"></div>
+
+                                <button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+
+                            </li>
+
+                        </div>
+
+                    </ul>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </nav>
+    <!-- End Navbar -->
+
+</div>
+
+
+		<!-- Sidebar -->
+	    <div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+
+        <div class="sidebar-content">
+
+            <div class="user">
+
+                <div class="avatar-sm float-left mr-2">
+
+                    <img src="../assets/img/profile.png"
+                         alt="..."
+                         class="avatar-img rounded-circle">
+
+                </div>
+
+                <div class="info">
+
+                    <a data-toggle="collapse"
+                       href="#collapseExample"
+                       aria-expanded="true">
+
+                        <span>
+
+                            <span id="sidebarUserName">
+                                Loading...
+                            </span>
+
+                            <span class="user-level" id="sidebarUserLevel">
+                                Loading...
+                            </span>
+
+                            <span class="caret"></span>
+
+                        </span>
+
+                    </a>
+
+                    <div class="clearfix"></div>
+
+                    <div class="collapse in" id="collapseExample">
+
+                        <ul class="nav">
+
+                            <li>
+                                <a href="profile.html">
+                                    <span class="link-collapse">
+                                        My Profile
+                                    </span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="password.html">
+                                    <span class="link-collapse">
+                                        Password
+                                    </span>
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <ul class="nav nav-primary">
+
+                <li class="nav-item active">
+
+                    <a href="homepage.html">
+
+                        <i class="fas fa-home"></i>
+
+                        <p>Dashboard</p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a href="deposit.html">
+
+                        <i class="fas fa-hotel"></i>
+
+                        <p>Deposit</p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a href="transactions.html">
+
+                        <i class="fas fa-receipt"></i>
+
+                        <p>Transactions</p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a href="stocks.html">
+
+                        <i class="fas fa-layer-group"></i>
+
+                        <p>Tesla Stocks</p>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a data-toggle="collapse"
+                       href="#invest"
+                       class="collapsed"
+                       aria-expanded="false">
+
+                        <i class="fas fa-coins"></i>
+
+                        <p>Investment</p>
+
+                        <span class="caret"></span>
+
+                    </a>
+
+                    <div class="collapse" id="invest">
+
+                        <ul class="nav nav-collapse">
+
+                            <li>
+
+                                <a href="investment-plan.html">
+
+                                    <span class="sub-item">
+                                        Investment Plan
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a href="invest.html">
+
+                                    <span class="sub-item">
+                                        Invest
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a href="my-investment.html">
+
+                                    <span class="sub-item">
+                                        My Investment
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a data-toggle="collapse"
+                       href="#withdrawal"
+                       class="collapsed"
+                       aria-expanded="false">
+
+                        <i class="fas fa-credit-card"></i>
+
+                        <p>Withdrawal</p>
+
+                        <span class="caret"></span>
+
+                    </a>
+
+
+                    <div class="collapse" id="withdrawal">
+
+                        <ul class="nav nav-collapse">
+
+                            <li>
+
+                                <a href="wallet.html">
+
+                                    <span class="sub-item">
+                                        Wallet
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a href="wallet-pin.html">
+
+                                    <span class="sub-item">
+                                        Wallet Pin
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+
+                            <li>
+
+                                <a href="withdrawal-request.html">
+
+                                    <span class="sub-item">
+                                        Withdrawal Request
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+                            <!-- NEW: Bank Transfer -->
+                            <li>
+
+                                <a href="bank-transfer.html">
+
+                                    <span class="sub-item">
+                                        Bank Transfer
+                                    </span>
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <a href="verification.html">
+
+                        <i class="fas fa-id-card"></i>
+
+                        <p>Verification</p>
+
+                    </a>
+
+                </li>
+
+                <!-- NEW: Upgrade -->
+                <li class="nav-item">
+
+                    <a href="upgrade.html">
+
+                        <i class="fas fa-crown"></i>
+
+                        <p>Upgrade</p>
+
+                    </a>
+
+                </li>
+
+                <!-- SIDEBAR NOTIFICATIONS LINK -->
+                <li class="nav-item">
+
+                    <a href="notifications.html">
+
+                        <i class="fas fa-bell"></i>
+
+                        <p>Notifications</p>
+
+                        <span class="notif-side-badge" id="notifSideBadge">0</span>
+
+                    </a>
+
+                </li>
+
+
+                <li class="nav-item">
+
+                    <button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+
+                        <i class="fa fa-power-off"></i>
+
+                        Sign Out
+
+                    </button>
+
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</div>		
+		<!-- End Sidebar -->
+
+		<!-- Sidebar Backdrop (mobile) -->
+		<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+
+		<div class="main-panel">
+
+			<div class="content">
+
+				<div class="page-inner">
+
+					<div class="page-header">
+
+						<h4 class="page-title">
+                            Tesla Stocks
+                        </h4>
+
+						<ul class="breadcrumbs">
+
+							<li class="nav-home">
+
+								<a href="#">
+
+									<i class="fas fa-receipt"></i>
+
+								</a>
+
+							</li>
+
+						</ul>
+
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-md-12">
+
+							<div class="card">
+
+								<div class="card-body">
+
+									<!-- Mobile-only scroll hint -->
+									<div class="scroll-hint">
+										<i class="fas fa-arrows-alt-h"></i>
+										Swipe the table sideways &amp; scroll up/down to see more
+									</div>
+
+									<!-- Two-axis scroll wrapper -->
+									<div class="stocks-scroll">
+
+										<table class="table table-hover">
+
+											<thead>
+
+												<tr>
+
+													<th scope="col">
+                                                        #
+                                                    </th>
+
+													<th scope="col">
+                                                        Name
+                                                    </th>
+
+													<th scope="col">
+                                                        Description
+                                                    </th>
+
+													<th scope="col">
+                                                        Amount per Stock
+                                                    </th>
+
+													<th scope="col">
+                                                        Status
+                                                    </th>
+
+												</tr>
+
+											</thead>
+
+
+											<tbody>
+
+												<tr>
+
+													<td>1</td>
+
+													<td>Tesla</td>
+
+													<td></td>
+
+													<td>
+                                                        200$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>2</td>
+
+													<td>
+                                                        PayPal Holdings Inc
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        200$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>3</td>
+
+													<td>
+                                                        Nvidia
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        200$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>4</td>
+
+													<td>
+                                                        Rocket Lab USA Inc
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        50$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>5</td>
+
+													<td>
+                                                        American Superconductor
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        50$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>6</td>
+
+													<td>
+                                                        Enovix Corp
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        50$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>7</td>
+
+													<td>
+                                                        Rivian
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        50$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+
+												<tr>
+
+													<td>8</td>
+
+													<td>
+                                                        TheStreet, Inc.
+                                                    </td>
+
+													<td></td>
+
+													<td>
+                                                        200$ per 0.001(stock)
+                                                    </td>
+
+													<td>
+
+														<button class="btn btn-success btn-border btn-round disable">
+                                                            Active
+                                                        </button>
+
+													</td>
+
+												</tr>
+
+											</tbody>
+
+										</table>
+
+									</div>
+									<!-- /.stocks-scroll -->
+
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+
+				</div>
+
+			</div>
+
+
+			
+	        <footer class="footer">
+
+                <div class="container-fluid">
+        
+                    <div class="copyright ml-auto">
+
+                        All Rights Reserved &copy;
+                        <span id="myyear"></span>
+                        Laravel
+
+                    </div>				
+
+                </div>
+
+            </footer>
+
+
+<script>
+document.getElementById('myyear').textContent =
+    new Date().getFullYear();
+</script>
+
+		</div>
+		
+	</div>
+	
+    
+    <!--   Core JS Files   -->
+
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+
+	<script src="../assets/js/core/popper.min.js"></script>
+
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+
+	<!-- jQuery UI -->
+
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+
+	<!-- jQuery Scrollbar -->
+
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+	<!-- Chart JS -->
+
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+
+	<!-- jQuery Sparkline -->
+
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+
+	<!-- Chart Circle -->
+
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+
+	<!-- Datatables -->
+
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+
+	<!-- Bootstrap Notify -->
+
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+
+	<!-- jQuery Vector Maps -->
+
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+
+	<!-- Sweet Alert -->
+
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+
+	<!-- Atlantis JS -->
+
+	<script src="../assets/js/atlantis.min.js"></script>
+
+
+	<!-- ========================================================= -->
+	<!-- FIREBASE -->
+	<!-- ========================================================= -->
+
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+
+	<script>
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE — explicit handler
+		   ============================================================ */
+		(function setupMobileSidebarToggle() {
+			function getSidebar() {
+				return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+			}
+			function getBackdrop() {
+				return document.getElementById("sidebarBackdrop");
+			}
+			function openSidebar() {
+				const sidebar = getSidebar();
+				const backdrop = getBackdrop();
+				if (sidebar) sidebar.classList.add("open");
+				document.body.classList.add("sidebar-open");
+				if (backdrop) backdrop.classList.add("show");
+			}
+			function closeSidebar() {
+				const sidebar = getSidebar();
+				const backdrop = getBackdrop();
+				if (sidebar) sidebar.classList.remove("open");
+				document.body.classList.remove("sidebar-open");
+				if (backdrop) backdrop.classList.remove("show");
+			}
+			function toggleSidebar() {
+				const sidebar = getSidebar();
+				if (!sidebar) return;
+				if (sidebar.classList.contains("open")) closeSidebar();
+				else openSidebar();
+			}
+
+			document.addEventListener("click", function (e) {
+				const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+				if (!btn) return;
+				e.preventDefault();
+				e.stopImmediatePropagation();
+				toggleSidebar();
+			}, true);
+
+			document.addEventListener("DOMContentLoaded", function () {
+				const backdrop = getBackdrop();
+				if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+				const sidebar = getSidebar();
+				if (sidebar) {
+					sidebar.addEventListener("click", function (e) {
+						const link = e.target.closest("a[href]");
+						if (!link) return;
+						if (window.innerWidth <= 991) closeSidebar();
+					});
+				}
+			});
+
+			window.addEventListener("resize", function () {
+				if (window.innerWidth >= 992) closeSidebar();
+			});
+
+			window.openMobileSidebar   = openSidebar;
+			window.closeMobileSidebar  = closeSidebar;
+			window.toggleMobileSidebar = toggleSidebar;
+		})();
+
+		// =========================================================
+		// FIREBASE CONFIG
+		// =========================================================
+
+		const firebaseConfig = {
+
+			apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+
+			authDomain: "elon-54b86.firebaseapp.com",
+
+			databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+
+			projectId: "elon-54b86",
+
+			storageBucket: "elon-54b86.firebasestorage.app",
+
+			messagingSenderId: "78755255517",
+
+			appId: "1:78755255517:web:65af61b0c573589ec0f734",
+
+			measurementId: "G-R4SQFCQPFP"
+
+		};
+
+
+		// Initialize Firebase
+
+		if (!firebase.apps.length) {
+
+			firebase.initializeApp(firebaseConfig);
+
+		}
+
+
+		const auth = firebase.auth();
+
+		const database = firebase.database();
+
+		// Notification state
+		let notifListenerRef = null;
+		let notifListener = null;
+		let lastUnreadCount = 0;
+
+		// =========================================================
+		// NOTIFICATION LISTENER (bell + sidebar badge)
+		// =========================================================
+
+		function attachNotificationListener(uid) {
+
+			if (notifListenerRef && notifListener) {
+				notifListenerRef.off("value", notifListener);
+				notifListenerRef = null;
+				notifListener = null;
+			}
+
+			if (!uid) {
+				updateNotifBadges(0);
+				return;
+			}
+
+			notifListenerRef = database.ref("users/" + uid + "/notifications");
+
+			notifListener = notifListenerRef.on("value", (snap) => {
+
+				const data = snap.val() || {};
+
+				let unread = 0;
+
+				Object.keys(data).forEach((key) => {
+
+					if (key === "_meta" || key === "settings") return;
+
+					const v = data[key];
+
+					if (!v || typeof v !== "object") return;
+
+					if (!v.read) unread++;
+
+				});
+
+				updateNotifBadges(unread);
+
+				if (unread > lastUnreadCount) pulseBell();
+
+				lastUnreadCount = unread;
+
+			}, (err) => {
+
+				console.error("Notification listener error:", err);
+
+			});
+
+		}
+
+		function updateNotifBadges(count) {
+
+			const n = Number(count) || 0;
+
+			const text = n > 99 ? "99+" : String(n);
+
+			const bellBadge = document.getElementById("notifBellBadge");
+
+			if (bellBadge) {
+
+				if (n > 0) {
+					bellBadge.textContent = text;
+					bellBadge.classList.add("show");
+				} else {
+					bellBadge.classList.remove("show");
+				}
+
+			}
+
+			const sideBadge = document.getElementById("notifSideBadge");
+
+			if (sideBadge) {
+
+				if (n > 0) {
+					sideBadge.textContent = text;
+					sideBadge.classList.add("show");
+				} else {
+					sideBadge.classList.remove("show");
+				}
+
+			}
+
+		}
+
+		function pulseBell() {
+
+			const btn = document.getElementById("notifBellBtn");
+
+			if (!btn) return;
+
+			btn.classList.add("has-new");
+
+			setTimeout(() => btn.classList.remove("has-new"), 5000);
+
+		}
+
+		// =========================================================
+		// LOGOUT
+		// =========================================================
+
+		function handleLogout() {
+
+			try {
+				if (notifListenerRef && notifListener) {
+					notifListenerRef.off("value", notifListener);
+					notifListenerRef = null;
+					notifListener = null;
+				}
+			} catch (e) {}
+
+			auth.signOut()
+				.then(() => {
+					localStorage.removeItem("userData");
+					localStorage.removeItem("userUid");
+					localStorage.removeItem("isLoggedIn");
+					window.location.href = "login.html";
+				})
+				.catch((error) => {
+					console.error("Logout error:", error);
+				});
+
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			const logoutBtn = document.getElementById("logoutBtn");
+			const sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
+			if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
+			if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", handleLogout);
+		});
+
+
+		// =========================================================
+		// LOAD USER DATA
+		// =========================================================
+
+		auth.onAuthStateChanged(function(user) {
+
+			if (!user) {
+
+				console.log("[STOCKS] ❌ No Firebase authenticated user.");
+
+				window.location.href = "login.html";
+
+				return;
+
+			}
+
+
+			console.log("[STOCKS] ✅ Firebase user logged in:", user.uid);
+
+
+			let userUid = localStorage.getItem("userUid");
+
+
+			if (!userUid) {
+
+				userUid = user.uid;
+
+				localStorage.setItem("userUid", userUid);
+
+			}
+
+
+			console.log("[STOCKS] 👤 Using profile UID:", userUid);
+
+			console.log("[STOCKS] 🔎 Reading:", "users/" + userUid);
+
+
+			database.ref("users/" + userUid).once("value")
+
+				.then(function(snapshot) {
+
+					const userData = snapshot.val();
+
+
+					console.log("[STOCKS] 📦 User data:", userData);
+
+
+					if (!userData) {
+
+						console.error(
+							"[STOCKS] ❌ No user data found at:",
+							"users/" + userUid
+						);
+
+						return;
+
+					}
+
+
+					const firstName =
+						userData.first_name ||
+						userData.firstName ||
+						"";
+
+					const lastName =
+						userData.last_name ||
+						userData.lastName ||
+						"";
+
+
+					const fullName =
+						(firstName + " " + lastName).trim();
+
+
+					const email =
+						userData.email ||
+						user.email ||
+						"";
+
+
+					const navbarUserName =
+						document.getElementById("navbarUserName");
+
+					const navbarUserEmail =
+						document.getElementById("navbarUserEmail");
+
+
+					if (navbarUserName) {
+
+						navbarUserName.textContent =
+							fullName || "User";
+
+					}
+
+
+					if (navbarUserEmail) {
+
+						navbarUserEmail.textContent =
+							email || "No email";
+
+					}
+
+
+					const sidebarUserName =
+						document.getElementById("sidebarUserName");
+
+					const sidebarUserLevel =
+						document.getElementById("sidebarUserLevel");
+
+
+					if (sidebarUserName) {
+
+						sidebarUserName.textContent =
+							firstName || fullName || "User";
+
+					}
+
+
+					if (sidebarUserLevel) {
+
+						sidebarUserLevel.textContent =
+							lastName || "";
+
+					}
+
+
+					localStorage.setItem(
+						"userUid",
+						userUid
+					);
+
+
+					localStorage.setItem(
+						"userData",
+						JSON.stringify(userData)
+					);
+
+					// Attach live notification listener
+					attachNotificationListener(userUid);
+
+
+					console.log(
+						"[STOCKS] ✅ User information displayed."
+					);
+
+				})
+
+				.catch(function(error) {
+
+					console.error(
+						"[STOCKS] ❌ Firebase error:",
+						error
+					);
+
+				});
+
+		});
+
+
+		// =========================================================
+		// SWEET ALERT DEMO
+		// =========================================================
+
+		var SweetAlert2Demo = function() {
+
+			var initDemos = function() {
+
+				$('#alert_demo_1').click(function(e) {
+
+					swal('Good job!', {
+
+						buttons: {        			
+
+							confirm: {
+
+								className : 'btn btn-success'
+
+							}
+
+						},
+
+					});
+
+				});
+
+
+				$('#alert_demo_2').click(function(e) {
+
+					swal(
+						"Here's the title!",
+						"...and here's the text!",
+						{
+
+							buttons: {        			
+
+								confirm: {
+
+									className : 'btn btn-success'
+
+								}
+
+							},
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_3_1').click(function(e) {
+
+					swal(
+						"Good job!",
+						"You clicked the button!",
+						{
+
+							icon : "warning",
+
+							buttons: {        			
+
+								confirm: {
+
+									className : 'btn btn-warning'
+
+								}
+
+							},
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_3_2').click(function(e) {
+
+					swal(
+						"Good job!",
+						"You clicked the button!",
+						{
+
+							icon : "error",
+
+							buttons: {        			
+
+								confirm: {
+
+									className : 'btn btn-danger'
+
+								}
+
+							},
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_3_3').click(function(e) {
+
+					swal(
+						"Good job!",
+						"You clicked the button!",
+						{
+
+							icon : "success",
+
+							buttons: {        			
+
+								confirm: {
+
+									className : 'btn btn-success'
+
+								}
+
+							},
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_3_4').click(function(e) {
+
+					swal(
+						"Good job!",
+						"You clicked the button!",
+						{
+
+							icon : "info",
+
+							buttons: {        			
+
+								confirm: {
+
+									className : 'btn btn-info'
+
+								}
+
+							},
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_4').click(function(e) {
+
+					swal({
+
+						title: "Good job!",
+
+						text: "You clicked the button!",
+
+						icon: "success",
+
+						buttons: {
+
+							confirm: {
+
+								text: "Confirm Me",
+
+								value: true,
+
+								visible: true,
+
+								className: "btn btn-success",
+
+								closeModal: true
+
+							}
+
+						}
+
+					});
+
+				});
+
+
+				$('#alert_demo_5').click(function(e){
+
+					swal({
+
+						title: 'Input Something',
+
+						html: '<br><input class="form-control" placeholder="Input Something" id="input-field">',
+
+						content: {
+
+							element: "input",
+
+							attributes: {
+
+								placeholder: "Input Something",
+
+								type: "text",
+
+								id: "input-field",
+
+								className: "form-control"
+
+							},
+
+						},
+
+						buttons: {
+
+							cancel: {
+
+								visible: true,
+
+								className: 'btn btn-danger'
+
+							},        			
+
+							confirm: {
+
+								className : 'btn btn-success'
+
+							}
+
+						},
+
+					}).then(
+
+						function() {
+
+							swal(
+								"",
+								"You entered : " +
+								$('#input-field').val(),
+								"success"
+							);
+
+						}
+
+					);
+				});
+
+
+				$('#alert_demo_6').click(function(e) {
+
+					swal(
+						"This modal will disappear soon!",
+						{
+
+							buttons: false,
+
+							timer: 3000,
+
+						}
+					);
+
+				});
+
+
+				$('#alert_demo_7').click(function(e) {
+
+					swal({
+
+						title: 'Are you sure?',
+
+						text: "You won't be able to revert this!",
+
+						type: 'warning',
+
+						buttons:{
+
+							confirm: {
+
+								text : 'Yes, delete it!',
+
+								className : 'btn btn-success'
+
+							},
+
+							cancel: {
+
+								visible: true,
+
+								className : 'btn btn-danger'
+
+							}
+
+						}
+
+					}).then((Delete) => {
+
+						if (Delete) {
+
+							swal({
+
+								title: 'Deleted!',
+
+								text: 'Your file has been deleted.',
+
+								type: 'success',
+
+								buttons : {
+
+									confirm: {
+
+										className : 'btn btn-success'
+
+									}
+
+								}
+
+							});
+
+						} else {
+
+							swal.close();
+
+						}
+
+					});
+
+				});
+
+
+				$('#alert_demo_8').click(function(e) {
+
+					swal({
+
+						title: 'Are you sure?',
+
+						text: "You won't be able to revert this!",
+
+						type: 'warning',
+
+						buttons:{
+
+							cancel: {
+
+								visible: true,
+
+								text : 'No, cancel!',
+
+								className : 'btn btn-danger'
+
+							},        			
+
+							confirm: {
+
+								text : 'Yes, delete it!',
+
+								className : 'btn btn-success'
+
+							}
+
+						}
+
+					}).then((willDelete) => {
+
+						if (willDelete) {
+
+							swal(
+								"Poof! Your imaginary file has been deleted!",
+								{
+
+									icon: "success",
+
+									buttons : {
+
+										confirm : {
+
+											className: 'btn btn-success'
+
+										}
+
+									}
+
+								}
+							);
+
+						} else {
+
+							swal(
+								"Your imaginary file is safe!",
+								{
+
+									buttons : {
+
+										confirm : {
+
+											className: 'btn btn-success'
+
+										}
+
+									}
+
+								}
+							);
+
+						}
+
+					});
+
+				});
+
+			};
+
+
+			return {
+
+				init: function() {
+
+					initDemos();
+
+				},
+
+			};
+
+		}();
+
+
+		// =========================================================
+		// CLASS INITIALIZATION
+		// =========================================================
+
+		jQuery(document).ready(function() {
+
+			SweetAlert2Demo.init();
+
+		});
+
+	</script>
+	
+</body>
+</html>

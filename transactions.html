@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Laravel</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+	<!-- Fonts and icons -->
+	<script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: {"families":["Lato:300,400,700,900"]},
+			custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+			active: function() {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../assets/css/atlantis.min.css">
+	<link rel="stylesheet" href="../assets/css/demo.css">
+
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+	<style>
+		.status-badge {
+			padding: 5px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			display: inline-block;
+		}
+		.status-pending {
+			background: rgba(251, 191, 36, 0.15);
+			color: #fbbf24;
+			border: 1px solid rgba(251, 191, 36, 0.2);
+		}
+		.status-approved {
+			background: rgba(74, 222, 128, 0.15);
+			color: #4ade80;
+			border: 1px solid rgba(74, 222, 128, 0.2);
+		}
+		.status-completed {
+			background: rgba(74, 222, 128, 0.15);
+			color: #4ade80;
+			border: 1px solid rgba(74, 222, 128, 0.2);
+		}
+		.status-rejected {
+			background: rgba(239, 68, 68, 0.15);
+			color: #ef4444;
+			border: 1px solid rgba(239, 68, 68, 0.2);
+		}
+		.status-cancelled {
+			background: rgba(156, 163, 175, 0.15);
+			color: #9ca3af;
+			border: 1px solid rgba(156, 163, 175, 0.2);
+		}
+		.status-success {
+			background: rgba(74, 222, 128, 0.15);
+			color: #4ade80;
+			border: 1px solid rgba(74, 222, 128, 0.2);
+		}
+		.type-deposit {
+			color: #4ade80;
+		}
+		.type-withdrawal {
+			color: #f59e0b;
+		}
+		.table th {
+			color: rgba(255,255,255,0.7);
+			font-weight: 600;
+			font-size: 13px;
+			border-bottom: 1px solid rgba(255,255,255,0.05);
+		}
+		.table td {
+			color: rgba(255,255,255,0.9);
+			vertical-align: middle;
+		}
+		.table tbody tr {
+			border-bottom: 1px solid rgba(255,255,255,0.03);
+			transition: all 0.3s;
+		}
+		.table tbody tr:hover {
+			background: rgba(255,255,255,0.02);
+		}
+		.no-data {
+			padding: 40px 0;
+			text-align: center;
+			color: rgba(255,255,255,0.4);
+		}
+		.no-data i {
+			font-size: 48px;
+			margin-bottom: 15px;
+			display: block;
+			color: rgba(255,255,255,0.1);
+		}
+		.no-data p {
+			font-size: 16px;
+		}
+		.loading-row {
+			text-align: center;
+			padding: 30px 0;
+			color: rgba(255,255,255,0.5);
+		}
+		.loading-row .spinner-small {
+			display: inline-block;
+			width: 24px;
+			height: 24px;
+			border: 3px solid rgba(255,255,255,0.1);
+			border-top: 3px solid #4ade80;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			margin-right: 10px;
+			vertical-align: middle;
+		}
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+		.amount-display {
+			font-weight: 600;
+		}
+		.amount-deposit {
+			color: #4ade80;
+		}
+		.amount-withdrawal {
+			color: #f59e0b;
+		}
+		.date-display {
+			font-size: 13px;
+			color: rgba(255,255,255,0.5);
+		}
+		.type-badge {
+			padding: 4px 10px;
+			border-radius: 15px;
+			font-size: 11px;
+			font-weight: 600;
+			display: inline-block;
+		}
+		.type-deposit-badge {
+			background: rgba(74, 222, 128, 0.1);
+			color: #4ade80;
+			border: 1px solid rgba(74, 222, 128, 0.15);
+		}
+		.type-withdrawal-badge {
+			background: rgba(251, 191, 36, 0.1);
+			color: #fbbf24;
+			border: 1px solid rgba(251, 191, 36, 0.15);
+		}
+
+		/* ============================================================
+		   NOTIFICATION BELL (top navbar)
+		   ============================================================ */
+		.notif-bell-btn {
+			position: relative;
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			color: #d0dcf0;
+			font-size: 17px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background 0.2s, color 0.2s, transform 0.15s;
+			margin-right: 10px;
+		}
+		.notif-bell-btn:hover {
+			background: rgba(59, 130, 246, 0.18);
+			color: #fff;
+			transform: translateY(-1px);
+		}
+		.notif-bell-btn:active { transform: scale(0.94); }
+		.notif-bell-btn .notif-bell-badge {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			min-width: 20px;
+			height: 20px;
+			padding: 0 6px;
+			border-radius: 20px;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
+			border: 2px solid #0b0f1a;
+		}
+		.notif-bell-btn .notif-bell-badge.show { display: flex; }
+
+		@keyframes bellPulse {
+			0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+			70%  { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+			100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+		}
+		.notif-bell-btn.has-new { animation: bellPulse 1.6s infinite; }
+
+		/* ============================================================
+		   SIDEBAR NOTIFICATION BADGE
+		   ============================================================ */
+		.nav-item .notif-side-badge {
+			margin-left: auto;
+			background: #ef4444;
+			color: #fff;
+			font-size: 10.5px;
+			font-weight: 800;
+			padding: 2px 8px;
+			border-radius: 12px;
+			min-width: 20px;
+			text-align: center;
+			display: none;
+			box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+		}
+		.nav-item .notif-side-badge.show { display: inline-block; }
+
+		@media (max-width: 991px) {
+			.notif-bell-btn {
+				width: 38px;
+				height: 38px;
+				font-size: 15px;
+				margin-right: 6px;
+			}
+			.notif-bell-btn .notif-bell-badge {
+				min-width: 18px;
+				height: 18px;
+				font-size: 10px;
+			}
+		}
+
+		/* ============================================================
+		   MOBILE SIDEBAR TOGGLE FIX
+		   ============================================================ */
+		.sidenav-toggler,
+		.toggle-sidebar,
+		.topbar-toggler,
+		.navbar-toggler {
+			touch-action: manipulation;
+			-webkit-tap-highlight-color: transparent;
+			cursor: pointer;
+			pointer-events: auto !important;
+			position: relative;
+			z-index: 20;
+		}
+
+		.sidebar-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			-webkit-backdrop-filter: blur(4px);
+			backdrop-filter: blur(4px);
+			z-index: 999;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.25s ease;
+		}
+		.sidebar-backdrop.show {
+			display: block;
+			opacity: 1;
+		}
+		@media (min-width: 992px) {
+			.sidebar-backdrop,
+			.sidebar-backdrop.show { display: none !important; }
+		}
+
+		@media (max-width: 991px) {
+			.sidebar {
+				z-index: 1000 !important;
+			}
+			.sidebar.open {
+				transform: translateX(0) !important;
+				left: 0 !important;
+				visibility: visible !important;
+				pointer-events: auto !important;
+			}
+		}
+	</style>
+</head>
+<body data-background-color="dark">
+	<div class="wrapper">
+
+	    <div class="main-header">
+			<!-- Logo Header -->
+    <div class="logo-header" data-background-color="dark2">
+
+        <a href="index.html" class="logo">
+            <img src="../assets/img/logo.png" alt="navbar brand" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <i class="icon-menu"></i>
+            </span>
+        </button>
+        <button class="topbar-toggler more" type="button"><i class="icon-options-vertical"></i></button>
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar" type="button">
+                <i class="icon-menu"></i>
+            </button>
+        </div>
+    </div>
+    <!-- End Logo Header -->
+
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+
+        <div class="container-fluid">
+
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+
+                <!-- NOTIFICATION BELL -->
+                <li class="nav-item mr-2">
+                    <a href="notifications.html" class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-bell-badge" id="notifBellBadge">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown hidden-caret">
+                    <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <div class="avatar-sm">
+
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                                                    </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user animated fadeIn">
+                        <div class="dropdown-user-scroll scrollbar-outer">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                                                                    <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+
+                                                                            </div>
+                                    <div class="u-text">
+                                        <h4 id="profileName">Loading...</h4>
+                                        <p class="text-muted" id="profileEmail">Loading...</p>
+                                        <a href="profile.html" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                <button id="logoutBtn" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #dc3545;">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </li>
+                        </div>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+</div>
+		<!-- Sidebar -->
+	    <div class="sidebar sidebar-style-2" data-background-color="dark2" id="appSidebar">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <div class="user">
+                <div class="avatar-sm float-left mr-2">
+
+                    <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+
+                </div>
+                <div class="info">
+                    <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                        <span>
+                            <span id="sidebarFirstName">Loading...</span>
+                            <span class="user-level" id="sidebarLastName">Loading...</span>
+                            <span class="caret"></span>
+                        </span>
+                    </a>
+                    <div class="clearfix"></div>
+
+                    <div class="collapse in" id="collapseExample">
+                        <ul class="nav">
+                            <li>
+                                <a href="profile.html">
+                                    <span class="link-collapse">My Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="password.html">
+                                    <span class="link-collapse">Password</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav nav-primary">
+
+                <li class="nav-item">
+                    <a href="homepage.html">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="deposit.html">
+                        <i class="fas fa-hotel"></i>
+                        <p>Deposit</p>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="transactions.html">
+                        <i class="fas fa-receipt"></i>
+                        <p>Transactions</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="stocks.html">
+                        <i class="fas fa-layer-group"></i>
+                        <p>Tesla Stocks</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-coins"></i>
+                        <p>Investment</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="invest">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="investment-plan.html">
+                                    <span class="sub-item">Investment Plan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="invest.html">
+                                    <span class="sub-item">Invest</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="my-investment.html">
+                                    <span class="sub-item">My Investment</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-credit-card"></i>
+                        <p>Withdrawal</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="withdrawal">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="wallet.html">
+                                    <span class="sub-item">Wallet</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="wallet-pin.html">
+                                    <span class="sub-item">Wallet Pin</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="withdrawal-request.html">
+                                    <span class="sub-item">Withdrawal Request</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="bank-transfer.html">
+                                    <span class="sub-item">Bank Transfer</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="verification.html">
+                        <i class="fas fa-id-card"></i>
+                        <p>Verification</p>
+                    </a>
+                </li>
+
+                <!-- Upgrade -->
+                <li class="nav-item">
+                    <a href="upgrade.html">
+                        <i class="fas fa-crown"></i>
+                        <p>Upgrade</p>
+                    </a>
+                </li>
+
+                <!-- SIDEBAR NOTIFICATIONS LINK -->
+                <li class="nav-item">
+                    <a href="notifications.html">
+                        <i class="fas fa-bell"></i>
+                        <p>Notifications</p>
+                        <span class="notif-side-badge" id="notifSideBadge">0</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <button id="sidebarLogoutBtn" class="btn-light btn-lg" style="width: 100%; text-align: left; border: none; background: none; color: #dc3545; padding: 10px 15px; font-size: 14px;">
+                        <i class="fa fa-power-off"></i> Sign Out
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+		<!-- End Sidebar -->
+
+		<!-- Sidebar Backdrop (mobile) -->
+		<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+		<div class="main-panel">
+			<div class="content">
+				<div class="page-inner">
+					<div class="page-header">
+						<h4 class="page-title">Transactions</h4>
+						<ul class="breadcrumbs">
+							<li class="nav-home">
+								<a href="#">
+									<i class="fas fa-receipt"></i>
+								</a>
+							</li>
+						</ul>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card">
+								<div class="card-body">
+									<div class="table-responsive">
+										<table class="table table-hover">
+											<thead>
+												<tr>
+													<th scope="col">#</th>
+													<th scope="col">Amount</th>
+													<th scope="col">Type</th>
+													<th scope="col">Date</th>
+													<th scope="col">Status</th>
+												</tr>
+											</thead>
+											<tbody id="transactionTableBody">
+												<tr>
+													<td colspan="5" class="loading-row">
+														<span class="spinner-small"></span> Loading transactions...
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+	        <footer class="footer">
+    <div class="container-fluid">
+
+        <div class="copyright ml-auto">
+            All Rights Reserved &copy; <span id="myyear"></span> Laravel </a>
+        </div>
+    </div>
+</footer>
+
+<script>
+document.getElementById('myyear').textContent = new Date().getFullYear();
+</script>
+		</div>
+
+	</div>
+
+	<!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        /* ============================================================
+           MOBILE SIDEBAR TOGGLE — explicit handler
+           ============================================================ */
+        (function setupMobileSidebarToggle() {
+            function getSidebar() {
+                return document.getElementById("appSidebar") || document.querySelector(".sidebar");
+            }
+            function getBackdrop() {
+                return document.getElementById("sidebarBackdrop");
+            }
+            function openSidebar() {
+                const sidebar = getSidebar();
+                const backdrop = getBackdrop();
+                if (sidebar) sidebar.classList.add("open");
+                document.body.classList.add("sidebar-open");
+                if (backdrop) backdrop.classList.add("show");
+            }
+            function closeSidebar() {
+                const sidebar = getSidebar();
+                const backdrop = getBackdrop();
+                if (sidebar) sidebar.classList.remove("open");
+                document.body.classList.remove("sidebar-open");
+                if (backdrop) backdrop.classList.remove("show");
+            }
+            function toggleSidebar() {
+                const sidebar = getSidebar();
+                if (!sidebar) return;
+                if (sidebar.classList.contains("open")) closeSidebar();
+                else openSidebar();
+            }
+
+            document.addEventListener("click", function (e) {
+                const btn = e.target.closest(".sidenav-toggler, .toggle-sidebar");
+                if (!btn) return;
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                toggleSidebar();
+            }, true);
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const backdrop = getBackdrop();
+                if (backdrop) backdrop.addEventListener("click", closeSidebar);
+
+                const sidebar = getSidebar();
+                if (sidebar) {
+                    sidebar.addEventListener("click", function (e) {
+                        const link = e.target.closest("a[href]");
+                        if (!link) return;
+                        if (window.innerWidth <= 991) closeSidebar();
+                    });
+                }
+            });
+
+            window.addEventListener("resize", function () {
+                if (window.innerWidth >= 992) closeSidebar();
+            });
+
+            window.openMobileSidebar   = openSidebar;
+            window.closeMobileSidebar  = closeSidebar;
+            window.toggleMobileSidebar = toggleSidebar;
+        })();
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+            authDomain: "elon-54b86.firebaseapp.com",
+            databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+            projectId: "elon-54b86",
+            storageBucket: "elon-54b86.firebasestorage.app",
+            messagingSenderId: "78755255517",
+            appId: "1:78755255517:web:65af61b0c573589ec0f734",
+            measurementId: "G-R4SQFCQPFP"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUserData = null;
+        let currentUserUid = null;
+        let allTransactions = [];
+
+        // Notification listener state
+        let notifListenerRef = null;
+        let notifListener = null;
+        let lastUnreadCount = 0;
+
+        /* ============================================================
+           NOTIFICATION LISTENER (bell + sidebar badge)
+           ============================================================ */
+        function attachNotificationListener(uid) {
+            if (notifListenerRef && notifListener) {
+                notifListenerRef.off("value", notifListener);
+                notifListenerRef = null;
+                notifListener = null;
+            }
+            if (!uid) {
+                updateNotifBadges(0);
+                return;
+            }
+            notifListenerRef = database.ref("users/" + uid + "/notifications");
+            notifListener = notifListenerRef.on("value", (snap) => {
+                const data = snap.val() || {};
+                let unread = 0;
+                Object.keys(data).forEach((key) => {
+                    if (key === "_meta" || key === "settings") return;
+                    const v = data[key];
+                    if (!v || typeof v !== "object") return;
+                    if (!v.read) unread++;
+                });
+                updateNotifBadges(unread);
+                if (unread > lastUnreadCount) pulseBell();
+                lastUnreadCount = unread;
+            }, (err) => {
+                console.error("Notification listener error:", err);
+            });
+        }
+
+        function updateNotifBadges(count) {
+            const n = Number(count) || 0;
+            const text = n > 99 ? "99+" : String(n);
+
+            const bellBadge = document.getElementById("notifBellBadge");
+            if (bellBadge) {
+                if (n > 0) {
+                    bellBadge.textContent = text;
+                    bellBadge.classList.add("show");
+                } else {
+                    bellBadge.classList.remove("show");
+                }
+            }
+
+            const sideBadge = document.getElementById("notifSideBadge");
+            if (sideBadge) {
+                if (n > 0) {
+                    sideBadge.textContent = text;
+                    sideBadge.classList.add("show");
+                } else {
+                    sideBadge.classList.remove("show");
+                }
+            }
+        }
+
+        function pulseBell() {
+            const btn = document.getElementById("notifBellBtn");
+            if (!btn) return;
+            btn.classList.add("has-new");
+            setTimeout(() => btn.classList.remove("has-new"), 5000);
+        }
+
+        // Load user data
+        function loadUserData() {
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                console.log('User logged in:', user.uid);
+
+                let userUid = localStorage.getItem('userUid');
+                if (!userUid) {
+                    userUid = user.uid;
+                }
+
+                database.ref('users/' + userUid).once('value')
+                    .then((snapshot) => {
+                        const userData = snapshot.val();
+                        console.log('User data found:', userData);
+
+                        if (!userData) {
+                            console.error('No user data found for UID:', userUid);
+                            showNoData('User data not found. Please contact support.');
+                            return;
+                        }
+
+                        currentUserData = userData;
+                        currentUserUid = userUid;
+
+                        localStorage.setItem('userUid', userUid);
+                        localStorage.setItem('userData', JSON.stringify(userData));
+
+                        updateUI(userData);
+                        loadTransactions(userUid);
+
+                        // Attach live notification listener
+                        attachNotificationListener(userUid);
+                    })
+                    .catch((error) => {
+                        console.error('Error loading user data:', error);
+                        showNoData('Error loading user data: ' + error.message);
+                    });
+            });
+        }
+
+        function updateUI(userData) {
+            const firstName = userData.first_name || 'User';
+            const lastName = userData.last_name || '';
+            const email = userData.email || '';
+
+            document.getElementById('profileName').textContent = firstName + ' ' + lastName;
+            document.getElementById('profileEmail').textContent = email;
+            document.getElementById('sidebarFirstName').textContent = firstName;
+            document.getElementById('sidebarLastName').textContent = lastName;
+        }
+
+        // Load all transactions (deposits + withdrawals)
+        function loadTransactions(uid) {
+            const tbody = document.getElementById('transactionTableBody');
+            let transactions = [];
+
+            // Load deposits if they exist
+            database.ref('users/' + uid + '/deposits').once('value')
+                .then((snapshot) => {
+                    const deposits = snapshot.val();
+                    if (deposits) {
+                        snapshot.forEach((childSnapshot) => {
+                            const data = childSnapshot.val();
+                            data.key = childSnapshot.key;
+                            data.type = 'deposit';
+                            data.transaction_type = 'Deposit';
+                            transactions.push(data);
+                        });
+                    }
+                    // Load withdrawals
+                    return database.ref('users/' + uid + '/withdrawals').once('value');
+                })
+                .then((snapshot) => {
+                    const withdrawals = snapshot.val();
+                    if (withdrawals) {
+                        snapshot.forEach((childSnapshot) => {
+                            const data = childSnapshot.val();
+                            data.key = childSnapshot.key;
+                            data.type = 'withdrawal';
+                            data.transaction_type = 'Withdrawal';
+                            transactions.push(data);
+                        });
+                    }
+
+                    // Sort all transactions by created_at (newest first)
+                    transactions.sort((a, b) => {
+                        return (b.created_at || 0) - (a.created_at || 0);
+                    });
+
+                    allTransactions = transactions;
+
+                    if (transactions.length === 0) {
+                        showNoData('No transactions found.');
+                    } else {
+                        displayTransactions(transactions);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error loading transactions:', error);
+                    showNoData('Error loading transactions: ' + error.message);
+                });
+        }
+
+        // Display transactions in the table
+        function displayTransactions(transactions) {
+            const tbody = document.getElementById('transactionTableBody');
+
+            if (!transactions || transactions.length === 0) {
+                showNoData('No transactions found.');
+                return;
+            }
+
+            let html = '';
+            let counter = 1;
+
+            transactions.forEach((transaction) => {
+                // Format date
+                let dateDisplay = 'N/A';
+                if (transaction.created_at) {
+                    const date = new Date(transaction.created_at);
+                    dateDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                } else if (transaction.date) {
+                    const date = new Date(transaction.date);
+                    dateDisplay = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                }
+
+                // Determine type
+                const isDeposit = transaction.type === 'deposit';
+                const typeDisplay = isDeposit ? 'Deposit' : 'Withdrawal';
+                const typeClass = isDeposit ? 'type-deposit-badge' : 'type-withdrawal-badge';
+                const amountClass = isDeposit ? 'amount-deposit' : 'amount-withdrawal';
+                const amountPrefix = isDeposit ? '+' : '-';
+
+                // Get status class
+                const statusClass = getStatusClass(transaction.status || 'pending');
+                const statusDisplay = (transaction.status || 'pending').charAt(0).toUpperCase() +
+                                     (transaction.status || 'pending').slice(1);
+
+                html += `
+                    <tr>
+                        <td>${counter}</td>
+                        <td class="${amountClass}">${amountPrefix}$${parseFloat(transaction.amount || 0).toFixed(2)}</td>
+                        <td><span class="type-badge ${typeClass}">${typeDisplay}</span></td>
+                        <td class="date-display">${dateDisplay}</td>
+                        <td><span class="status-badge ${statusClass}">${statusDisplay}</span></td>
+                    </tr>
+                `;
+                counter++;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // Get status class for badge
+        function getStatusClass(status) {
+            const statusMap = {
+                'pending': 'status-pending',
+                'approved': 'status-approved',
+                'rejected': 'status-rejected',
+                'completed': 'status-completed',
+                'cancelled': 'status-cancelled',
+                'success': 'status-success'
+            };
+            return statusMap[status.toLowerCase()] || 'status-pending';
+        }
+
+        // Show no data message
+        function showNoData(message) {
+            const tbody = document.getElementById('transactionTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        <div class="no-data">
+                            <i class="fas fa-inbox"></i>
+                            <p>${escapeHtml(message)}</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            if (!text) return 'N/A';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Handle logout
+        function handleLogout() {
+            try {
+                if (notifListenerRef && notifListener) {
+                    notifListenerRef.off("value", notifListener);
+                    notifListenerRef = null;
+                    notifListener = null;
+                }
+            } catch (e) {}
+
+            auth.signOut()
+                .then(() => {
+                    localStorage.removeItem('userData');
+                    localStorage.removeItem('userUid');
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.href = 'login.html';
+                })
+                .catch((error) => {
+                    console.error('Logout error:', error);
+                });
+        }
+
+        // Set up logout buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            const sidebarLogoutBtn = document.getElementById('sidebarLogoutBtn');
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+            if (sidebarLogoutBtn) {
+                sidebarLogoutBtn.addEventListener('click', handleLogout);
+            }
+        });
+
+        // Initialize
+        loadUserData();
+
+        // Listen for real-time updates to transactions
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const uid = localStorage.getItem('userUid') || user.uid;
+
+                // Set up real-time listener for deposits
+                database.ref('users/' + uid + '/deposits').on('value', () => {
+                    loadTransactions(uid);
+                });
+
+                // Set up real-time listener for withdrawals
+                database.ref('users/' + uid + '/withdrawals').on('value', () => {
+                    loadTransactions(uid);
+                });
+            }
+        });
+    </script>
+
+    <!--   Core JS Files   -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery UI -->
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Chart JS -->
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+	<!-- jQuery Sparkline -->
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart Circle -->
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+	<!-- Datatables -->
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+	<!-- Bootstrap Notify -->
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+	<!-- jQuery Vector Maps -->
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+	<!-- Sweet Alert -->
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+	<!-- Atlantis JS -->
+	<script src="../assets/js/atlantis.min.js"></script>
+
+</body>
+</html>

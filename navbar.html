@@ -1,0 +1,803 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>Laravel</title>
+<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+<link rel="icon" href="../assets/img/images.png" type="image/*"/>
+
+<!-- Fonts and icons -->
+<script src="min.js"></script>
+<script>
+    WebFont.load({
+        google: {"families":["Lato:300,400,700,900"]},
+        custom: {"families":["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css']},
+        active: function() {
+            sessionStorage.fonts = true;
+        }
+    });
+</script>
+
+<!-- CSS Files -->
+<link rel="stylesheet" href="min.css">
+<link rel="stylesheet" href="min2.css">
+
+<!-- CSS Just for demo purpose, don't include it in your project -->
+<link rel="stylesheet" href="demo.css"></head>
+<body data-background-color="dark">
+	<div class="wrapper">
+		
+        
+	    <div class="main-header">
+			<!-- Logo Header -->
+    <div class="logo-header" data-background-color="dark2">
+        
+        <a href="index.html" class="logo">
+            <img src="tesla-logo.png" alt="navbar brand" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <i class="icon-menu"></i>
+            </span>
+        </button>
+        <button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar">
+                <i class="icon-menu"></i>
+            </button>
+        </div>
+    </div>
+    <!-- End Logo Header -->
+
+    <!-- Navbar Header -->
+    <nav class="navbar navbar-header navbar-expand-lg" data-background-color="dark">
+        
+        <div class="container-fluid">
+            
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                <li class="nav-item dropdown hidden-caret">
+                    <a class="dropdown-toggle profile-pic" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <div class="avatar-sm">
+                                                        
+                            <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                                                    </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user animated fadeIn">
+                        <div class="dropdown-user-scroll scrollbar-outer">
+                            <li>
+                                <div class="user-box">
+                                    <div class="avatar-lg">
+                                                                                    <img src="../assets/img/profile.png" alt="image profile" class="avatar-img rounded-circle">
+                                            
+                                                                            </div>
+                                    <div class="u-text">
+                                        <h4>Camilla</h4>
+                                        <p class="text-muted">victoriacamila096@gmail.com</p><a href="https://app.tslpa.com/profile" class="btn btn-xs btn-dark btn-sm">View Profile</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="dropdown-divider"></div>
+                                <form method="POST" action="https://app.tslpa.com/logout">
+                                <input type="hidden" name="_token" value="kmqHzE0D2A754AC9I8PvO2XhXtk0StYwPLJ73Aff" autocomplete="off">
+                                <input class="dropdown-item"  type="submit" value="Logout">
+                                
+                                
+                                </form>
+                            </li>
+                        </div>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- End Navbar -->
+</div>
+		<!-- Sidebar -->
+	    <div class="sidebar sidebar-style-2" data-background-color="dark2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <div class="user">
+                <div class="avatar-sm float-left mr-2">
+
+                                        
+                    <img src="../assets/img/profile.png" alt="..." class="avatar-img rounded-circle">
+                    
+                </div>
+                <div class="info">
+                    <a data-toggle="collapse" href="#collapseExample" aria-expanded="true">
+                        <span>
+                            Victoria
+                            <span class="user-level">Camilla</span>
+                            <span class="caret"></span>
+                        </span>
+                    </a>
+                    <div class="clearfix"></div>
+
+                    <div class="collapse in" id="collapseExample">
+                        <ul class="nav">
+                            <li>
+                                <a href="https://app.tslpa.com/profile">
+                                    <span class="link-collapse">My Profile</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://app.tslpa.com/password">
+                                    <span class="link-collapse">Password</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav nav-primary">
+                
+                <li class="nav-item active">
+                    <a href="https://app.tslpa.com/user-dashboard">
+                        <i class="fas fa-home"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://app.tslpa.com/deposit">
+                        <i class="fas fa-hotel"></i>
+                        <p>Deposit</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://app.tslpa.com/transactions">
+                        <i class="fas fa-receipt"></i>
+                        <p>Transactions</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="https://app.tslpa.com/stocks">
+                        <i class="fas fa-layer-group"></i>
+                        <p>Tesla Stocks</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#invest" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-coins"></i>
+                        <p>Investment</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="invest">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="https://app.tslpa.com/investment_plan">
+                                    <span class="sub-item">Investment Plan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://app.tslpa.com/investment">
+                                    <span class="sub-item">Invest</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://app.tslpa.com/my_investment">
+                                    <span class="sub-item">My Investment</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a data-toggle="collapse" href="#withdrawal" class="collapsed" aria-expanded="false">
+                        <i class="fas fa-credit-card"></i>
+                        <p>Withdrawal</p>
+                        <span class="caret"></span>
+                    </a>
+                    <div class="collapse" id="withdrawal">
+                        <ul class="nav nav-collapse">
+                            <li>
+                                <a href="https://app.tslpa.com/wallet">
+                                    <span class="sub-item">Wallet</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://app.tslpa.com/wallet-pin">
+                                    <span class="sub-item">Wallet Pin</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://app.tslpa.com/withdrawal-request">
+                                    <span class="sub-item">Withdrawal Request</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a href="https://app.tslpa.com/verification">
+                        <i class="fas fa-id-card"></i>
+                        <p>Verification</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <form method="POST" action="https://app.tslpa.com/logout">
+                    <input type="hidden" name="_token" value="kmqHzE0D2A754AC9I8PvO2XhXtk0StYwPLJ73Aff" autocomplete="off">
+                    <button type="submit" class="btn-light btn-lg" > <i class="fa fa-power-off"></i> Sign Out </button>
+                   
+                    </form>
+
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>		
+		<!-- End Sidebar -->
+
+		<div class="main-panel">
+			<div class="content">
+                <div class="panel-header bg-dark-gradient">
+                    <div class="page-inner py-5">
+                        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                            <div>
+                                <h2 class="text-white pb-2 fw-bold">Welcome Camilla</h2>
+                                <h5 class="text-white op-7 mb-2">... Investment is the future</h5>
+                                
+                            </div>
+                            <div class="ml-md-auto  py-2 py-md-0">
+                                <div class="text-right">
+                                    <h6 >Wallet Balance</h6>
+                                    <h1 class="text-light">USD 0.00</h1>
+                                </div>
+                                <div class="card pl-md-5 py-1">
+                                </div>
+                                <!-- <a href="#" class="btn btn-white btn-border btn-round mr-2">Manage</a>
+                                <a href="#" class="btn btn-light btn-round">Add Customer</a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+				                <div class="page-inner mt--5">
+					<!--<div class="row row-card-no-pd mt--2">-->
+					<!--	<div class="col-sm-6 col-md-4">-->
+					<!--		<div class="card card-stats card-round">-->
+					<!--			<div class="card-body ">-->
+					<!--				<div class="row">-->
+					<!--					<div class="col-5">-->
+					<!--						<div class="icon-big text-center">-->
+					<!--							<i class="flaticon-chart-pie text-warning"></i>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--					<div class="col-7 col-stats">-->
+					<!--						<div class="numbers">-->
+					<!--							<p class="card-category">Total Deposit</p>-->
+					<!--							<h4 class="card-title">0</h4>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--				</div>-->
+					<!--			</div>-->
+					<!--		</div>-->
+					<!--	</div>-->
+					<!--	<div class="col-sm-6 col-md-4">-->
+					<!--		<div class="card card-stats card-round">-->
+					<!--			<div class="card-body ">-->
+					<!--				<div class="row">-->
+					<!--					<div class="col-5">-->
+					<!--						<div class="icon-big text-center">-->
+					<!--							<i class="flaticon-coins text-success"></i>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--					<div class="col-7 col-stats">-->
+					<!--						<div class="numbers">-->
+					<!--							<p class="card-category">Total Credit</p>-->
+					<!--							<h4 class="card-title">$ 0</h4>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--				</div>-->
+					<!--			</div>-->
+					<!--		</div>-->
+					<!--	</div>-->
+					<!--	<div class="col-sm-6 col-md-4">-->
+					<!--		<div class="card card-stats card-round">-->
+					<!--			<div class="card-body">-->
+					<!--				<div class="row">-->
+					<!--					<div class="col-5">-->
+					<!--						<div class="icon-big text-center">-->
+					<!--							<i class="flaticon-error text-danger"></i>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--					<div class="col-7 col-stats">-->
+					<!--						<div class="numbers">-->
+					<!--							<p class="card-category">Total Debit</p>-->
+					<!--							<h4 class="card-title">$ 0</h4>-->
+					<!--						</div>-->
+					<!--					</div>-->
+					<!--				</div>-->
+					<!--			</div>-->
+					<!--		</div>-->
+					<!--	</div>-->
+					<!--</div>-->
+
+<div class="row row-card-no-pd mt--2">
+    <div class="col-sm-6 col-md-6">
+        <div class="card card-stats card-round">
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="icon-big text-center">
+                            <i class="flaticon-chart-pie text-warning"></i>
+                        </div>
+                    </div>
+                    <div class="col-7 col-stats">
+                        <div class="numbers">
+                            <p class="card-category">Total Deposit</p>
+                            <h4 class="card-title">USD 0.00</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-6">
+        <div class="card card-stats card-round">
+            <div class="card-body ">
+                <div class="row">
+                    <div class="col-5">
+                        <div class="icon-big text-center">
+                            <i class="flaticon-coins text-success"></i>
+                        </div>
+                    </div>
+                    <div class="col-7 col-stats">
+                        <div class="numbers">
+                            <p class="card-category">Investment Packages</p>
+                            <h4 class="card-title">0 Packages</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+					
+					 <!--TradingView Widget Container - Script will be dynamically loaded here by Vue -->
+					<div class="row my-2">
+						<div class="col-md-12">
+							 <!--TradingView Widget BEGIN -->
+							<div class="tradingview-widget-container">
+							<div class="tradingview-widget-container__widget"></div>
+							<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+							{
+							"symbols": [
+								{
+								"proName": "NASDAQ:TSLA",
+								"title": ""
+								},
+								{
+								"proName": "NASDAQ:PYPL",
+								"title": ""
+								},
+								{
+								"proName": "NASDAQ:NVDA",
+								"title": ""
+								},
+								{
+								"proName": "SWB:6RJ0",
+								"title": ""
+								},
+								{
+								"proName": "NASDAQ:AMSC",
+								"title": ""
+								},
+								{
+								"proName": "NASDAQ:ENVX",
+								"title": ""
+								},
+								{
+								"proName": "NASDAQ:RIVN",
+								"title": ""
+								}
+							],
+							"colorTheme": "dark",
+							"locale": "en",
+							"largeChartUrl": "",
+							"isTransparent": false,
+							"showSymbolLogo": true,
+							"displayMode": "adaptive"
+							}
+							</script>
+							</div>
+							 <!--TradingView Widget END -->
+						</div>
+					</div>
+
+					<div class="row mt-2">
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 h-100">
+									 <!--TradingView Widget BEGIN -->
+									<div class="tradingview-widget-container">
+									<div class="tradingview-widget-container__widget"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{
+									"symbol": "NASDAQ:TSLA",
+									"chartOnly": false,
+									"dateRange": "12M",
+									"noTimeScale": false,
+									"colorTheme": "dark",
+									"isTransparent": false,
+									"locale": "en",
+									"width": "100%",
+									"autosize": true,
+									"height": "100%"
+									}
+									</script>
+									</div>
+									 <!--TradingView Widget END -->
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 h-100">
+									 <!--TradingView Widget BEGIN -->
+									<div class="tradingview-widget-container">
+									<div class="tradingview-widget-container__widget"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{
+									"symbol": "NASDAQ:PYPL",
+									"chartOnly": false,
+									"dateRange": "12M",
+									"noTimeScale": false,
+									"colorTheme": "dark",
+									"isTransparent": false,
+									"locale": "en",
+									"width": "100%",
+									"autosize": true,
+									"height": "100%"
+									}
+									</script>
+									</div>
+									 <!--TradingView Widget END -->
+								</div>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="card">
+								<div class="card-body p-0 m-0 h-100">
+									 <!--TradingView Widget BEGIN -->
+									<div class="tradingview-widget-container">
+									<div class="tradingview-widget-container__widget"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+									{
+									"symbol": "SWB:6RJ0",
+									"chartOnly": false,
+									"dateRange": "12M",
+									"noTimeScale": false,
+									"colorTheme": "dark",
+									"isTransparent": false,
+									"locale": "en",
+									"width": "100%",
+									"autosize": true,
+									"height": "100%"
+									}
+									</script>
+									</div>
+									 <!--TradingView Widget END -->
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row" >
+						<div class="col-md-12">
+							<div class="card" style="height: 500px;">
+								<div class="card-body p-0 m-0 h-100">
+									 <!--TradingView Widget BEGIN -->
+									<div class="tradingview-widget-container" style="height:100%;width:100%">
+									<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+									<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+									{
+									"allow_symbol_change": true,
+									"calendar": false,
+									"details": false,
+									"hide_side_toolbar": true,
+									"hide_top_toolbar": false,
+									"hide_legend": false,
+									"hide_volume": false,
+									"hotlist": false,
+									"interval": "D",
+									"locale": "en",
+									"save_image": true,
+									"style": "1",
+									"symbol": "NASDAQ:TSLA",
+									"theme": "dark",
+									"timezone": "Etc/UTC",
+									"backgroundColor": "#0F0F0F",
+									"gridColor": "rgba(242, 242, 242, 0.06)",
+									"watchlist": [],
+									"withdateranges": false,
+									"compareSymbols": [],
+									"studies": [],
+									"autosize": true
+									}
+									</script>
+									</div>
+									 <!--TradingView Widget END -->
+								</div>
+							</div>
+						</div>
+						
+					</div>
+				</div>
+				
+				
+            </div>
+
+			
+	        <footer class="footer">
+    <div class="container-fluid">
+        
+        <div class="copyright ml-auto">
+            All Rights Reserved &copy; <span id="myyear"></span> Laravel </a>
+        </div>				
+    </div>
+</footer>
+
+<script>
+document.getElementById('myyear').textContent = new Date().getFullYear();
+</script>
+		</div>
+		
+	</div>
+	
+    
+    <!--   Core JS Files   -->
+	<script src="../assets/js/core/jquery.3.2.1.min.js"></script>
+	<script src="../assets/js/core/popper.min.js"></script>
+	<script src="../assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery UI -->
+	<script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+	<script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+	<!-- Chart JS -->
+	<script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+	<!-- jQuery Sparkline -->
+	<script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart Circle -->
+	<script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+	<!-- Datatables -->
+	<script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+	<!-- Bootstrap Notify -->
+	<script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+	<!-- jQuery Vector Maps -->
+	<script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+	<script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+	<!-- Sweet Alert -->
+	<script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+	<!-- Atlantis JS -->
+	<script src="../assets/js/atlantis.min.js"></script>
+
+	<script>
+		//== Class definition
+		var SweetAlert2Demo = function() {
+
+			//== Demos
+			var initDemos = function() {
+				//== Sweetalert Demo 1
+				$('#alert_demo_1').click(function(e) {
+					swal('Good job!', {
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-success'
+							}
+						},
+					});
+				});
+
+				//== Sweetalert Demo 2
+				$('#alert_demo_2').click(function(e) {
+					swal("Here's the title!", "...and here's the text!", {
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-success'
+							}
+						},
+					});
+				});
+
+				//== Sweetalert Demo 3
+				$('#alert_demo_3_1').click(function(e) {
+					swal("Good job!", "You clicked the button!", {
+						icon : "warning",
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-warning'
+							}
+						},
+					});
+				});
+
+				$('#alert_demo_3_2').click(function(e) {
+					swal("Good job!", "You clicked the button!", {
+						icon : "error",
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-danger'
+							}
+						},
+					});
+				});
+
+				$('#alert_demo_3_3').click(function(e) {
+					swal("Good job!", "You clicked the button!", {
+						icon : "success",
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-success'
+							}
+						},
+					});
+				});
+
+				$('#alert_demo_3_4').click(function(e) {
+					swal("Good job!", "You clicked the button!", {
+						icon : "info",
+						buttons: {        			
+							confirm: {
+								className : 'btn btn-info'
+							}
+						},
+					});
+				});
+
+				//== Sweetalert Demo 4
+				$('#alert_demo_4').click(function(e) {
+					swal({
+						title: "Good job!",
+						text: "You clicked the button!",
+						icon: "success",
+						buttons: {
+							confirm: {
+								text: "Confirm Me",
+								value: true,
+								visible: true,
+								className: "btn btn-success",
+								closeModal: true
+							}
+						}
+					});
+				});
+
+				$('#alert_demo_5').click(function(e){
+					swal({
+						title: 'Input Something',
+						html: '<br><input class="form-control" placeholder="Input Something" id="input-field">',
+						content: {
+							element: "input",
+							attributes: {
+								placeholder: "Input Something",
+								type: "text",
+								id: "input-field",
+								className: "form-control"
+							},
+						},
+						buttons: {
+							cancel: {
+								visible: true,
+								className: 'btn btn-danger'
+							},        			
+							confirm: {
+								className : 'btn btn-success'
+							}
+						},
+					}).then(
+					function() {
+						swal("", "You entered : " + $('#input-field').val(), "success");
+					}
+					);
+				});
+
+				$('#alert_demo_6').click(function(e) {
+					swal("This modal will disappear soon!", {
+						buttons: false,
+						timer: 3000,
+					});
+				});
+
+				$('#alert_demo_7').click(function(e) {
+					swal({
+						title: 'Are you sure?',
+						text: "You won't be able to revert this!",
+						type: 'warning',
+						buttons:{
+							confirm: {
+								text : 'Yes, delete it!',
+								className : 'btn btn-success'
+							},
+							cancel: {
+								visible: true,
+								className: 'btn btn-danger'
+							}
+						}
+					}).then((Delete) => {
+						if (Delete) {
+							swal({
+								title: 'Deleted!',
+								text: 'Your file has been deleted.',
+								type: 'success',
+								buttons : {
+									confirm: {
+										className : 'btn btn-success'
+									}
+								}
+							});
+						} else {
+							swal.close();
+						}
+					});
+				});
+
+				$('#alert_demo_8').click(function(e) {
+					swal({
+						title: 'Are you sure?',
+						text: "You won't be able to revert this!",
+						type: 'warning',
+						buttons:{
+							cancel: {
+								visible: true,
+								text : 'No, cancel!',
+								className: 'btn btn-danger'
+							},        			
+							confirm: {
+								text : 'Yes, delete it!',
+								className : 'btn btn-success'
+							}
+						}
+					}).then((willDelete) => {
+						if (willDelete) {
+							swal("Poof! Your imaginary file has been deleted!", {
+								icon: "success",
+								buttons : {
+									confirm : {
+										className: 'btn btn-success'
+									}
+								}
+							});
+						} else {
+							swal("Your imaginary file is safe!", {
+								buttons : {
+									confirm : {
+										className: 'btn btn-success'
+									}
+								}
+							});
+						}
+					});
+				})
+
+			};
+
+			return {
+				//== Init
+				init: function() {
+					initDemos();
+				},
+			};
+		}();
+
+		//== Class Initialization
+		jQuery(document).ready(function() {
+			SweetAlert2Demo.init();
+		});
+	</script>
+	
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!-- ================================================
+     CUSTOM CHAT WIDGET – Firebase Realtime Database
+     ================================================ -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+/* ---------- Chat Widget Styles ---------- */
+.chat-widget * {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.chat-toggle {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #4ade80;
+  border: none;
+  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.4);
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 9999;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-toggle:hover {
+  transform: scale(1.05);
+  background: #22c55e;
+}
+.chat-toggle .badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ef4444;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.chat-window {
+  position: fixed;
+  bottom: 100px;
+  right: 25px;
+  width: 380px;
+  max-width: 90vw;
+  height: 500px;
+  max-height: 70vh;
+  background: #1e293b;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.chat-window.open {
+  display: flex;
+}
+
+.chat-header {
+  padding: 16px 20px;
+  background: #0f172a;
+  color: #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.chat-header h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 16px;
+}
+.chat-header .close-chat {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 6px;
+}
+.chat-header .close-chat:hover {
+  color: #f1f5f9;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #0f172a;
+}
+.chat-messages .message {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+  animation: fadeIn 0.2s ease;
+}
+.chat-messages .message.me {
+  align-self: flex-end;
+  background: #4ade80;
+  color: #0f172a;
+  border-bottom-right-radius: 4px;
+}
+.chat-messages .message.other {
+  align-self: flex-start;
+  background: #334155;
+  color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+}
+.chat-messages .message .msg-email {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 4px;
+  display: block;
+}
+.chat-messages .message .msg-time {
+  font-size: 10px;
+  opacity: 0.4;
+  margin-top: 2px;
+  display: block;
+}
+.chat-messages .empty-msg {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 40px;
+}
+
+.chat-input-area {
+  padding: 12px 16px;
+  background: #1e293b;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  gap: 10px;
+}
+.chat-input-area input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 30px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+.chat-input-area input:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+}
+.chat-input-area input::placeholder {
+  color: #64748b;
+}
+.chat-input-area button {
+  padding: 0 18px;
+  border-radius: 30px;
+  border: none;
+  background: #4ade80;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.chat-input-area button:hover {
+  background: #22c55e;
+}
+.chat-input-area button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- Email modal overlay ---------- */
+.chat-email-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.chat-email-modal.open {
+  display: flex;
+}
+.chat-email-modal .modal-box {
+  background: #1e293b;
+  padding: 30px 28px;
+  border-radius: 20px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  color: #f1f5f9;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.chat-email-modal .modal-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+.chat-email-modal .modal-box p {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+.chat-email-modal .modal-box input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 30px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 16px;
+}
+.chat-email-modal .modal-box input:focus {
+  border-color: #4ade80;
+}
+.chat-email-modal .modal-box .btn-start {
+  background: #4ade80;
+  color: #0f172a;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.2s;
+}
+.chat-email-modal .modal-box .btn-start:hover {
+  background: #22c55e;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .chat-window {
+    right: 10px;
+    bottom: 80px;
+    width: calc(100vw - 20px);
+    height: 60vh;
+    max-height: 60vh;
+  }
+  .chat-toggle {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    bottom: 15px;
+    right: 15px;
+  }
+}
+</style>
+
+<!-- HTML structure -->
+<div id="chatWidget">
+  <!-- Toggle button -->
+  <button class="chat-toggle" id="chatToggle" aria-label="Open chat">
+    <i class="fas fa-comment-dots"></i>
+    <span class="badge" id="unreadBadge" style="display:none;">0</span>
+  </button>
+
+  <!-- Chat window -->
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-header">
+      <h5><i class="fas fa-comment"></i> Live Chat</h5>
+      <button class="close-chat" id="closeChat"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-msg">👋 No messages yet. Say hello!</div>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type a message..." disabled>
+      <button id="sendBtn" disabled><i class="fas fa-paper-plane"></i></button>
+    </div>
+  </div>
+
+  <!-- Email modal -->
+  <div class="chat-email-modal" id="emailModal">
+    <div class="modal-box">
+      <i class="fas fa-envelope" style="font-size:36px; color:#4ade80; margin-bottom:12px; display:block;"></i>
+      <h4>Enter your email</h4>
+      <p>Please provide your email address to start chatting.</p>
+      <input type="email" id="emailInput" placeholder="your@email.com" required>
+      <button class="btn-start" id="startChatBtn">Start Chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDKs (if not already loaded) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+// ============================================================
+//  1. FIREBASE CONFIG (same as your other pages)
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCXAYf55A5KKs_oIy279GtFHx3bPMjsYE0",
+  authDomain: "elon-54b86.firebaseapp.com",
+  databaseURL: "https://elon-54b86-default-rtdb.firebaseio.com",
+  projectId: "elon-54b86",
+  storageBucket: "elon-54b86.firebasestorage.app",
+  messagingSenderId: "78755255517",
+  appId: "1:78755255517:web:65af61b0c573589ec0f734",
+  measurementId: "G-R4SQFCQPFP"
+};
+
+// Initialize only if not already done
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
+
+// ============================================================
+//  2. CHAT WIDGET LOGIC
+// ============================================================
+(function() {
+  // DOM refs
+  const toggleBtn = document.getElementById('chatToggle');
+  const chatWindow = document.getElementById('chatWindow');
+  const closeChat = document.getElementById('closeChat');
+  const messagesContainer = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const emailModal = document.getElementById('emailModal');
+  const emailInput = document.getElementById('emailInput');
+  const startBtn = document.getElementById('startChatBtn');
+  const unreadBadge = document.getElementById('unreadBadge');
+
+  let currentUserEmail = localStorage.getItem('chatUserEmail') || '';
+  let isOpen = false;
+  let unreadCount = 0;
+  let lastMessageCount = 0;
+
+  // --- Helper: format timestamp ---
+  function formatTime(timestamp) {
+    const d = new Date(timestamp);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // --- Display messages ---
+  function renderMessages(snapshot) {
+    const messages = [];
+    snapshot.forEach(child => {
+      messages.push({ id: child.key, ...child.val() });
+    });
+    // sort by timestamp
+    messages.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Clear container (keep empty state placeholder if no messages)
+    if (messages.length === 0) {
+      messagesContainer.innerHTML = `<div class="empty-msg">👋 No messages yet. Say hello!</div>`;
+      return;
+    }
+
+    let html = '';
+    let newUnread = 0;
+    messages.forEach((msg, index) => {
+      const isMine = msg.email === currentUserEmail;
+      const time = formatTime(msg.timestamp);
+      html += `
+        <div class="message ${isMine ? 'me' : 'other'}">
+          ${msg.message}
+          <span class="msg-email">${isMine ? 'You' : msg.email}</span>
+          <span class="msg-time">${time}</span>
+        </div>
+      `;
+      // Count unread: we consider unread if not mine and chat not open
+      if (!isMine && !isOpen) newUnread++;
+    });
+    messagesContainer.innerHTML = html;
+    // Scroll to bottom
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // Update unread badge
+    if (!isOpen) {
+      unreadCount = newUnread;
+      if (unreadCount > 0) {
+        unreadBadge.style.display = 'flex';
+        unreadBadge.textContent = unreadCount;
+      } else {
+        unreadBadge.style.display = 'none';
+      }
+    } else {
+      unreadBadge.style.display = 'none';
+    }
+  }
+
+  // --- Listen for messages ---
+  let messagesRef = database.ref('chat');
+  messagesRef.on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      renderMessages(snapshot);
+    } else {
+      messagesContainer.innerHTML = `<div class="empty-msg">👋 No messages yet. Say hello!</div>`;
+    }
+  });
+
+  // --- Send a message ---
+  function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text || !currentUserEmail) return;
+
+    const newMsgRef = messagesRef.push();
+    newMsgRef.set({
+      email: currentUserEmail,
+      message: text,
+      timestamp: Date.now()
+    }).then(() => {
+      chatInput.value = '';
+      chatInput.focus();
+    }).catch(err => {
+      console.error('Send error:', err);
+      alert('Failed to send message. Please try again.');
+    });
+  }
+
+  // --- Open chat ---
+  function openChat() {
+    if (!currentUserEmail) {
+      // Show email modal
+      emailModal.classList.add('open');
+      emailInput.focus();
+      return;
+    }
+    isOpen = true;
+    chatWindow.classList.add('open');
+    chatInput.disabled = false;
+    sendBtn.disabled = false;
+    chatInput.focus();
+    unreadBadge.style.display = 'none';
+    // Scroll to bottom after messages load
+    setTimeout(() => {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }, 100);
+  }
+
+  // --- Close chat ---
+  function closeChatWindow() {
+    isOpen = false;
+    chatWindow.classList.remove('open');
+    chatInput.disabled = true;
+    sendBtn.disabled = true;
+    // Re-check unread
+    // force re-render to update badge
+    messagesRef.once('value', (snapshot) => {
+      if (snapshot.exists()) renderMessages(snapshot);
+    });
+  }
+
+  // --- Toggle chat ---
+  toggleBtn.addEventListener('click', () => {
+    if (chatWindow.classList.contains('open')) {
+      closeChatWindow();
+    } else {
+      openChat();
+    }
+  });
+
+  closeChat.addEventListener('click', closeChatWindow);
+
+  // --- Email modal ---
+  startBtn.addEventListener('click', () => {
+    const email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    currentUserEmail = email;
+    localStorage.setItem('chatUserEmail', email);
+    emailModal.classList.remove('open');
+    // Now open chat
+    openChat();
+  });
+
+  // Enter key in email input
+  emailInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') startBtn.click();
+  });
+
+  // Enter key in chat input
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  sendBtn.addEventListener('click', sendMessage);
+
+  // If user already has email, we can open chat directly (but we don't auto-open)
+  // If they click toggle, it will open directly.
+  // We'll also enable input if chat is open and email exists.
+
+  // Close modal if clicked outside
+  emailModal.addEventListener('click', (e) => {
+    if (e.target === emailModal) {
+      // Don't close, user must enter email
+    }
+  });
+
+  // Re-check unread count when chat closed
+  // Already handled in closeChatWindow
+
+  // Initially, if email exists, we can pre-enable but not open.
+  if (currentUserEmail) {
+    // We can optionally show a welcome message or just leave.
+  }
+
+  console.log('Custom chat widget initialized. User email:', currentUserEmail || 'not set');
+})();
+</script>
